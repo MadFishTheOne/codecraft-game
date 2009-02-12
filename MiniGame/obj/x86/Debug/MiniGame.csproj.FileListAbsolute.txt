@@ -1,0 +1,6 @@
+D:\Anton\programming\MiniGame\MiniGame\bin\x86\Debug\MiniGame.exe
+D:\Anton\programming\MiniGame\MiniGame\bin\x86\Debug\MiniGame.pdb
+D:\Anton\programming\MiniGame\MiniGame\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Anton\programming\MiniGame\MiniGame\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+D:\Anton\programming\MiniGame\MiniGame\obj\x86\Debug\MiniGame.exe
+D:\Anton\programming\MiniGame\MiniGame\obj\x86\Debug\MiniGame.pdb

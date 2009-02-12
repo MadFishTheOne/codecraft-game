@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
+using CoreNamespace;
 
 namespace MiniGame
 {
@@ -20,11 +21,20 @@ namespace MiniGame
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Core core;
 
         public MiniGame()
         {
-            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics = new GraphicsDeviceManager(this);
+            //Content = new ContentManager(Services);
+            IsFixedTimeStep = false;
+            core = new Core(true, Content, graphics);
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.PreferredBackBufferWidth = Core.viewer.ScreenWidth;
+            graphics.PreferredBackBufferHeight = Core.viewer.ScreenHeight;
+            graphics.IsFullScreen = false;
+            
         }
 
         /// <summary>
@@ -48,7 +58,7 @@ namespace MiniGame
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            Core.viewer.LoadContent();
             // TODO: use this.Content to load your game content here
         }
 
@@ -71,7 +81,13 @@ namespace MiniGame
             // Allows the game to exit
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                core.Reset();
+            }
 
+            // TODO: Add your update logic here
+            core.Update(Environment.TickCount);
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -83,10 +99,7 @@ namespace MiniGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-
+            core.Draw();
             base.Draw(gameTime);
         }
     }

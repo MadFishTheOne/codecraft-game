@@ -46,7 +46,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\x86\Release</OutputPath>
+    <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -70,6 +70,7 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -139,6 +140,10 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{CFB36A08-A402-4C66-BCFF-5DA8DD8B35B3}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MiniGameInterfaces\MiniGameInterfaces.csproj">
+      <Project>{F911AFAA-1CDA-4F95-BF2A-BAC5B775CCB0}</Project>
+      <Name>MiniGameInterfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

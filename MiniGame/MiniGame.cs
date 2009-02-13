@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -11,6 +13,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 using CoreNamespace;
+using MiniGameInterfaces;
 
 namespace MiniGame
 {
@@ -23,20 +26,52 @@ namespace MiniGame
         SpriteBatch spriteBatch;
         Core core;
 
+        List<IAI> plugins; //available AI plugins
+
         public MiniGame()
         {
-
             Content.RootDirectory = "Content";
             graphics = new GraphicsDeviceManager(this);
             //Content = new ContentManager(Services);
             IsFixedTimeStep = false;
 
+            LoadPlugins();
+
+            //Here you have to create a list of active players. Somehow :)
             List<IAI> players = new List<IAI>();
+            if (plugins.Count == 0)
+                throw new Exception("EPIC FAIL! No plugins found");
+            else
+            {
+                //Currently only one player to control first ship
+                players.Add(plugins[0]);
+            }
 #if DEBUG
             core = new Core(false, Content, graphics, players);
 #else
             core = new Core(true, Content, graphics,players);
 #endif
+        }
+
+        private void LoadPlugins()
+        {
+            plugins = new List<IAI>();
+            DirectoryInfo di = new DirectoryInfo(Environment.CurrentDirectory);
+            foreach (FileInfo f in di.GetFiles("*.dll"))
+            {
+                Console.WriteLine(f);
+                Assembly a = Assembly.LoadFile(f.FullName);
+                foreach (Type t in a.GetTypes())
+                {
+                    if (t.GetInterface("IAI") != null)
+                    {
+                        IAI obj = Activator.CreateInstance(t) as IAI;
+                        plugins.Add(obj);
+                        //TODO: remove this
+                        System.Windows.Forms.MessageBox.Show("Plugin loaded! "+obj.Author+" "+obj.Description);
+                    }
+                }
+            }
         }
 
         /// <summary>

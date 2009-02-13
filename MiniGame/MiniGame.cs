@@ -25,15 +25,15 @@ namespace MiniGame
 
         public MiniGame()
         {
-            
+
             Content.RootDirectory = "Content";
             graphics = new GraphicsDeviceManager(this);
             //Content = new ContentManager(Services);
             IsFixedTimeStep = false;
 
-            List<Core.IAI> players = new List<Core.IAI>();
+            List<IAI> players = new List<IAI>();
 #if DEBUG
-            core = new Core(false, Content, graphics,players);
+            core = new Core(false, Content, graphics, players);
 #else
             core = new Core(true, Content, graphics,players);
 #endif
@@ -91,7 +91,7 @@ namespace MiniGame
 
             if (prevEnterPressed && Keyboard.GetState().IsKeyUp(Keys.Enter))
             {
-                
+
             }
 
             if (prevSpacePressed && Keyboard.GetState().IsKeyUp(Keys.Space))
@@ -99,7 +99,7 @@ namespace MiniGame
                 core.Reset();
             }
             if (prevPlusPressed && Keyboard.GetState().IsKeyUp(Keys.PageUp))
-            {                
+            {
                 Core.Timing.TimeSpeed *= 2;
             }
             if (prevMinusPressed && Keyboard.GetState().IsKeyUp(Keys.PageDown))
@@ -115,14 +115,14 @@ namespace MiniGame
             prevMinusPressed = Keyboard.GetState().IsKeyDown(Keys.PageDown);
             prevPausePressed = Keyboard.GetState().IsKeyDown(Keys.Pause);
             prevEnterPressed = Keyboard.GetState().IsKeyDown(Keys.Enter);
-            Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue*0.5f;
-            if (Mouse.GetState().X > Core.viewer.screenWidth - 30|| Keyboard.GetState().IsKeyDown(Keys.Right))
+            Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue * 0.5f;
+            if (Mouse.GetState().X > Core.viewer.screenWidth - 30 || Keyboard.GetState().IsKeyDown(Keys.Right))
                 Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-            if (Mouse.GetState().X < 30||Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (Mouse.GetState().X < 30 || Keyboard.GetState().IsKeyDown(Keys.Left))
                 Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
             if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || Keyboard.GetState().IsKeyDown(Keys.Down))
                 Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-            if (Mouse.GetState().Y < 30|| Keyboard.GetState().IsKeyDown(Keys.Up))
+            if (Mouse.GetState().Y < 30 || Keyboard.GetState().IsKeyDown(Keys.Up))
                 Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
             // TODO: Add your update logic here
             Core.Timing.Update();

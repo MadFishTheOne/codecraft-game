@@ -29,7 +29,8 @@ namespace CoreNamespace
             }
             public static float Distance(float angle1, float angle2)
             {
-                return Math.Abs(Normalize(angle1 - angle2));
+                float prevDist=Math.Abs(Normalize(angle1 - angle2));
+                return (float)Math.Min(prevDist,Math.Abs(Normalize( MathHelper.TwoPi-prevDist)));
             }
         }
         List<IAI> players;
@@ -584,7 +585,7 @@ namespace CoreNamespace
                             (StopDistanceSq > Vector2.DistanceSquared(position, tgtLocation) || !stopsNearPoint))
                             SetSpeed(MaxSpeed);
                         else SetSpeed(0);
-                        if (distanceSq < 20*20&&speed.Value<5) { goesToPoint = false; }
+                        //if (distanceSq < 30*30&&speed.Value<10) { goesToPoint = false; }
                     }
 
                     //hp -= 1;
@@ -1070,12 +1071,12 @@ namespace CoreNamespace
                 new DerivativeControlledParameter(0, -0.72f, 0.72f, 1 * 0.5f, true),
                 new DerivativeControlledParameter((float)Math.PI / 400f, -MathHelper.Pi, MathHelper.Pi, 1000 * 0.72f, false),
                 new Gun(10, 50f, 3, 50), 100, 0, shots,80,100));
-            units.Add(new Unit("destroyer1", new Vector2(100, 20), DestroyerSize, new DerivativeControlledParameter(0, 0, 50, 15, false),
+            units.Add(new Unit("destroyer1", new Vector2(300, 200), DestroyerSize, new DerivativeControlledParameter(0, 0, 50, 15, false),
                             new DerivativeControlledParameter(0, -0.72f, 0.72f, 1 * 0.5f, true),
                             new DerivativeControlledParameter((float)Math.PI / 400f, -MathHelper.Pi, MathHelper.Pi, 1000 * 0.72f, false),
                             new Gun(10, 50f, 3, 50), 100, 0, shots, 80, 100));
 
-            units[0].GoTo(new Vector2(100, 20), false);
+            units[0].GoTo(new Vector2(300, 200), false);
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
         }

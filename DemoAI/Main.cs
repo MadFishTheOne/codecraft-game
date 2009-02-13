@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MiniGameInterfaces;
+using Microsoft.Xna.Framework;
 
 namespace DemoAI
 {
@@ -14,28 +15,39 @@ namespace DemoAI
 
         public string Author
         {
-            get { return "Mad Fish"; }
+            get { return "AntonEtalon"; }
         }
 
         public string Description
         {
-            get { return "Simple demo AI"; }
+            get { return "A bit better than Simple AI"; }
         }
 
         public void Init(int PlayerNumber, IGame Game)
         {
             playerNumber = PlayerNumber;
             game = Game;
+            enemy = null;
+            myUnit = null;
         }
-
+        IUnit enemy,myUnit;
+        Vector2 ToVec(GamePoint pt)
+        { return new Vector2(pt.X, pt.Y); }
         public void Update()
         {
-            for (int i = 0; i < game.UnitsCount; i++)
+            if (myUnit==null||enemy==null)
             {
-                //Try to control ALL units :) That's a joke - core will not allow this
-                //Only player's ships will be controlled
-                game.GetUnit(i).GoTo(new GamePoint(300, 200), false);
-                game.GetUnit(i).Shoot();
+                for (int i = 0; i < game.UnitsCount; i++)
+                    if (playerNumber == game.GetUnit(i).PlayerOwner)
+                    {myUnit=game.GetUnit(i);                    }
+                    else enemy=game.GetUnit(i);                    
+            }
+            if (myUnit != null && enemy != null)
+            {
+                myUnit.GoTo(enemy.Position, false);
+                Vector2 toTgt = Vector2.Normalize(ToVec(enemy.Position) - ToVec(myUnit.Position));
+                if (Vector2.Dot(Vector2.Normalize(ToVec(myUnit.Forward)), toTgt)>0.8f)
+                myUnit.Shoot();
             }
         }
 

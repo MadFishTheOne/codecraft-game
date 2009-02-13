@@ -44,7 +44,8 @@ namespace MiniGame
             else
             {
                 //Currently only one player to control first ship
-                players.Add(plugins[0]);
+                foreach (IAI player in plugins)
+                players.Add(player);
             }
 #if DEBUG
             core = new Core(false, Content, graphics, players);
@@ -59,7 +60,7 @@ namespace MiniGame
             DirectoryInfo di = new DirectoryInfo(Environment.CurrentDirectory);
             foreach (FileInfo f in di.GetFiles("*.dll"))
             {
-                Console.WriteLine(f);
+                
                 Assembly a = Assembly.LoadFile(f.FullName);
                 foreach (Type t in a.GetTypes())
                 {
@@ -67,8 +68,8 @@ namespace MiniGame
                     {
                         IAI obj = Activator.CreateInstance(t) as IAI;
                         plugins.Add(obj);
-                        //TODO: remove this
-                        System.Windows.Forms.MessageBox.Show("Plugin loaded! "+obj.Author+" "+obj.Description);
+                        
+                        //System.Windows.Forms.MessageBox.Show("Plugin loaded! "+obj.Author+" "+obj.Description);
                     }
                 }
             }

@@ -36,7 +36,7 @@ namespace CoreNamespace
         List<IAI> players;
         public interface IAI
         {
-            void Init(int TeamNumber, System.Collections.Generic.List<Unit> Units, System.Collections.Generic.List<Shots> Shots,Rectangle World);
+            void Init(int TeamNumber, List<Unit> Units, List<Shots> Shots,Rectangle World);
             string[] UpDate();
         }
         bool endOfGame;

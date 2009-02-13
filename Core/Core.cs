@@ -36,7 +36,7 @@ namespace CoreNamespace
         List<IAI> players;
         public interface IAI
         {
-            void Init(int TeamNumber, System.Collections.Generic.List<Unit> Units, System.Collections.Generic.List<Shots> Shots,Microsoft.Xna.Framework.Rectangle World);
+            void Init(int TeamNumber, System.Collections.Generic.List<Unit> Units, System.Collections.Generic.List<Shots> Shots,Rectangle World);
             string[] UpDate();
         }
         bool endOfGame;
@@ -1086,7 +1086,7 @@ namespace CoreNamespace
             shots.Clear();
             AddUnits();
         }
-        internal struct Rectangle
+        public struct Rectangle
         {
             public Vector2 pt1, pt2, pt3, pt4;
             public Rectangle(Vector2 pt1, Vector2 pt2, Vector2 pt3, Vector2 pt4)
@@ -1168,6 +1168,7 @@ namespace CoreNamespace
                 if (IntersectsLine(anotherRect.pt4, anotherRect.pt1)) return true;
                 return false;
             }
+
 
             
         }

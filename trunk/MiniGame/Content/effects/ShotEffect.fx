@@ -1,5 +1,5 @@
 uniform extern float4x4 ViewProj : WORLDVIEWPROJECTION;
-uniform extern texture tex,tex2;
+uniform extern texture tex;
 #define BatchSize 120
 float4 Positions[BatchSize];
 float3 Params[BatchSize];
@@ -12,13 +12,6 @@ sampler textureSampler = sampler_state
     MinFilter=Linear;
 };
 
-sampler textureSampler2 = sampler_state
-{
-    Texture=<tex2>;
-    MipFilter=Linear;
-    MagFilter=Linear;
-    MinFilter=Linear;
-};
 struct VS_OUTPUT
 {
     float4 Position : POSITION;
@@ -67,11 +60,10 @@ VS_OUTPUT Transform(
 float4 PixelShader( VS_OUTPUT vsout ) : COLOR
 {
  float4 res;
- if (vsout.AlphaAndTexNumber.y<0)
+
   res= tex2D(textureSampler, vsout.TextureCoordinate);	
- else
-  res= tex2D(textureSampler2, vsout.TextureCoordinate);	
- return float4(res.x,res.y,res.z,res.w*vsout.AlphaAndTexNumber.x*10);
+ 
+ return float4(res.x,res.y,res.z,res.w*10);
 }
 
 technique TransformTechnique

@@ -25,16 +25,18 @@ namespace MiniGame
 
         public MiniGame()
         {
+            
             Content.RootDirectory = "Content";
             graphics = new GraphicsDeviceManager(this);
             //Content = new ContentManager(Services);
             IsFixedTimeStep = false;
-            core = new Core(true, Content, graphics);
-            graphics.SynchronizeWithVerticalRetrace = false;
-            graphics.PreferredBackBufferWidth = Core.viewer.ScreenWidth;
-            graphics.PreferredBackBufferHeight = Core.viewer.ScreenHeight;
-            graphics.IsFullScreen = false;
-            
+
+            List<Core.IAI> players = new List<Core.IAI>();
+#if DEBUG
+            core = new Core(false, Content, graphics,players);
+#else
+            core = new Core(true, Content, graphics,players);
+#endif
         }
 
         /// <summary>
@@ -71,6 +73,11 @@ namespace MiniGame
             // TODO: Unload any non ContentManager content here
         }
 
+        bool prevSpacePressed;
+        bool prevPlusPressed;
+        bool prevMinusPressed;
+        bool prevPausePressed;
+        bool prevEnterPressed;
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -81,13 +88,49 @@ namespace MiniGame
             // Allows the game to exit
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+
+            if (prevEnterPressed && Keyboard.GetState().IsKeyUp(Keys.Enter))
+            {
+                
+            }
+
+            if (prevSpacePressed && Keyboard.GetState().IsKeyUp(Keys.Space))
             {
                 core.Reset();
             }
-
+            if (prevPlusPressed && Keyboard.GetState().IsKeyUp(Keys.PageUp))
+            {                
+                Core.Timing.TimeSpeed *= 2;
+            }
+            if (prevMinusPressed && Keyboard.GetState().IsKeyUp(Keys.PageDown))
+            {
+                Core.Timing.TimeSpeed /= 2;
+            }
+            if (prevPausePressed && Keyboard.GetState().IsKeyUp(Keys.Pause))
+            {
+                Core.Timing.Paused = !Core.Timing.Paused;
+            }
+            prevSpacePressed = Keyboard.GetState().IsKeyDown(Keys.Space);
+            prevPlusPressed = Keyboard.GetState().IsKeyDown(Keys.PageUp);
+            prevMinusPressed = Keyboard.GetState().IsKeyDown(Keys.PageDown);
+            prevPausePressed = Keyboard.GetState().IsKeyDown(Keys.Pause);
+            prevEnterPressed = Keyboard.GetState().IsKeyDown(Keys.Enter);
+            Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue*0.5f;
+            if (Mouse.GetState().X > Core.viewer.screenWidth - 30|| Keyboard.GetState().IsKeyDown(Keys.Right))
+                Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+            if (Mouse.GetState().X < 30||Keyboard.GetState().IsKeyDown(Keys.Left))
+                Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+            if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || Keyboard.GetState().IsKeyDown(Keys.Down))
+                Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+            if (Mouse.GetState().Y < 30|| Keyboard.GetState().IsKeyDown(Keys.Up))
+                Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
             // TODO: Add your update logic here
-            core.Update(Environment.TickCount);
+            Core.Timing.Update();
+            while (Core.Timing.DeltaTimeGlobal > 0)
+            {
+                core.Update();
+                Core.Timing.DeltaTimeGlobal -= Core.Timing.DeltaTime;
+            }
             // TODO: Add your update logic here
 
             base.Update(gameTime);

@@ -107,7 +107,7 @@ namespace CoreNamespace
                     deltaTime = 0.0f;
                 prevTime = currTime;
             }
-            public const float maxDeltaTime = 0.2f;
+            public const float maxDeltaTime = 0.05f;
             public float DeltaTime
             {
                 get
@@ -335,6 +335,9 @@ namespace CoreNamespace
             internal float timeAfterDeath;
             internal float maxTimeAfterDeath;
             private bool IsAliveInPrevLoop;
+            bool goesToPoint;
+            bool stopsNearPoint;
+            Vector2 tgtLocation;
             Shots shots;
             public Unit(string Name, Vector2 Position, Vector2 Size, DerivativeControlledParameter Speed,
                 DerivativeControlledParameter RotationSpeed,
@@ -364,21 +367,21 @@ namespace CoreNamespace
             {
                 get { return name; }
             }
-            public GamePoint Position
+            public MiniGameInterfaces.GameVector Position
             {
-                get { return new GamePoint(position.X, position.Y); }
+                get { return new GameVector(position.X, position.Y); }
             }
-            public GamePoint Forward
+            public GameVector Forward
             {
-                get { return new GamePoint((float)Math.Sin(rotationAngle), (float)Math.Cos(rotationAngle)); }
+                get { return new GameVector((float)Math.Sin(rotationAngle), (float)Math.Cos(rotationAngle)); }
             }
             public float TimeToRecharge
             {
                 get { return gun.CurrRechargeTime; }
             }
-            public GamePoint Size
+            public GameVector Size
             {
-                get { return new GamePoint(size.X, size.Y); }
+                get { return new GameVector(size.X, size.Y); }
             }
             public float MaxSpeed
             {
@@ -404,50 +407,60 @@ namespace CoreNamespace
             {
                 get { return gun.Damage; }
             }
-            public void Accelerate(float amount)
-            {
-                speed.Derivative = amount;//speed.MaxDerivative;
-            }
-            public void Accelerate()
-            {
-                speed.Derivative = speed.MaxDerivative;
-            }
-            public void DeAccelerate()
-            {
-                speed.Derivative = -speed.MaxDerivative;
-            }
-            public void SetSpeed(float Speed)
-            {
-                speed.SetAimedValue(Speed);
-            }
-            public void SetAngle(float Angle)
-            {
-                rotationAngle.SetAimedValue(Angle);
-            }
-            public bool Shoot()
-            {
-                bool res = gun.Shoot();
-                //shots.Add(new Shots.Shot(position + Forward * 50, position + Forward * (gun.MaxDistance+50), gun.Damage));
-                return res;
-            }
             public float RotationAngle
             {
                 get { return rotationAngle.Value; }
             }
-            public int Team { get { return team; } }
-            bool goesToPoint;
-            bool stopsNearPoint;
-            Vector2 tgtLocation;
-            public void GoTo(GamePoint TargetLocation, bool Stop)
+            public int PlayerOwner { get { return team; } }
+            private bool AccessDenied()
             {
-                if (!Stop)
-                {
+                return Core.CurrentPlayer != team && Core.CurrentPlayer != -1;
+            }
+
+            #region controlling the unit
+
+            public void Accelerate(float amount)
+            {
+                if (AccessDenied()) return;
+                speed.Derivative = amount;//speed.MaxDerivative;
+            }
+            public void Accelerate()
+            {
+                if (AccessDenied()) return;
+                speed.Derivative = speed.MaxDerivative;
+            }
+            public void DeAccelerate()
+            {
+                if (AccessDenied()) return;
+                speed.Derivative = -speed.MaxDerivative;
+            }
+            public void SetSpeed(float Speed)
+            {
+                if (AccessDenied()) return;
+                speed.SetAimedValue(Speed);
+            }
+            public void SetAngle(float Angle)
+            {
+                if (AccessDenied()) return;
+                rotationAngle.SetAimedValue(Angle);
+            }
+            public bool Shoot()
+            {
+                if (AccessDenied()) return false;
+                bool res = gun.Shoot();
+                //shots.Add(new Shots.Shot(position + Forward * 50, position + Forward * (gun.MaxDistance+50), gun.Damage));
+                return res;
+            }            
+            public void GoTo(GameVector TargetLocation, bool Stop)
+            {
+                if (AccessDenied()) return;
                     goesToPoint = true;
                     stopsNearPoint = Stop;
                     tgtLocation = new Vector2(TargetLocation.X, TargetLocation.Y);
-                }
-            }
-            public int PlayerOwner { get { return team; } }
+                
+            } 
+            #endregion
+            
             #endregion
             private float GetAngleTo(Vector2 Target)
             {
@@ -666,7 +679,7 @@ namespace CoreNamespace
                             DestroyerBatchParams[CDestroyersInBatch].X = units[currUnit].position.X;
                             DestroyerBatchParams[CDestroyersInBatch].Y = units[currUnit].position.Y;
                             DestroyerBatchParams[CDestroyersInBatch].Z = units[currUnit].RotationAngle;
-                            DestroyerBatchParams[CDestroyersInBatch].W = units[currUnit].Team;
+                            DestroyerBatchParams[CDestroyersInBatch].W = units[currUnit].PlayerOwner;
                             CDestroyersInBatch++;
                             if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture, DestroyerSize);
                         }
@@ -675,7 +688,7 @@ namespace CoreNamespace
                             CorvetteBatchParams[CCorvettesInBatch].X = units[currUnit].position.X;
                             CorvetteBatchParams[CCorvettesInBatch].Y = units[currUnit].position.Y;
                             CorvetteBatchParams[CCorvettesInBatch].Z = units[currUnit].RotationAngle;
-                            CorvetteBatchParams[CCorvettesInBatch].W = units[currUnit].Team;
+                            CorvetteBatchParams[CCorvettesInBatch].W = units[currUnit].PlayerOwner;
                             CCorvettesInBatch++;
                             if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSize);
                         }
@@ -684,7 +697,7 @@ namespace CoreNamespace
                             CruiserBatchParams[CCruisersInBatch].X = units[currUnit].position.X;
                             CruiserBatchParams[CCruisersInBatch].Y = units[currUnit].position.Y;
                             CruiserBatchParams[CCruisersInBatch].Z = units[currUnit].RotationAngle;
-                            CruiserBatchParams[CCruisersInBatch].W = units[currUnit].Team;
+                            CruiserBatchParams[CCruisersInBatch].W = units[currUnit].PlayerOwner;
                             CCruisersInBatch++;
                             if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSize);
                         }
@@ -806,13 +819,13 @@ namespace CoreNamespace
                     pos += direction * Timing.DeltaTime;
                 }
                 #region IShot Members
-                public GamePoint Position
+                public GameVector Position
                 {
-                    get { return new GamePoint(pos.X, pos.Y); }
+                    get { return new GameVector(pos.X, pos.Y); }
                 }
-                public GamePoint Direction
+                public GameVector Direction
                 {
-                    get { return new GamePoint(direction.X, direction.Y); }
+                    get { return new GameVector(direction.X, direction.Y); }
                 }
                 #endregion
             }
@@ -868,6 +881,7 @@ namespace CoreNamespace
         }
         static internal Shots shots;
         public static Viewer viewer;
+        internal static int CurrentPlayer;
         public void Draw()
         {
             viewer.DrawUnits(units);
@@ -876,10 +890,13 @@ namespace CoreNamespace
         }
         public void Update()
         {
+            CurrentPlayer = 0;
             foreach (IAI player in players)
             {
                 player.Update();
+                CurrentPlayer++;
             }
+            CurrentPlayer = -1;
             ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
                  Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 10000);
             for (int i = 0; i < units.Count; i++)
@@ -966,7 +983,7 @@ namespace CoreNamespace
                             new DerivativeControlledParameter(0, -0.72f, 0.72f, 1 * 0.5f, true),
                             new DerivativeControlledParameter((float)Math.PI / 400f, -MathHelper.Pi, MathHelper.Pi, 1000 * 0.72f, false),
                             new Gun(10, 50f, 3, 50), 100, 1, shots, 10, 100));
-            units[0].GoTo(new GamePoint(300, 200), false);
+            units[0].GoTo(new GameVector(300, 200), false);
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
         }
@@ -975,6 +992,10 @@ namespace CoreNamespace
             units.Clear();
             shots.Clear();
             AddUnits();
+            for (int i = 0; i < players.Count; i++)
+            {
+                players[i].Init(i, this);
+            }
         }
         public struct Rectangle
         {

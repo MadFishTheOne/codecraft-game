@@ -26,38 +26,46 @@ namespace MiniGame
         SpriteBatch spriteBatch;
         Core core;
 
+        bool playingNow; //is game in progress
+
         List<IAI> plugins; //available AI plugins
+        List<IAI> players; //currently selected players
 
         public MiniGame()
         {
             Content.RootDirectory = "Content";
             graphics = new GraphicsDeviceManager(this);
-            //Content = new ContentManager(Services);
+#if DEBUG
+            graphics.IsFullScreen = false;
+            graphics.PreferredBackBufferWidth = 640;
+            graphics.PreferredBackBufferHeight = 480;
+#else
+            graphics.IsFullScreen = true;
+            graphics.PreferredBackBufferWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+            graphics.PreferredBackBufferHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+#endif
+            graphics.SynchronizeWithVerticalRetrace = false;
+
             IsFixedTimeStep = false;
 
             LoadPlugins();
 
+            players = new List<IAI>();
             //Here you have to create a list of active players. Somehow :)
-            List<IAI> players = new List<IAI>();
             if (plugins.Count == 0)
                 throw new Exception("EPIC FAIL! No plugins found");
             else
             {
-                //Currently only one player to control first ship
-                foreach (IAI player in plugins)
+/*                foreach (IAI plugin in plugins)
                 {
-                    players.Add(player);
-                }
+                    players.Add(plugin);
+                }*/
+                players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
+                players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
             }
-#if DEBUG
-            core = new Core(false, Content, graphics, players);
-#else
-            core = new Core(true, Content, graphics,players);
-#endif
-            for (int i = 0; i < players.Count; i++)
-            {
-                players[i].Init(i, core);
-            }
+            core = new Core(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, Content, graphics);
+            playingNow = true;
+            core.Reset(players);
         }
 
         private void LoadPlugins()
@@ -115,6 +123,7 @@ namespace MiniGame
             // TODO: Unload any non ContentManager content here
         }
 
+        bool prevEscapePressed;
         bool prevSpacePressed;
         bool prevPlusPressed;
         bool prevMinusPressed;
@@ -127,54 +136,54 @@ namespace MiniGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                this.Exit();
-
+            if (playingNow)
+            {
+                if (prevEscapePressed && Keyboard.GetState().IsKeyUp(Keys.Escape))
+                    playingNow = false;
+                if (prevSpacePressed && Keyboard.GetState().IsKeyUp(Keys.Space))
+                {
+                }
+                if (prevPlusPressed && Keyboard.GetState().IsKeyUp(Keys.PageUp))
+                    Core.Timing.TimeSpeed *= 2;
+                if (prevMinusPressed && Keyboard.GetState().IsKeyUp(Keys.PageDown))
+                    Core.Timing.TimeSpeed /= 2;
+                if (prevPausePressed && Keyboard.GetState().IsKeyUp(Keys.Pause))
+                    Core.Timing.Paused = !Core.Timing.Paused;
+            }
+            else
+            {
+                if (prevEscapePressed && Keyboard.GetState().IsKeyUp(Keys.Escape))
+                    this.Exit();
+            }
             if (prevEnterPressed && Keyboard.GetState().IsKeyUp(Keys.Enter))
             {
-
+                core.Reset(players);
+                playingNow = true;
             }
-
-            if (prevSpacePressed && Keyboard.GetState().IsKeyUp(Keys.Space))
-            {
-                core.Reset();
-            }
-            if (prevPlusPressed && Keyboard.GetState().IsKeyUp(Keys.PageUp))
-            {
-                Core.Timing.TimeSpeed *= 2;
-            }
-            if (prevMinusPressed && Keyboard.GetState().IsKeyUp(Keys.PageDown))
-            {
-                Core.Timing.TimeSpeed /= 2;
-            }
-            if (prevPausePressed && Keyboard.GetState().IsKeyUp(Keys.Pause))
-            {
-                Core.Timing.Paused = !Core.Timing.Paused;
-            }
+            prevEscapePressed = Keyboard.GetState().IsKeyDown(Keys.Escape);
             prevSpacePressed = Keyboard.GetState().IsKeyDown(Keys.Space);
             prevPlusPressed = Keyboard.GetState().IsKeyDown(Keys.PageUp);
             prevMinusPressed = Keyboard.GetState().IsKeyDown(Keys.PageDown);
             prevPausePressed = Keyboard.GetState().IsKeyDown(Keys.Pause);
             prevEnterPressed = Keyboard.GetState().IsKeyDown(Keys.Enter);
-            Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue * 0.5f;
-            if (Mouse.GetState().X > Core.viewer.screenWidth - 30 || Keyboard.GetState().IsKeyDown(Keys.Right))
-                Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-            if (Mouse.GetState().X < 30 || Keyboard.GetState().IsKeyDown(Keys.Left))
-                Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-            if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || Keyboard.GetState().IsKeyDown(Keys.Down))
-                Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-            if (Mouse.GetState().Y < 30 || Keyboard.GetState().IsKeyDown(Keys.Up))
-                Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-            // TODO: Add your update logic here
-            Core.Timing.Update();
-            while (Core.Timing.DeltaTimeGlobal > 0)
+            if (playingNow)
             {
-                core.Update();
-                Core.Timing.DeltaTimeGlobal -= Core.Timing.DeltaTime;
+                Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue * 0.5f;
+                if (Mouse.GetState().X > Core.viewer.screenWidth - 30 || Keyboard.GetState().IsKeyDown(Keys.Right))
+                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                if (Mouse.GetState().X < 30 || Keyboard.GetState().IsKeyDown(Keys.Left))
+                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || Keyboard.GetState().IsKeyDown(Keys.Down))
+                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                if (Mouse.GetState().Y < 30 || Keyboard.GetState().IsKeyDown(Keys.Up))
+                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                Core.Timing.Update();
+                while (Core.Timing.DeltaTimeGlobal > 0)
+                {
+                    core.Update();
+                    Core.Timing.DeltaTimeGlobal -= Core.Timing.DeltaTime;
+                }
             }
-            // TODO: Add your update logic here
-
             base.Update(gameTime);
         }
 
@@ -184,7 +193,9 @@ namespace MiniGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            core.Draw();
+            graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            if (playingNow)
+                core.Draw();
             base.Draw(gameTime);
         }
     }

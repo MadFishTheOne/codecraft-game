@@ -40,19 +40,10 @@ namespace CoreNamespace
         {
             get { return endOfGame; }
         }
-        public Core(bool FullScreen, ContentManager content, GraphicsDeviceManager graphics, List<IAI> Players)
+        public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
-            players = Players;
-            endOfGame = players.Count < 2;
             timing = new TimingClass();
-            if (FullScreen)
-                viewer = new Viewer(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, content, graphics);
-            else
-                viewer = new Viewer(640, 480, content, graphics);
-            graphics.SynchronizeWithVerticalRetrace = false;
-            graphics.PreferredBackBufferWidth = Core.viewer.ScreenWidth;
-            graphics.PreferredBackBufferHeight = Core.viewer.ScreenHeight;
-            graphics.IsFullScreen = FullScreen;
+            viewer = new Viewer(ScreenWidth, ScreenHeight, content, graphics);
             units = new List<Unit>();
             shots = new Shots(units);
         }
@@ -635,7 +626,6 @@ namespace CoreNamespace
             const int MaxBatchSize = 240;
             public void DrawUnits(List<Unit> units)
             {
-                graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
                 graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
                 graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
                 graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
@@ -987,15 +977,15 @@ namespace CoreNamespace
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
         }
-        public void Reset()
+        public void Reset(List<IAI> Players)
         {
+            players = Players;
+            for (int i = 0; i < players.Count; i++)
+                players[i].Init(i, this);
+            endOfGame = players.Count < 2;
             units.Clear();
             shots.Clear();
             AddUnits();
-            for (int i = 0; i < players.Count; i++)
-            {
-                players[i].Init(i, this);
-            }
         }
         public struct Rectangle
         {

@@ -223,6 +223,7 @@ namespace MiniGame
 
         void DrawMenu()
         {
+            graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
             if (plugins.Count == 0)
                 Core.viewer.DrawText("No plugins found! Please put some plugins into the game folder.", new Vector2(100, 100), 0, Color.Red);
             else
@@ -251,7 +252,6 @@ namespace MiniGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
             if (playingNow)
                 core.Draw();
             else

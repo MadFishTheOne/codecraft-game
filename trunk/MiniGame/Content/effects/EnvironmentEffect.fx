@@ -32,7 +32,7 @@ VS_OUTPUT Transform(
 	float4 currPos=Pos;
 	currPos.x=-Pos.x*cos(Positions[Index].z)-Pos.y*sin(Positions[Index].z)+Positions[Index].x;
 	currPos.y=+Pos.x*sin(Positions[Index].z)-Pos.y*cos(Positions[Index].z)+Positions[Index].y;	
-    currPos.z=-7500;
+    currPos.z=-15000;
     
 	Out.Position = mul(currPos,ViewProj);    
     Out.TextureCoordinate =  Text;

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express 2008
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniGame", "MiniGame.csproj", "{180FA117-C23D-4ED7-9DE7-2D71E93BE2CB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "..\Core\Core.csproj", "{CFB36A08-A402-4C66-BCFF-5DA8DD8B35B3}"
@@ -59,18 +59,18 @@ Global
 		{F911AFAA-1CDA-4F95-BF2A-BAC5B775CCB0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F911AFAA-1CDA-4F95-BF2A-BAC5B775CCB0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F911AFAA-1CDA-4F95-BF2A-BAC5B775CCB0}.Release|x86.ActiveCfg = Release|Any CPU
-		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Debug|x86.ActiveCfg = Debug|x86
-		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Release|Any CPU.ActiveCfg = Release|x86
-		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Release|x86.ActiveCfg = Release|x86
 		{16794739-57BF-419D-95D9-A4E09055C495}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{16794739-57BF-419D-95D9-A4E09055C495}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{16794739-57BF-419D-95D9-A4E09055C495}.Debug|x86.ActiveCfg = Debug|x86
 		{16794739-57BF-419D-95D9-A4E09055C495}.Release|Any CPU.ActiveCfg = Release|x86
 		{16794739-57BF-419D-95D9-A4E09055C495}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{16794739-57BF-419D-95D9-A4E09055C495}.Release|x86.ActiveCfg = Release|x86
+		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Debug|x86.ActiveCfg = Debug|x86
+		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Release|Any CPU.ActiveCfg = Release|x86
+		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{B77335B3-EEBD-4A82-8854-8D23B6717E21}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

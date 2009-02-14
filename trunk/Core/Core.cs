@@ -607,7 +607,7 @@ namespace CoreNamespace
                 //EngineTexture,
                 //MiniMapTexture,
                 FirePunchTexture,EnvironmentTexture;
-            GraphicsDeviceManager graphics;
+            internal GraphicsDeviceManager graphics;
             VertexDeclaration vertexDecl;
             #region vertex declaration
             public VertexElement[] VertexElements = new VertexElement[]
@@ -719,7 +719,7 @@ namespace CoreNamespace
                 environmentEffect.Parameters["PlayerColors"].SetValue(TeamColors);
                 environmentEffect.Parameters["tex"].SetValue(EnvironmentTexture);
                 environmentEffect.Parameters["Positions"].SetValue(param);
-                environmentEffect.Parameters["Size"].SetValue(new Vector2(6000,6000));
+                environmentEffect.Parameters["Size"].SetValue(new Vector2(20000,20000));
                 environmentEffect.Begin();
                 
                 EffectPass p = environmentEffect.CurrentTechnique.Passes[0];
@@ -1007,6 +1007,7 @@ namespace CoreNamespace
         internal static int CurrentPlayer;
         public void Draw()
         {
+            Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
             viewer.DrawEnvironment();
             viewer.DrawUnits(units);
             viewer.DrawShots(shots);
@@ -1081,7 +1082,7 @@ namespace CoreNamespace
             }
             CurrentPlayer = -1;
             ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
-                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 10000);
+                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
             for (int i = 0; i < units.Count; i++)
             {
                 //units[i].Shoot();

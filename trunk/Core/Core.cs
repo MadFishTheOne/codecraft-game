@@ -89,8 +89,8 @@ namespace CoreNamespace
                 long currTime = Environment.TickCount;
                 if (!paused)
                 {
-                    //deltaTime = (currTime - prevTime) * 0.001f;
-                    deltaTime = 0.015f;
+                    deltaTime = (currTime - prevTime) * 0.001f;
+                    //deltaTime = 0.015f;
                     deltaTime *= timeSpeed;
                     nowTime += deltaTime;
                 }
@@ -362,14 +362,14 @@ namespace CoreNamespace
                 {
                     case ShipTypes.Destroyer:
                         blowDamage = 70;
-                        blowRadius = 80;
+                        blowRadius = 40;
                         name = Name;
                         position = Position;
                         size = DestroyerSize;
-                        speed =   new DerivativeControlledParameter(0, 0, 20, 9, false);
+                        speed = new DerivativeControlledParameter(0, 0, 20, 9, false);
                         rotationSpeed = new DerivativeControlledParameter(0,-0.72f,0.72f,0.5f,false);
-                        rotationAngle =new DerivativeControlledParameter(0,-MathHelper.Pi,MathHelper.Pi,1000,true);
-                        gun = new Gun(3,50,3,15);
+                        rotationAngle = new DerivativeControlledParameter(0,-MathHelper.Pi,MathHelper.Pi,1000,true);
+                        gun = new Gun(3,50,9,15);
                         gun.owner = this;
                         this.hp = 80;
                         this.team = Player;
@@ -380,11 +380,11 @@ namespace CoreNamespace
                         break;
                     case ShipTypes.Corvette:
                         blowDamage = 150;
-                        blowRadius = 250;
+                        blowRadius = 120;
                         maxTimeAfterDeath = 8;
                         speed = new DerivativeControlledParameter(0, 0, 5, 1, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.32f, 0.32f, 0.2f, false);
-                        gun = new Gun(4, 50, 6, 40);                        
+                        gun = new Gun(4, 50, 18, 40);                        
                         this.hp = 400;
 
                         this.team = Player;                        
@@ -399,11 +399,11 @@ namespace CoreNamespace
                         break;
                     case ShipTypes.Cruiser:
                         blowDamage = 300;
-                        blowRadius = 250;
+                        blowRadius = 120;
                         maxTimeAfterDeath = 12;                        
                         speed = new DerivativeControlledParameter(0, 0, 2, 0.5f, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.07f, 0.07f, 0.04f, false);                        
-                        gun = new Gun(15, 50, 9, 200);
+                        gun = new Gun(15, 50, 27, 200);
                         this.hp = 800;
 
                         this.team = Player;
@@ -858,9 +858,12 @@ namespace CoreNamespace
                 public Vector2 pos, direction;
                 private float size;
                 public float Size
-                { get { 
-                                   return size;
-                } }
+                {
+                    get
+                    {
+                        return size;
+                    }
+                }
                 public BoundingSphere GetBoundingSphere()
                 {
                     return new BoundingSphere(new Microsoft.Xna.Framework.Vector3((pos + End) * 0.5f, 0), length * 0.5f);
@@ -995,12 +998,10 @@ namespace CoreNamespace
                  Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 10000);
             for (int i = 0; i < units.Count; i++)
             {
-                units[i].Shoot();
+                //units[i].Shoot();
                 units[i].Update();
                 if (units[i].IsDying)
-                {
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
-                }
                 if (units[i].TimeToDie)
                 {
                     units.RemoveAt(i);
@@ -1071,11 +1072,18 @@ namespace CoreNamespace
         public static Vector2 CruiserSize = new Vector2(40, 160);
         public void AddUnits()
         {
-            units.Add(new Unit(ShipTypes.Cruiser, 1, new Vector2(213, 344), 0, "Ship1"));
-            units.Add(new Unit(ShipTypes.Corvette, 0, new Vector2(-213, -344) ,0, "Ship2"));
-
-            
-            units[0].GoTo(new GameVector(300, 200), false);
+            units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(-200, -300), 0, "Ship2"));
+            units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(-100, -300), 0, "Ship2"));
+            units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(0, -300), 0, "Ship2"));
+            units.Add(new Unit(ShipTypes.Corvette, 0, new Vector2(100, -300), 0, "Ship2"));
+            units.Add(new Unit(ShipTypes.Cruiser, 0, new Vector2(200, -300), 0, "Ship2"));
+            units.Add(new Unit(ShipTypes.Destroyer, 1, new Vector2(200, 300), 0, "Ship1"));
+            units.Add(new Unit(ShipTypes.Destroyer, 1, new Vector2(100, 300), 0, "Ship1"));
+            units.Add(new Unit(ShipTypes.Destroyer, 1, new Vector2(0, 300), 0, "Ship1"));
+            units.Add(new Unit(ShipTypes.Corvette, 1, new Vector2(-100, 300), 0, "Ship1"));
+            units.Add(new Unit(ShipTypes.Cruiser, 1, new Vector2(-200, 300), 0, "Ship1"));
+           
+            //units[0].GoTo(new GameVector(300, 200), false);
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
         }

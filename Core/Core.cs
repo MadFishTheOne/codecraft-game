@@ -867,15 +867,15 @@ namespace CoreNamespace
                 }
                 public BoundingSphere GetBoundingSphere()
                 {
-                    return new BoundingSphere(new Microsoft.Xna.Framework.Vector3((pos + End) * 0.5f, 0), length * 0.5f);
+                    return new BoundingSphere(new Microsoft.Xna.Framework.Vector3((pos + End) * 0.5f, 0), size * 0.5f);
                 }
                 Vector2 forward;
-                const float length = 6;
+               
                 public Vector2 End
                 {
                     get
                     {
-                        return pos + forward * length;
+                        return pos + forward * size;
                     }
                 }
                 public bool hitSomebody;
@@ -887,11 +887,11 @@ namespace CoreNamespace
                     switch (OwnerType)
                     {
                         case ShipTypes.Destroyer:
-                            size = 2; break;
+                            size = 24; break;
                         case ShipTypes.Corvette:
-                            size = 4; break;
+                            size = 48; break;
                         case ShipTypes.Cruiser:
-                            size = 8; break;
+                            size = 90; break;
                         default: size = 1; break;
                     }
                     
@@ -1029,9 +1029,10 @@ namespace CoreNamespace
                     BoundingSphere sphere = rect.BoxBoundingSphere;
                     for (int i = 0; i < shots.shots.Count; i++)
                     {
+                        if (unit.ShipType == ShipTypes.Destroyer&&Vector2.Distance(unit.position,shots.shots[i].pos)<10) { }
                         if (shots.shots[i].GetBoundingSphere().Intersects(sphere))
                         {
-                            //if (unit.Name == "Ship2") { }
+                            if (unit.ShipType ==  ShipTypes.Destroyer) { }
                             if (rect.IntersectsLine(shots.shots[i].pos, shots.shots[i].End))
                             {
                                 //if (unit.Name == "Ship2") { }
@@ -1141,6 +1142,12 @@ namespace CoreNamespace
                 float t1 = ((pt3.Y - pt1.Y) * (pt4.X - pt3.X) + (pt4.Y - pt3.Y) * (pt1.X - pt3.X))
                     / ((pt2.Y - pt1.Y) * (pt4.X - pt3.X) - (pt4.Y - pt3.Y) * (pt2.X - pt1.X));
                 float t2 = (pt1.X - pt3.X) / (pt4.X - pt3.X) + (pt2.X - pt1.X) / (pt4.X - pt3.X) * t1;
+                if (float.IsNaN(t1 + t2))
+                {
+                    t1 = ((pt3.X - pt1.X) * (pt4.Y - pt3.Y) + (pt4.X - pt3.X) * (pt1.Y - pt3.Y))
+                    / ((pt2.X - pt1.X) * (pt4.Y - pt3.Y) - (pt4.X - pt3.X) * (pt2.Y - pt1.Y));
+                     t2 = (pt1.Y - pt3.Y) / (pt4.Y - pt3.Y) + (pt2.Y - pt1.Y) / (pt4.Y - pt3.Y) * t1;
+                }
                 intersection = pt1 + (pt2 - pt1) * t1;
                 return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
             }

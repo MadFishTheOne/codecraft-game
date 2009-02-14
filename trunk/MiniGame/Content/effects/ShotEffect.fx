@@ -40,7 +40,7 @@ VS_OUTPUT Transform(
 	float3 z = cross(x,y);
 
 	x= normalize(x)*2;
-	y = normalize(y)*distance(Start,End)*Params[Index].z;
+	y = normalize(y)*Params[Index].z*0.5;
 	z = normalize(z);
 	p._m00 = x.x;   p._m10 =y.x;    p._m20 = z.x;  p._m30 = center.x;
 	p._m01 = x.y;   p._m11 = y.y;   p._m21 = z.y;  p._m31 = center.y;

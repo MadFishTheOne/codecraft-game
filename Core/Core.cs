@@ -36,11 +36,6 @@ namespace CoreNamespace
         }
         List<IAI> players;
         List<string> playersText;
-        bool endOfGame;
-        public bool EndOfGame
-        {
-            get { return endOfGame; }
-        }
         public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
             timing = new TimingClass();
@@ -595,7 +590,7 @@ namespace CoreNamespace
         }
         public class Viewer
         {
-            static Vector3[] TeamColors = { new Vector3(1,0,0),new Vector3(0,1,0),new Vector3(0,0,1),
+            static public Vector3[] TeamColors = { new Vector3(1,0,0),new Vector3(0,1,0),new Vector3(0,0,1),
                                           new Vector3(1,1,0),new Vector3(0,1,1),new Vector3(1,0,1)};
             SpriteFont font;
             public int screenHeight, screenWidth;
@@ -980,18 +975,65 @@ namespace CoreNamespace
             viewer.DrawUnits(units);
             viewer.DrawShots(shots);
             //
+            int[] destroyers = new int[players.Count];
+            int[] corvettes = new int[players.Count];
+            int[] cruisers = new int[players.Count];
+            int[] total = new int[players.Count];
+            string[] infoString = new string[players.Count];
+            bool gameEnd = true;
+            bool gameDraw = true;
+            int gameWinner = -1;
+            for (int i = 0; i < units.Count; i++)
+            {
+                switch (units[i].ShipType)
+                {
+                    case ShipTypes.Destroyer:
+                        destroyers[units[i].PlayerOwner]++;
+                        break;
+                    case ShipTypes.Corvette:
+                        corvettes[units[i].PlayerOwner]++;
+                        break;
+                    case ShipTypes.Cruiser:
+                        cruisers[units[i].PlayerOwner]++;
+                        break;
+                }
+                total[units[i].PlayerOwner]++;
+                gameDraw = false;
+                if ((gameWinner != -1) && (units[i].PlayerOwner != gameWinner))
+                    gameEnd = false;
+                gameWinner = units[i].PlayerOwner;
+            }
+            for (int i = 0; i < players.Count; i++)
+                infoString[i] = destroyers[i].ToString() + "+" + corvettes[i].ToString() + "+" + cruisers[i].ToString() + "=" + total[i].ToString();
+            //
             string[] lines;
-            viewer.DrawText(players[0].Author, new Vector2(100, 20), 0, Color.Red);
+            viewer.DrawText(players[0].Author, new Vector2(100, 20), 0, new Color(Core.Viewer.TeamColors[0]));
             viewer.DrawText(players[0].Description, new Vector2(100, 40), 0, Color.Gray);
+            viewer.DrawText(infoString[0], new Vector2(100, 60), 0, Color.White);
             lines = playersText[0].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
                 viewer.DrawText(lines[i], new Vector2(100, 80 + i * 20), 0, Color.Yellow);
             viewer.DrawText("vs.", new Vector2(Core.viewer.screenWidth / 2, 20), 1, Color.White);
-            viewer.DrawText(players[1].Author, new Vector2(Core.viewer.screenWidth - 100, 20), 2, Color.LightGreen);
+            viewer.DrawText(players[1].Author, new Vector2(Core.viewer.screenWidth - 100, 20), 2, new Color(Core.Viewer.TeamColors[1]));
             viewer.DrawText(players[1].Description, new Vector2(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
+            viewer.DrawText(infoString[1], new Vector2(Core.viewer.screenWidth - 100, 60), 2, Color.White);
             lines = playersText[1].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
                 viewer.DrawText(lines[i], new Vector2(Core.viewer.screenWidth - 100, 80 + i * 20), 2, Color.Yellow);
+            //
+            if (gameEnd)
+            {
+                if (gameDraw)
+                {
+                    viewer.DrawText("DRAW!", new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
+                }
+                else
+                {
+                    viewer.DrawText("Winner:", new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
+                    viewer.DrawText(players[gameWinner].Author, new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 20), 1, new Color(Core.Viewer.TeamColors[gameWinner]));
+                    viewer.DrawText(players[gameWinner].Description, new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 40), 1, Color.Gray);
+                }
+            }
         }
         public void Update()
         {
@@ -1106,7 +1148,6 @@ namespace CoreNamespace
                 playersText.Add("");
             for (int i = 0; i < players.Count; i++)
                 players[i].Init(i, this);
-            endOfGame = players.Count < 2;
             units.Clear();
             shots.Clear();
             AddUnits();

@@ -239,7 +239,7 @@ namespace MiniGame
                 Core.viewer.DrawText("Selected players:", new Vector2(60, 400), 0, Color.Yellow);
                 for (int i = 0; i < players.Count; i++)
                 {
-                    Core.viewer.DrawText(players[i].Author, new Vector2(60, 440 + i * 20), 0, (i == 0) ? Color.Red : Color.LightGreen);
+                    Core.viewer.DrawText(players[i].Author, new Vector2(60, 440 + i * 20), 0, new Color(Core.Viewer.TeamColors[i]));
                     Core.viewer.DrawText(players[i].Description, new Vector2(250, 440 + i * 20), 0, Color.Gray);
                 }
             }

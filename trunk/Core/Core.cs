@@ -212,7 +212,7 @@ namespace CoreNamespace
             }
             public bool RotateCCWToAngle(float AimedAngle, out bool AimIsNear)
             {
-                if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 5) AimIsNear = true;
+                if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 2) AimIsNear = true;
                 else AimIsNear = false;
                 AimedAngle = AngleClass.Normalize(AimedAngle);
                 if (aimedValue > Value) return true;
@@ -284,22 +284,25 @@ namespace CoreNamespace
                 if (CanShoot)
                 {
                     currDelay = delay;
-                    shots.Add(new Shots.Shot(owner.position + new Vector2(owner.Forward.X, owner.Forward.Y) * owner.size.Y * 1.5f,
-                        owner.ForwardVector * speed, Damage, lifeTime));
+                    shots.Add(new Shots.Shot(owner.position + new Vector2(owner.Forward.X, owner.Forward.Y) * owner.size.Y * 0.6f,
+                        owner.ForwardVector * speed, Damage, lifeTime,owner.ShipType));
                     return true;
                 }
                 else return false;
             }
         }
+        
         public class Unit : IUnit
         {
             string name;
             float blowRadius;
+            ShipTypes shipType;
             public float BlowRadius
             { get { return blowRadius; } }
             float blowDamage;
             public float BlowDamage
             { get { return blowDamage; } }
+            
             float hp;
             /// <summary>
             /// team identifier
@@ -330,10 +333,11 @@ namespace CoreNamespace
             bool stopsNearPoint;
             Vector2 tgtLocation;
             Shots shots;
-            public Unit(string Name, Vector2 Position, Vector2 Size, DerivativeControlledParameter Speed,
+            public Unit(ShipTypes ShipType, string Name, Vector2 Position, Vector2 Size, DerivativeControlledParameter Speed,
                 DerivativeControlledParameter RotationSpeed,
                 DerivativeControlledParameter RotationAngle, Gun Gun, float HP, int team, Shots shots, float BlowDamage, float BlowRadius)
             {
+                shipType = ShipType;
                 blowDamage = BlowDamage;
                 blowRadius = BlowRadius;
                 name = Name;
@@ -349,8 +353,72 @@ namespace CoreNamespace
                 maxTimeAfterDeath = 5;
                 timeAfterDeath = 0;
                 IsAliveInPrevLoop = true;
-                this.shots = shots;
+                this.shots = Core.shots;
             }
+            public Unit(ShipTypes ShipType, int Player, Vector2 Position, float Angle,string Name)
+            {
+                shipType=ShipType;
+                switch (shipType)
+                {
+                    case ShipTypes.Destroyer:
+                        blowDamage = 70;
+                        blowRadius = 80;
+                        name = Name;
+                        position = Position;
+                        size = DestroyerSize;
+                        speed =   new DerivativeControlledParameter(0, 0, 20, 9, false);
+                        rotationSpeed = new DerivativeControlledParameter(0,-0.72f,0.72f,0.5f,false);
+                        rotationAngle =new DerivativeControlledParameter(0,-MathHelper.Pi,MathHelper.Pi,1000,true);
+                        gun = new Gun(3,50,3,15);
+                        gun.owner = this;
+                        this.hp = 80;
+                        this.team = Player;
+                        maxTimeAfterDeath = 5;
+                        timeAfterDeath = 0;
+                        IsAliveInPrevLoop = true;
+                        this.shots = Core.shots;
+                        break;
+                    case ShipTypes.Corvette:
+                        blowDamage = 150;
+                        blowRadius = 250;
+                        maxTimeAfterDeath = 8;
+                        speed = new DerivativeControlledParameter(0, 0, 5, 1, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.32f, 0.32f, 0.2f, false);
+                        gun = new Gun(4, 50, 6, 40);                        
+                        this.hp = 400;
+
+                        this.team = Player;                        
+                        IsAliveInPrevLoop = true;
+                        this.shots = Core.shots;
+                        timeAfterDeath = 0;
+                        name = Name;
+                        position = Position;
+                        size = CorvetteSize;
+                        rotationAngle = new DerivativeControlledParameter(0, -MathHelper.Pi, MathHelper.Pi, 1000, true);
+                        gun.owner = this;
+                        break;
+                    case ShipTypes.Cruiser:
+                        blowDamage = 300;
+                        blowRadius = 250;
+                        maxTimeAfterDeath = 12;                        
+                        speed = new DerivativeControlledParameter(0, 0, 2, 0.5f, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.07f, 0.07f, 0.04f, false);                        
+                        gun = new Gun(15, 50, 9, 200);
+                        this.hp = 800;
+
+                        this.team = Player;
+                        IsAliveInPrevLoop = true;
+                        this.shots = Core.shots;
+                        timeAfterDeath = 0;
+                        name = Name;
+                        position = Position;
+                        size = CruiserSize;
+                        rotationAngle = new DerivativeControlledParameter(0, -MathHelper.Pi, MathHelper.Pi, 1000, true);
+                        gun.owner = this;
+                        break;
+                }
+            }
+
             internal void SetHP(float value) { hp = value; }
             #region IUnit Members
             public float HP { get { return hp; } }
@@ -406,6 +474,10 @@ namespace CoreNamespace
             private bool AccessDenied()
             {
                 return Core.CurrentPlayer != team && Core.CurrentPlayer != -1;
+            }
+            public ShipTypes ShipType
+            {
+                get { return shipType; }
             }
 
             #region controlling the unit
@@ -514,14 +586,16 @@ namespace CoreNamespace
             {
                 Vector2 forward = ForwardVector;
                 Vector2 right = new Vector2(forward.Y, -forward.X);
-                forward *= size.Y;
-                right *= size.X;
+                forward *= size.Y*0.5f;
+                right *= size.X*0.5f;
                 return new Rectangle(forward - right + position, forward + right + position,
                     -forward + right + position, -forward - right + position);
             }
         }
         public class Viewer
         {
+            static Vector3[] TeamColors = { new Vector3(1,0,0),new Vector3(0,1,0),new Vector3(0,0,1),
+                                          new Vector3(1,1,0),new Vector3(0,1,1),new Vector3(1,0,1)};
             SpriteFont font;
             public int screenHeight, screenWidth;
             public int ScreenHeight
@@ -633,6 +707,7 @@ namespace CoreNamespace
                 graphics.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
                 graphics.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;
                 shipEffect.Parameters["ViewProj"].SetValue(ViewProj);
+                shipEffect.Parameters["PlayerColors"].SetValue(TeamColors);
                 blowEffect.Parameters["ViewProj"].SetValue(ViewProj);
                 blowEffect.Parameters["tex"].SetValue(FirePunchTexture);
                 blowEffect.Parameters["Detalization"].SetValue(BlowDetalization);
@@ -750,7 +825,7 @@ namespace CoreNamespace
                     ShotBatchParams1[CShotsInBatch].W = shot.End.Y;
                     ShotBatchParams2[CShotsInBatch].X = 1;// (shot.hitSomebody) ? 1 : -1;
                     ShotBatchParams2[CShotsInBatch].Y = 0;
-                    ShotBatchParams2[CShotsInBatch].Z = 2;//width
+                    ShotBatchParams2[CShotsInBatch].Z = shot.Size;//width
                     CShotsInBatch++;
                     if (CShotsInBatch >= MaxBatchSize / 2)
                         DrawShotBatch(ShotBatchParams1, ShotBatchParams2, ref CShotsInBatch);
@@ -781,6 +856,11 @@ namespace CoreNamespace
             public class Shot : IShot
             {
                 public Vector2 pos, direction;
+                private float size;
+                public float Size
+                { get { 
+                                   return size;
+                } }
                 public BoundingSphere GetBoundingSphere()
                 {
                     return new BoundingSphere(new Microsoft.Xna.Framework.Vector3((pos + End) * 0.5f, 0), length * 0.5f);
@@ -798,8 +878,19 @@ namespace CoreNamespace
                 public float damage;
                 public float lifeTime;
                 //public const long MaxLifeTime = 2000;
-                public Shot(Vector2 Pos, Vector2 Dir, float Damage, float LifeTime)
+                public Shot(Vector2 Pos, Vector2 Dir, float Damage, float LifeTime,ShipTypes OwnerType)
                 {
+                    switch (OwnerType)
+                    {
+                        case ShipTypes.Destroyer:
+                            size = 2; break;
+                        case ShipTypes.Corvette:
+                            size = 4; break;
+                        case ShipTypes.Cruiser:
+                            size = 8; break;
+                        default: size = 1; break;
+                    }
+                    
                     pos = Pos;
                     direction = Dir;
                     damage = Damage;
@@ -931,8 +1022,10 @@ namespace CoreNamespace
                     {
                         if (shots.shots[i].GetBoundingSphere().Intersects(sphere))
                         {
+                            //if (unit.Name == "Ship2") { }
                             if (rect.IntersectsLine(shots.shots[i].pos, shots.shots[i].End))
                             {
+                                //if (unit.Name == "Ship2") { }
                                 unit.SetHP(unit.HP - shots.shots[i].damage);
                                 shots.shots.RemoveAt(i);
                             }
@@ -973,19 +1066,15 @@ namespace CoreNamespace
                 }
         }
         System.Collections.Generic.List<Unit> units;
-        public static Vector2 DestroyerSize = new Vector2(10, 15);
-        public static Vector2 CorvetteSize = new Vector2(20, 30);
-        public static Vector2 CruiserSize = new Vector2(40, 60);
+        public static Vector2 DestroyerSize = new Vector2(15, 15);
+        public static Vector2 CorvetteSize = new Vector2(20, 80);
+        public static Vector2 CruiserSize = new Vector2(40, 160);
         public void AddUnits()
         {
-            units.Add(new Unit("destroyer1", new Vector2(0, 0), DestroyerSize, new DerivativeControlledParameter(0, 0, 50, 15, false),
-                new DerivativeControlledParameter(0, -0.72f, 0.72f, 1 * 0.5f, true),
-                new DerivativeControlledParameter((float)Math.PI / 400f, -MathHelper.Pi, MathHelper.Pi, 1000 * 0.72f, false),
-                new Gun(10, 50f, 3, 50), 100, 0, shots, 10, 100));
-            units.Add(new Unit("destroyer1", new Vector2(300, 200), DestroyerSize, new DerivativeControlledParameter(0, 0, 50, 15, false),
-                            new DerivativeControlledParameter(0, -0.72f, 0.72f, 1 * 0.5f, true),
-                            new DerivativeControlledParameter((float)Math.PI / 400f, -MathHelper.Pi, MathHelper.Pi, 1000 * 0.72f, false),
-                            new Gun(10, 50f, 3, 50), 100, 1, shots, 10, 100));
+            units.Add(new Unit(ShipTypes.Cruiser, 1, new Vector2(213, 344), 0, "Ship1"));
+            units.Add(new Unit(ShipTypes.Corvette, 0, new Vector2(-213, -344) ,0, "Ship2"));
+
+            
             units[0].GoTo(new GameVector(300, 200), false);
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);

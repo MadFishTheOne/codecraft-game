@@ -1072,6 +1072,7 @@ namespace CoreNamespace
         public static Vector2 CruiserSize = new Vector2(40, 160);
         public void AddUnits()
         {
+
             units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(-200, -300), 0, "Ship2"));
             units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(-100, -300), 0, "Ship2"));
             units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(0, -300), 0, "Ship2"));
@@ -1084,6 +1085,7 @@ namespace CoreNamespace
             units.Add(new Unit(ShipTypes.Cruiser, 1, new Vector2(-200, 300), 0, "Ship1"));
            
             //units[0].GoTo(new GameVector(300, 200), false);
+
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
         }

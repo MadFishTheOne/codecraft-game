@@ -148,9 +148,17 @@ namespace MiniGame
                     cursorPosition = 0;
                 }
                 if (IsKeyReleased(Keys.PageUp))
+                {
                     Core.Timing.TimeSpeed *= 2;
+                    if (Core.Timing.TimeSpeed > 128)
+                        Core.Timing.TimeSpeed = 128;
+                }
                 if (IsKeyReleased(Keys.PageDown))
+                {
                     Core.Timing.TimeSpeed /= 2;
+                    if (Core.Timing.TimeSpeed < 1/4)
+                        Core.Timing.TimeSpeed = 1/4;
+                }
                 if (IsKeyReleased(Keys.Pause))
                     Core.Timing.Paused = !Core.Timing.Paused;
             }

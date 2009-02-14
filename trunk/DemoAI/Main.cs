@@ -13,7 +13,7 @@ namespace DemoAI
         #region IAI Members
         public string Author
         {
-            get { return "AntonEtalon"; }
+            get { return "MiniGame Team"; }
         }
         public string Description
         {
@@ -38,6 +38,10 @@ namespace DemoAI
                     }
                     else enemy = game.GetUnit(i);
             }
+            if (myUnit == null)
+                game.SetText("FUCK!\nEPIC FAIL!!11");
+            if (enemy == null)
+                game.SetText("Yahoo!\nI'm the winner!");
             if (myUnit != null && enemy != null)
             {
                 GameVector toTgt = enemy.Position - myUnit.Position;

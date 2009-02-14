@@ -35,6 +35,7 @@ namespace CoreNamespace
             }
         }
         List<IAI> players;
+        List<string> playersText;
         bool endOfGame;
         public bool EndOfGame
         {
@@ -979,11 +980,18 @@ namespace CoreNamespace
             viewer.DrawUnits(units);
             viewer.DrawShots(shots);
             //
+            string[] lines;
             viewer.DrawText(players[0].Author, new Vector2(100, 20), 0, Color.Red);
             viewer.DrawText(players[0].Description, new Vector2(100, 40), 0, Color.Gray);
+            lines = playersText[0].Split(new char[] { '\n' });
+            for (int i = 0; i < lines.Length; i++)
+                viewer.DrawText(lines[i], new Vector2(100, 80 + i * 20), 0, Color.Yellow);
             viewer.DrawText("vs.", new Vector2(Core.viewer.screenWidth / 2, 20), 1, Color.White);
             viewer.DrawText(players[1].Author, new Vector2(Core.viewer.screenWidth - 100, 20), 2, Color.LightGreen);
             viewer.DrawText(players[1].Description, new Vector2(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
+            lines = playersText[1].Split(new char[] { '\n' });
+            for (int i = 0; i < lines.Length; i++)
+                viewer.DrawText(lines[i], new Vector2(Core.viewer.screenWidth - 100, 80 + i * 20), 2, Color.Yellow);
         }
         public void Update()
         {
@@ -1092,6 +1100,9 @@ namespace CoreNamespace
         public void Reset(List<IAI> Players)
         {
             players = Players;
+            playersText = new List<string>();
+            for (int i = 0; i < players.Count; i++)
+                playersText.Add("");
             for (int i = 0; i < players.Count; i++)
                 players[i].Init(i, this);
             endOfGame = players.Count < 2;
@@ -1188,7 +1199,7 @@ namespace CoreNamespace
 
         void IGame.SetText(string Text)
         {
-//            throw new NotImplementedException();
+            playersText[CurrentPlayer] = Text;
         }
 
         int IGame.UnitsCount

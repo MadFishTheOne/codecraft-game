@@ -47,6 +47,10 @@ namespace DemoAI
                 
                 if (GameVector.Cos(myUnit.Forward, toTgt) > 0.8f)
                     myUnit.Shoot();
+                if (myUnit.HP < 0)
+                    myUnit = null;
+                if (enemy.HP < 0)
+                    enemy = null;
             }
         }
         #endregion

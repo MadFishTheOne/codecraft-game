@@ -129,6 +129,7 @@ namespace MiniGame
         bool prevMinusPressed;
         bool prevPausePressed;
         bool prevEnterPressed;
+        bool prevDebugPressed;
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -136,6 +137,10 @@ namespace MiniGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            if (prevDebugPressed && Keyboard.GetState().IsKeyUp(Keys.Q))
+            {
+                System.Diagnostics.Debugger.Break(); //entering debug mode
+            }
             if (playingNow)
             {
                 if (prevEscapePressed && Keyboard.GetState().IsKeyUp(Keys.Escape))
@@ -166,6 +171,7 @@ namespace MiniGame
             prevMinusPressed = Keyboard.GetState().IsKeyDown(Keys.PageDown);
             prevPausePressed = Keyboard.GetState().IsKeyDown(Keys.Pause);
             prevEnterPressed = Keyboard.GetState().IsKeyDown(Keys.Enter);
+            prevDebugPressed = Keyboard.GetState().IsKeyDown(Keys.Q);
             if (playingNow)
             {
                 Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue * 0.5f;

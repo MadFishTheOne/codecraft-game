@@ -4,6 +4,8 @@ uniform float4 Color;
 uniform float2 Size ;
 #define BatchSize 240
 float4 Positions[BatchSize];
+#define CPlayers 6
+float3 PlayerColors[CPlayers];
 
 sampler textureSampler = sampler_state
 {
@@ -33,10 +35,7 @@ VS_OUTPUT Transform(
     
 	Out.Position = mul(currPos,ViewProj);    
     Out.TextureCoordinate =  Text;
-    if (Positions[Index].w==0)
-    Out.Color=float4(1,0,0,1);
-    else 
-    Out.Color=float4(0,1,0,1);
+    Out.Color=float4(PlayerColors[(int)Positions[Index].w],1);
     
     return Out;
 }
@@ -46,6 +45,7 @@ float4 PixelShader( VS_OUTPUT vsout ) : COLOR
     float4 res=tex2D(textureSampler, vsout.TextureCoordinate);	
     if (res.w>0.45&&res.w<0.55) return vsout.Color;
 	else return res;
+
 }
 
 technique TransformTechnique

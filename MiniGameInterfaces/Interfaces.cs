@@ -5,6 +5,10 @@ using System.Text;
 
 namespace MiniGameInterfaces
 {
+    public enum ShipTypes
+    {
+        Destroyer, Corvette, Cruiser
+    }
     public struct GameVector
     {
         public float X;
@@ -84,6 +88,10 @@ namespace MiniGameInterfaces
         float HP { get; }
         #endregion
         #region Getting unit characteristics
+        /// <summary>
+        /// get's ship type - cruiser, corvette or destroyer
+        /// </summary>
+        ShipTypes ShipType { get; }
         /// <summary>
         /// in pixels. X is a width, Y is a length
         /// </summary>

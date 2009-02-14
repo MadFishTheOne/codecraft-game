@@ -31,6 +31,8 @@ namespace MiniGame
         List<IAI> plugins; //available AI plugins
         List<IAI> players; //currently selected players
 
+        int cursorPosition; //menu cursor position
+
         public MiniGame()
         {
             Content.RootDirectory = "Content";
@@ -51,21 +53,15 @@ namespace MiniGame
             LoadPlugins();
 
             players = new List<IAI>();
-            //Here you have to create a list of active players. Somehow :)
+/*            //Here you have to create a list of active players. Somehow :)
             if (plugins.Count == 0)
                 throw new Exception("EPIC FAIL! No plugins found");
             else
             {
-/*                foreach (IAI plugin in plugins)
-                {
-                    players.Add(plugin);
-                }*/
                 players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
                 players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
-            }
+            }*/
             core = new Core(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, Content, graphics);
-            playingNow = true;
-            core.Reset(players);
         }
 
         private void LoadPlugins()
@@ -147,7 +143,10 @@ namespace MiniGame
             if (playingNow)
             {
                 if (IsKeyReleased(Keys.Escape))
+                {
                     playingNow = false;
+                    cursorPosition = 0;
+                }
                 if (IsKeyReleased(Keys.PageUp))
                     Core.Timing.TimeSpeed *= 2;
                 if (IsKeyReleased(Keys.PageDown))
@@ -159,12 +158,37 @@ namespace MiniGame
             {
                 if (IsKeyReleased(Keys.Escape))
                     this.Exit();
+                if (plugins.Count > 0)
+                {
+                    if (IsKeyReleased(Keys.Down))
+                    {
+                        cursorPosition++;
+                        if (cursorPosition >= plugins.Count)
+                            cursorPosition = plugins.Count - 1;
+                    }
+                    if (IsKeyReleased(Keys.Up))
+                    {
+                        cursorPosition--;
+                        if (cursorPosition < 0)
+                            cursorPosition = 0;
+                    }
+                    if (IsKeyReleased(Keys.Space))
+                    {
+                        if(players.Count<2)
+                            players.Add(Activator.CreateInstance(plugins[cursorPosition].GetType()) as IAI);
+                    }
+                    if (IsKeyReleased(Keys.Delete))
+                        players.Clear();
+                }
             }
             if (IsKeyReleased(Keys.Enter))
             {
                 //Start a new game
-                core.Reset(players);
-                playingNow = true;
+                if (players.Count >= 2)
+                {
+                    core.Reset(players);
+                    playingNow = true;
+                }
             }
             oldState = newState;
 
@@ -189,6 +213,30 @@ namespace MiniGame
             base.Update(gameTime);
         }
 
+        void DrawMenu()
+        {
+            if (plugins.Count == 0)
+                Core.viewer.DrawText("No plugins found! Please put some plugins into the game folder.", new Vector2(100, 100), 0, Color.Red);
+            else
+            {
+                Core.viewer.DrawText("Available plugins:", new Vector2(60, 20), 0, Color.Yellow);
+                for (int i = 0; i < plugins.Count; i++)
+                {
+                    if (cursorPosition == i)
+                        Core.viewer.DrawText(">", new Vector2(20, 60 + i * 20), 0, Color.White);
+                    Core.viewer.DrawText(plugins[i].Author, new Vector2(60, 60 + i * 20), 0, Color.White);
+                    Core.viewer.DrawText(plugins[i].Description, new Vector2(250, 60 + i * 20), 0, Color.Gray);
+                }
+                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list, and [Del] to clear list. [Enter] starts the game.", new Vector2(60, 360), 0, Color.LightGoldenrodYellow);
+                Core.viewer.DrawText("Selected players:", new Vector2(60, 400), 0, Color.Yellow);
+                for (int i = 0; i < players.Count; i++)
+                {
+                    Core.viewer.DrawText(players[i].Author, new Vector2(60, 440 + i * 20), 0, (i == 0) ? Color.Red : Color.LightGreen);
+                    Core.viewer.DrawText(players[i].Description, new Vector2(250, 440 + i * 20), 0, Color.Gray);
+                }
+            }
+        }
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -198,6 +246,8 @@ namespace MiniGame
             graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
             if (playingNow)
                 core.Draw();
+            else
+                DrawMenu();
             base.Draw(gameTime);
         }
     }

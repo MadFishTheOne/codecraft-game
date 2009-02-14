@@ -5,14 +5,50 @@ using System.Text;
 
 namespace MiniGameInterfaces
 {
-    public struct GamePoint
+    public struct GameVector
     {
         public float X;
         public float Y;
-        public GamePoint(float X, float Y)
+        public GameVector(float X, float Y)
         {
             this.X = X;
             this.Y = Y;
+        }
+        public static GameVector operator +(GameVector pt1, GameVector pt2)
+        {
+            return new GameVector(pt1.X+pt2.X,pt1.Y+pt2.Y);
+        }
+        public static GameVector operator -(GameVector pt1, GameVector pt2)
+        {
+            return new GameVector(pt1.X-pt2.X,pt1.Y-pt2.Y);
+        }
+        public static GameVector operator *(GameVector pt1, float op2)
+        {
+            return new GameVector(pt1.X *op2, pt1.Y *op2);
+        }
+        public static GameVector operator /(GameVector pt1, float op2)
+        {
+            return new GameVector(pt1.X / op2, pt1.Y / op2);
+        }
+        public float Length()
+        {
+            return (float)Math.Sqrt(X*X+Y*Y);
+        }
+        public float LengthSquared()
+        {
+            return X * X + Y * Y;
+        }
+        public static GameVector Normalize(GameVector pt)
+        {
+            return pt / pt.Length();
+        }
+        public static float Dot(GameVector pt1, GameVector pt2)
+        {
+            return pt1.X * pt2.X + pt1.Y * pt2.Y;
+        }
+        public static float Cos(GameVector pt1, GameVector pt2)
+        {
+            return (float)(Dot(pt1, pt2) / Math.Sqrt(pt1.LengthSquared() * pt2.LengthSquared()));
         }
     }
     public interface IUnit
@@ -25,11 +61,11 @@ namespace MiniGameInterfaces
         /// <summary>
         /// position in the world. in pixels
         /// </summary>
-        GamePoint Position { get; }
+        GameVector Position { get; }
         /// <summary>
         /// looking direction. unit vector
         /// </summary>
-        GamePoint Forward { get; }
+        GameVector Forward { get; }
         /// <summary>
         /// time to recharge gun in seconds
         /// </summary>
@@ -51,7 +87,7 @@ namespace MiniGameInterfaces
         /// <summary>
         /// in pixels. X is a width, Y is a length
         /// </summary>
-        GamePoint Size { get; }
+        GameVector Size { get; }
         /// <summary>
         /// in pixels per seconds
         /// </summary>
@@ -108,7 +144,7 @@ namespace MiniGameInterfaces
         /// </summary>
         /// <param name="TargetLocation">location to go to</param>
         /// <param name="Stop">true if unit must try to stop there</param>
-        void GoTo(GamePoint TargetLocation, bool Stop);
+        void GoTo(GameVector TargetLocation, bool Stop);
         /// <summary>
         /// this damage goes to every unit that was in the blow radius at the blow starting time
         /// </summary>
@@ -125,11 +161,11 @@ namespace MiniGameInterfaces
         /// <summary>
         /// position in the world
         /// </summary>
-        GamePoint Position { get; }
+        GameVector Position { get; }
         /// <summary>
         /// velocity vector
         /// </summary>
-        GamePoint Direction { get; }
+        GameVector Direction { get; }
     }
     public interface IGame
     {

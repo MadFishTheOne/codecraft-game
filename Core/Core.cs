@@ -32,7 +32,15 @@ namespace CoreNamespace
             public static float Distance(float angle1, float angle2)
             {
                 float prevDist = Math.Abs(Normalize(angle1 - angle2));
+                
                 return (float)Math.Min(prevDist, Math.Abs(Normalize(MathHelper.TwoPi - prevDist)));
+            }
+            public static float Difference(float angle1, float angle2)
+            {
+                return Normalize(angle1 - angle2);
+                //float prevDist = angle1 - angle2;
+                //if (Math.Abs(prevDist) < MathHelper.Pi) return prevDist;
+                //return (float)Math.Min(prevDist, Math.Abs(Normalize(MathHelper.TwoPi - prevDist)));
             }
         }
         List<IAI> players;
@@ -209,15 +217,17 @@ namespace CoreNamespace
             }
             public bool RotateCCWToAngle(float AimedAngle, out bool AimIsNear)
             {
+
                 if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 1) AimIsNear = true;
                 else AimIsNear = false;
-                AimedAngle = AngleClass.Normalize(AimedAngle);
-                if (aimedValue > Value) return true;
-                //if (aimedValue - Value > 0 && aimedValue - Value < MathHelper.Pi) return true;
-                //if (aimedValue - Value + MathHelper.TwoPi > 0 && aimedValue - Value + MathHelper.TwoPi < MathHelper.Pi) return true;
-                return false;
-                //if (aimedValue - Value < 0 && aimedValue - Value >- MathHelper.Pi) return false;
-                //if (aimedValue - Value - MathHelper.TwoPi < 0 && aimedValue - Value - MathHelper.TwoPi > -MathHelper.Pi) return false;
+
+                return AngleClass.Difference(Value, AimedAngle) < 0;
+
+                //AimedAngle = AngleClass.Normalize(AimedAngle);
+                //if (aimedValue > Value) return true;                
+                //return false;
+
+                
             }
         }
         public class Gun

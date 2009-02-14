@@ -1,0 +1,8 @@
+-------Player1--------
+Cruisers:20
+Corvettes:1
+Destroyers:3
+-------Player2--------
+Cruisers:20
+Corvettes:0
+Destroyers:1

@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 using System.Collections;
 using MiniGameInterfaces;
+using System.IO;
 //using System.Windows.Forms;
 //using System.Drawing;
 namespace CoreNamespace
@@ -208,7 +209,7 @@ namespace CoreNamespace
             }
             public bool RotateCCWToAngle(float AimedAngle, out bool AimIsNear)
             {
-                if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 2) AimIsNear = true;
+                if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 1) AimIsNear = true;
                 else AimIsNear = false;
                 AimedAngle = AngleClass.Normalize(AimedAngle);
                 if (aimedValue > Value) return true;
@@ -397,7 +398,7 @@ namespace CoreNamespace
                         blowDamage = 300;
                         blowRadius = 120;
                         maxTimeAfterDeath = 12;                        
-                        speed = new DerivativeControlledParameter(0, 0, 2, 0.5f, false);
+                        speed = new DerivativeControlledParameter(0, 0, 2, 1.0f, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.07f, 0.07f, 0.04f, false);                        
                         gun = new Gun(15, 50, 27, 200);
                         this.hp = 800;
@@ -1097,7 +1098,7 @@ namespace CoreNamespace
                     i--;
                 }
             }
-            //UnitIntersections();
+            UnitIntersections();
             ShotsWithUnitsIntersections();
             shots.Update();
         }
@@ -1162,22 +1163,63 @@ namespace CoreNamespace
         public static Vector2 CruiserSize = new Vector2(40, 160);
         public void AddUnits()
         {
+            StreamReader rd=  File.OpenText("units to create.txt");
+            int currTeam = 0;
+            int CCruisers=0,CCorvettes=0,CDestroyers=0;
+            while (rd.ReadLine().Contains("Player"))
+            {
+                string text = rd.ReadLine();
+                if (text.Contains("Cruisers"))
+                {
+                    text = text.Remove(0, text.IndexOf(':')+1);
+                    CCruisers = Convert.ToInt32(text);
+                }
+                else CCruisers = 0;
+                text = rd.ReadLine();
+                if (text.Contains("Corvettes"))
+                {
+                    text = text.Remove(0, text.IndexOf(':')+1);
+                    CCorvettes = Convert.ToInt32(text);
+                }
+                else CCorvettes = 0;
+                text = rd.ReadLine();
+                if (text.Contains("Destroyers"))
+                {
+                    text = text.Remove(0, text.IndexOf(':')+1);
+                    CDestroyers = Convert.ToInt32(text);
+                }
+                else CDestroyers = 0;
+                CreateUnitsForPlayer(currTeam,CCruisers,CCorvettes,CDestroyers,new Vector2(0,currTeam*1000));
+                currTeam++;
+                if (rd.EndOfStream) { break; }
+                
+            }
+            rd.Close();
 
-            units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(-200, -300), 0, "Ship2"));
-            units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(-100, -300), 0, "Ship2"));
-            units.Add(new Unit(ShipTypes.Destroyer, 0, new Vector2(0, -300), 0, "Ship2"));
-            units.Add(new Unit(ShipTypes.Corvette, 0, new Vector2(100, -300), 0, "Ship2"));
-            units.Add(new Unit(ShipTypes.Cruiser, 0, new Vector2(200, -300), 0, "Ship2"));
-            units.Add(new Unit(ShipTypes.Destroyer, 1, new Vector2(200, 300), 0, "Ship1"));
-            units.Add(new Unit(ShipTypes.Destroyer, 1, new Vector2(100, 300), 0, "Ship1"));
-            units.Add(new Unit(ShipTypes.Destroyer, 1, new Vector2(0, 300), 0, "Ship1"));
-            units.Add(new Unit(ShipTypes.Corvette, 1, new Vector2(-100, 300), 0, "Ship1"));
-            units.Add(new Unit(ShipTypes.Cruiser, 1, new Vector2(-200, 300), 0, "Ship1"));
+
+            
            
             //units[0].GoTo(new GameVector(300, 200), false);
 
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
+        }
+
+        private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
+        {
+            for (int i = 0; i < CCruisers; i++)
+            {
+                units.Add(new Unit(ShipTypes.Cruiser, currTeam, pos+new Vector2(50*i, 0), 0, "Cruiser -"+i.ToString()+"-"));
+            }
+            for (int i = 0; i < CCorvettes; i++)
+            {
+                units.Add(new Unit(ShipTypes.Corvette, currTeam, pos + new Vector2(50 * (i + CCruisers), 0), 0, "Corvette -" + i.ToString() + "-"));
+            }
+            for (int i = 0; i < CDestroyers; i++)
+            {
+                units.Add(new Unit(ShipTypes.Destroyer, currTeam, pos + new Vector2(50 * (i + CCruisers + CCorvettes), 0), 0, "Destroyer -" + i.ToString() + "-"));
+            }
+
         }
         public void Reset(List<IAI> Players)
         {

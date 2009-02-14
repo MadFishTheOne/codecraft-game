@@ -45,13 +45,19 @@ namespace MiniGame
             {
                 //Currently only one player to control first ship
                 foreach (IAI player in plugins)
-                players.Add(player);
+                {
+                    players.Add(player);
+                }
             }
 #if DEBUG
             core = new Core(false, Content, graphics, players);
 #else
             core = new Core(true, Content, graphics,players);
 #endif
+            for (int i = 0; i < players.Count; i++)
+            {
+                players[i].Init(i, core);
+            }
         }
 
         private void LoadPlugins()

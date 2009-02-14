@@ -758,10 +758,21 @@ namespace CoreNamespace
                 if (CShotsInBatch > 0)
                     DrawShotBatch(ShotBatchParams1, ShotBatchParams2, ref CShotsInBatch);
             }
-            public void DrawHelloHorld()
+            public void DrawText(string text, Vector2 pos, int align, Color color)
             {
                 spriteBatch.Begin();
-                spriteBatch.DrawString(font, "Hello World", new Vector2(20, 20), Color.Black, 0, new Vector2(0.0f, 0.0f), 1.0f , SpriteEffects.None, 0.5f);
+                Vector2 fontOrigin = new Vector2(0.0f, 0.0f);;
+                switch (align)
+                {
+                    case 1:
+                        fontOrigin = new Vector2(font.MeasureString(text).X / 2, 0.0f);
+                        break;
+                    case 2:
+                        fontOrigin = new Vector2(font.MeasureString(text).X, 0.0f);
+                        break;
+                }
+                spriteBatch.DrawString(font, text, pos + new Vector2(2, 2), Color.Black, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+                spriteBatch.DrawString(font, text, pos, color, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
                 spriteBatch.End();
             }
         }
@@ -873,7 +884,12 @@ namespace CoreNamespace
         {
             viewer.DrawUnits(units);
             viewer.DrawShots(shots);
-            viewer.DrawHelloHorld();
+            //
+            viewer.DrawText(players[0].Author, new Vector2(100, 20), 0, Color.Red);
+            viewer.DrawText(players[0].Description, new Vector2(100, 40), 0, Color.Gray);
+            viewer.DrawText("vs.", new Vector2(Core.viewer.screenWidth / 2, 20), 1, Color.White);
+            viewer.DrawText(players[1].Author, new Vector2(Core.viewer.screenWidth - 100, 20), 2, Color.LightGreen);
+            viewer.DrawText(players[1].Description, new Vector2(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
         }
         public void Update()
         {

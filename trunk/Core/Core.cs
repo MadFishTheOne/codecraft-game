@@ -761,10 +761,7 @@ namespace CoreNamespace
             public void DrawHelloHorld()
             {
                 spriteBatch.Begin();
-                // Draw Hello World
-                string output = "Hello World";
-                // Draw the string
-                spriteBatch.DrawString(font, output, new Vector2(100, 20), Color.Black, 0, font.MeasureString(output) / 2, 1.0f, SpriteEffects.None, 0.5f);
+                spriteBatch.DrawString(font, "Hello World", new Vector2(20, 20), Color.Black, 0, new Vector2(0.0f, 0.0f), 1.0f , SpriteEffects.None, 0.5f);
                 spriteBatch.End();
             }
         }

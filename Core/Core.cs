@@ -365,7 +365,7 @@ namespace CoreNamespace
                         size = DestroyerSize;
                         speed = new DerivativeControlledParameter(0, 0, 20, 9, false);
                         rotationSpeed = new DerivativeControlledParameter(0,-0.72f,0.72f,0.5f,false);
-                        rotationAngle = new DerivativeControlledParameter(0,-MathHelper.Pi,MathHelper.Pi,1000,true);
+                        rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun = new Gun(3,50,9,15);
                         gun.owner = this;
                         this.hp = 80;
@@ -391,7 +391,7 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CorvetteSize;
-                        rotationAngle = new DerivativeControlledParameter(0, -MathHelper.Pi, MathHelper.Pi, 1000, true);
+                        rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun.owner = this;
                         break;
                     case ShipTypes.Cruiser:
@@ -410,7 +410,7 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CruiserSize;
-                        rotationAngle = new DerivativeControlledParameter(0, -MathHelper.Pi, MathHelper.Pi, 1000, true);
+                        rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun.owner = this;
                         break;
                 }
@@ -1207,17 +1207,18 @@ namespace CoreNamespace
 
         private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
         {
+            float angle = (currTeam > 0) ? MathHelper.Pi : 0;
             for (int i = 0; i < CCruisers; i++)
             {
-                units.Add(new Unit(ShipTypes.Cruiser, currTeam, pos+new Vector2(50*i, 0), 0, "Cruiser -"+i.ToString()+"-"));
+                units.Add(new Unit(ShipTypes.Cruiser, currTeam, pos + new Vector2(150 * i, 0), angle, "Cruiser -" + i.ToString() + "-"));
             }
             for (int i = 0; i < CCorvettes; i++)
             {
-                units.Add(new Unit(ShipTypes.Corvette, currTeam, pos + new Vector2(50 * (i + CCruisers), 0), 0, "Corvette -" + i.ToString() + "-"));
+                units.Add(new Unit(ShipTypes.Corvette, currTeam, pos + new Vector2(150 * (i + CCruisers), 0), angle, "Corvette -" + i.ToString() + "-"));
             }
             for (int i = 0; i < CDestroyers; i++)
             {
-                units.Add(new Unit(ShipTypes.Destroyer, currTeam, pos + new Vector2(50 * (i + CCruisers + CCorvettes), 0), 0, "Destroyer -" + i.ToString() + "-"));
+                units.Add(new Unit(ShipTypes.Destroyer, currTeam, pos + new Vector2(150 * (i + CCruisers + CCorvettes), 0), angle, "Destroyer -" + i.ToString() + "-"));
             }
 
         }

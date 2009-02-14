@@ -719,7 +719,9 @@ namespace CoreNamespace
                 environmentEffect.Parameters["PlayerColors"].SetValue(TeamColors);
                 environmentEffect.Parameters["tex"].SetValue(EnvironmentTexture);
                 environmentEffect.Parameters["Positions"].SetValue(param);
+
                 environmentEffect.Parameters["Size"].SetValue(new Vector2(20000,20000));
+
                 environmentEffect.Begin();
                 
                 EffectPass p = environmentEffect.CurrentTechnique.Passes[0];
@@ -1155,7 +1157,7 @@ namespace CoreNamespace
                 }
         }
         System.Collections.Generic.List<Unit> units;
-        public static Vector2 DestroyerSize = new Vector2(15, 15);
+        public static Vector2 DestroyerSize = new Vector2(25, 25);
         public static Vector2 CorvetteSize = new Vector2(20, 80);
         public static Vector2 CruiserSize = new Vector2(40, 160);
         public void AddUnits()

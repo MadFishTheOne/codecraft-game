@@ -606,7 +606,7 @@ namespace CoreNamespace
                 CruiserTexture, LaserTexture,
                 //EngineTexture,
                 //MiniMapTexture,
-                FirePunchTexture;
+                FirePunchTexture,EnvironmentTexture;
             GraphicsDeviceManager graphics;
             VertexDeclaration vertexDecl;
             #region vertex declaration
@@ -633,7 +633,7 @@ namespace CoreNamespace
             }
             IndexBuffer indexBuffer;
             VertexBuffer vertexBuffer;
-            Effect shipEffect, blowEffect, shotEffect;
+            Effect shipEffect, blowEffect, shotEffect,environmentEffect;
             public Viewer(int ScreenWidth, int ScreenHeight, ContentManager Content, GraphicsDeviceManager Graphics)
             {
                 this.screenHeight = ScreenHeight;
@@ -684,16 +684,51 @@ namespace CoreNamespace
                 CorvetteTexture = content.Load<Texture2D>("textures\\CorvetteTexture");
                 CruiserTexture = content.Load<Texture2D>("textures\\CruiserTexture");
                 LaserTexture = content.Load<Texture2D>("textures\\LaserTexture");
+                EnvironmentTexture = content.Load<Texture2D>("textures\\EnvironmentTexture");
                 //EngineTexture = content.Load<Texture2D>("textures\\EngineTexture");
                 //MiniMapTexture = content.Load<Texture2D>("textures\\MinimapTexture");
                 FirePunchTexture = content.Load<Texture2D>("textures\\BlowTexture");
                 shipEffect = content.Load<Effect>("effects\\ShipEffect");
                 blowEffect = content.Load<Effect>("effects\\BlowEffect");
                 shotEffect = content.Load<Effect>("effects\\ShotEffect");
+                environmentEffect =  content.Load<Effect>("effects\\EnvironmentEffect");
                 CreateBuffers();
             }
             const int BlowDetalization = 5;//billboards count in one blow            
             const int MaxBatchSize = 240;
+            public void DrawEnvironment()
+            {
+                Vector4[] param=new Vector4[1];
+
+                param[0].X = 0;
+                param[0].Y = 0;
+                param[0].Z = 0;
+                param[0].W = 0;
+
+                graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
+                graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
+                graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
+                graphics.GraphicsDevice.RenderState.AlphaSourceBlend = Blend.SourceAlpha;
+                graphics.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
+                graphics.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;                
+                graphics.GraphicsDevice.VertexDeclaration = vertexDecl;
+                graphics.GraphicsDevice.Vertices[0].SetSource(vertexBuffer, 0, vertexDecl.GetVertexStrideSize(0));
+                graphics.GraphicsDevice.Indices = indexBuffer;
+
+                environmentEffect.Parameters["ViewProj"].SetValue(ViewProj);
+                environmentEffect.Parameters["PlayerColors"].SetValue(TeamColors);
+                environmentEffect.Parameters["tex"].SetValue(EnvironmentTexture);
+                environmentEffect.Parameters["Positions"].SetValue(param);
+                environmentEffect.Parameters["Size"].SetValue(new Vector2(6000,6000));
+                environmentEffect.Begin();
+                
+                EffectPass p = environmentEffect.CurrentTechnique.Passes[0];
+                p.Begin();
+                graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 1 * 6, 0, 1 * 2);
+                p.End();
+           
+                environmentEffect.End();
+            }
             public void DrawUnits(List<Unit> units)
             {
                 graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
@@ -972,6 +1007,7 @@ namespace CoreNamespace
         internal static int CurrentPlayer;
         public void Draw()
         {
+            viewer.DrawEnvironment();
             viewer.DrawUnits(units);
             viewer.DrawShots(shots);
             //

@@ -123,13 +123,16 @@ namespace MiniGame
             // TODO: Unload any non ContentManager content here
         }
 
-        bool prevEscapePressed;
-        bool prevSpacePressed;
-        bool prevPlusPressed;
-        bool prevMinusPressed;
-        bool prevPausePressed;
-        bool prevEnterPressed;
-        bool prevDebugPressed;
+        KeyboardState oldState, newState;
+
+        /// <summary>
+        /// determines whether specified key is released
+        /// </summary>
+        bool IsKeyReleased(Keys key)
+        {
+            return oldState.IsKeyDown(key) && newState.IsKeyUp(key);
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -137,51 +140,44 @@ namespace MiniGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (prevDebugPressed && Keyboard.GetState().IsKeyUp(Keys.Q))
-            {
+            newState = Keyboard.GetState();
+
+            if (IsKeyReleased(Keys.Q))
                 System.Diagnostics.Debugger.Break(); //entering debug mode
-            }
             if (playingNow)
             {
-                if (prevEscapePressed && Keyboard.GetState().IsKeyUp(Keys.Escape))
+                if (IsKeyReleased(Keys.Escape))
                     playingNow = false;
-                if (prevSpacePressed && Keyboard.GetState().IsKeyUp(Keys.Space))
-                {
-                }
-                if (prevPlusPressed && Keyboard.GetState().IsKeyUp(Keys.PageUp))
+                if (IsKeyReleased(Keys.PageUp))
                     Core.Timing.TimeSpeed *= 2;
-                if (prevMinusPressed && Keyboard.GetState().IsKeyUp(Keys.PageDown))
+                if (IsKeyReleased(Keys.PageDown))
                     Core.Timing.TimeSpeed /= 2;
-                if (prevPausePressed && Keyboard.GetState().IsKeyUp(Keys.Pause))
+                if (IsKeyReleased(Keys.Pause))
                     Core.Timing.Paused = !Core.Timing.Paused;
             }
             else
             {
-                if (prevEscapePressed && Keyboard.GetState().IsKeyUp(Keys.Escape))
+                if (IsKeyReleased(Keys.Escape))
                     this.Exit();
             }
-            if (prevEnterPressed && Keyboard.GetState().IsKeyUp(Keys.Enter))
+            if (IsKeyReleased(Keys.Enter))
             {
+                //Start a new game
                 core.Reset(players);
                 playingNow = true;
             }
-            prevEscapePressed = Keyboard.GetState().IsKeyDown(Keys.Escape);
-            prevSpacePressed = Keyboard.GetState().IsKeyDown(Keys.Space);
-            prevPlusPressed = Keyboard.GetState().IsKeyDown(Keys.PageUp);
-            prevMinusPressed = Keyboard.GetState().IsKeyDown(Keys.PageDown);
-            prevPausePressed = Keyboard.GetState().IsKeyDown(Keys.Pause);
-            prevEnterPressed = Keyboard.GetState().IsKeyDown(Keys.Enter);
-            prevDebugPressed = Keyboard.GetState().IsKeyDown(Keys.Q);
+            oldState = newState;
+
             if (playingNow)
             {
                 Core.CameraPosition.Z = 300 - Mouse.GetState().ScrollWheelValue * 0.5f;
-                if (Mouse.GetState().X > Core.viewer.screenWidth - 30 || Keyboard.GetState().IsKeyDown(Keys.Right))
+                if (Mouse.GetState().X > Core.viewer.screenWidth - 30 || newState.IsKeyDown(Keys.Right))
                     Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-                if (Mouse.GetState().X < 30 || Keyboard.GetState().IsKeyDown(Keys.Left))
+                if (Mouse.GetState().X < 30 || newState.IsKeyDown(Keys.Left))
                     Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-                if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || Keyboard.GetState().IsKeyDown(Keys.Down))
+                if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || newState.IsKeyDown(Keys.Down))
                     Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-                if (Mouse.GetState().Y < 30 || Keyboard.GetState().IsKeyDown(Keys.Up))
+                if (Mouse.GetState().Y < 30 || newState.IsKeyDown(Keys.Up))
                     Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
                 Core.Timing.Update();
                 while (Core.Timing.DeltaTimeGlobal > 0)

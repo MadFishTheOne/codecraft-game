@@ -94,7 +94,6 @@ namespace MiniGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            Core.CameraPosition.Z = 9000;
             base.Initialize();
         }
 
@@ -147,19 +146,19 @@ namespace MiniGame
                     playingNow = false;
                     cursorPosition = 0;
                 }
-                if (IsKeyReleased(Keys.PageUp))
+                if (IsKeyReleased(Keys.PageUp) || IsKeyReleased(Keys.S))
                 {
                     Core.Timing.TimeSpeed *= 2;
-                    if (Core.Timing.TimeSpeed > 128)
-                        Core.Timing.TimeSpeed = 128;
+                    if (Core.Timing.TimeSpeed > 512)
+                        Core.Timing.TimeSpeed = 512;
                 }
-                if (IsKeyReleased(Keys.PageDown))
+                if (IsKeyReleased(Keys.PageDown) || IsKeyReleased(Keys.X))
                 {
                     Core.Timing.TimeSpeed /= 2;
-                    if (Core.Timing.TimeSpeed < 1/4)
-                        Core.Timing.TimeSpeed = 1/4;
+                    if (Core.Timing.TimeSpeed < 0.25f)
+                        Core.Timing.TimeSpeed = 0.25f;
                 }
-                if (IsKeyReleased(Keys.Pause))
+                if (IsKeyReleased(Keys.Pause) || IsKeyReleased(Keys.Space))
                     Core.Timing.Paused = !Core.Timing.Paused;
             }
             else
@@ -202,9 +201,9 @@ namespace MiniGame
 
             if (playingNow)
             {
-                if (newState.IsKeyDown(Keys.End))
+                if (newState.IsKeyDown(Keys.End) || newState.IsKeyDown(Keys.Z))
                     Core.CameraPosition.Z += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
-                if (newState.IsKeyDown(Keys.Home))
+                if (newState.IsKeyDown(Keys.Home) || newState.IsKeyDown(Keys.A))
                     Core.CameraPosition.Z -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
                 if (newState.IsKeyDown(Keys.Right))
                     Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;

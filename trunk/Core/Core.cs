@@ -1123,8 +1123,8 @@ namespace CoreNamespace
                     shots[i].Update();
                     if (shots[i].lifeTime <= 0)
                     {
-                        shots.RemoveAt(i);
                         gameObjects.RemoveShot(shots[i]);
+                        shots.RemoveAt(i);
                         i--;
                     }
                 }
@@ -1163,6 +1163,9 @@ namespace CoreNamespace
         public void Draw()
         {
             Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
+            ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
+                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
+            //
             viewer.DrawEnvironment();
             viewer.DrawUnits(units);
             viewer.DrawShots(shots);
@@ -1235,6 +1238,8 @@ namespace CoreNamespace
                     viewer.DrawText(players[gameWinner].Description, new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 40), 1, Color.Gray);
                 }
             }
+            //
+            viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new Vector2(10, Core.viewer.screenHeight - 30), 0, Color.White);
         }
         public void Update()
         {
@@ -1249,8 +1254,6 @@ namespace CoreNamespace
             CurrentPlayer = -1;
             sw.Reset();
             sw.Start();
-            ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
-                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
             for (int i = 0; i < units.Count; i++)
             {
                 //units[i].Shoot();
@@ -1427,6 +1430,8 @@ namespace CoreNamespace
         }
         public void Reset(List<IAI> Players)
         {
+            Timing.TimeSpeed = 1.0f;
+            CameraPosition = new Vector3(0,0,9000);
             players = Players;
             playersText = new string[players.Count];
             playersTotalUpdateTime = new float[players.Count];

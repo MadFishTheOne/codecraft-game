@@ -483,8 +483,8 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = DestroyerSize;
-                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMultiplier, 9 * TimingClass.SpeedsMultiplier, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.72f * TimingClass.SpeedsMultiplier, 0.72f * TimingClass.SpeedsMultiplier, 0.5f * TimingClass.SpeedsMultiplier, false);
+                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMultiplier, 9* TimingClass.SpeedsMultiplier, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.22f * TimingClass.SpeedsMultiplier, 0.22f * TimingClass.SpeedsMultiplier, 0.5f * TimingClass.SpeedsMultiplier, false);
                         rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun = new Gun(3, 50 * TimingClass.SpeedsMultiplier, 9, 15);
                         gun.owner = this;
@@ -628,11 +628,22 @@ namespace CoreNamespace
                 speed.SetAimedValue(Speed);
                 goesToPoint = false;
             }
+            public void SetSpeedGoingToTgt(float Speed)
+            {
+                if (AccessDenied()) return;
+                speed.SetAimedValue(Speed);                
+            }
+            
             public void SetAngle(float Angle)
             {
                 if (AccessDenied()) return;
                 rotationAngle.SetAimedValue(Angle);
                 goesToPoint = false;
+            }
+            public void SetAngleGoingToTgt(float Angle)
+            {
+                if (AccessDenied()) return;
+                rotationAngle.SetAimedValue(Angle);
             }
             public bool Shoot()
             {
@@ -660,19 +671,21 @@ namespace CoreNamespace
             { get { return timeAfterDeath >= maxTimeAfterDeath; } }
             internal void Update()
             {
+                
                 if (hp >= 0)
                 {
                     if (goesToPoint)
                     {
                         float AngleToTgt = GetAngleTo(tgtLocation);
-                        SetAngle(AngleToTgt);
+                        
+                        SetAngleGoingToTgt(AngleToTgt);
                         float distanceSq = Vector2.DistanceSquared(position, tgtLocation);
                         float timeToStop = speed.Value / speed.MaxDerivative;
                         float StopDistanceSq = speed.Value * timeToStop - speed.MaxDerivative * timeToStop * timeToStop / 2;
                         if (AngleClass.Distance(GetAngleTo(tgtLocation), rotationAngle.Value) < MathHelper.PiOver4 &&
                             (StopDistanceSq > Vector2.DistanceSquared(position, tgtLocation) || !stopsNearPoint))
-                            SetSpeed(MaxSpeed);
-                        else SetSpeed(0);
+                            SetSpeedGoingToTgt(MaxSpeed);
+                        else SetSpeedGoingToTgt(0);
                         //if (distanceSq < 30*30&&speed.Value<10) { goesToPoint = false; }
                     }
                     //hp -= 1;
@@ -689,6 +702,7 @@ namespace CoreNamespace
                     }
                     if (AimIsNear) rotationSpeed.Derivative = -rotationSpeed.Value;
                     rotationSpeed.Update();
+                    if (PlayerOwner == 0) { }
                     rotationAngle.Derivative = rotationSpeed.Value;
                     //                rotationAngle.Derivative = (rotationAngle.AimedValue - rotationAngle.Value) * 0.05f;
                     rotationAngle.Update();
@@ -1319,7 +1333,8 @@ namespace CoreNamespace
                 { unit.SetHP(unit.HP - Damage); }
             }
         }
-        private void UnitIntersections()
+        private void 
+            UnitIntersections()
         {
             foreach (Unit unit in units)
             {

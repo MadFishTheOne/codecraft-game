@@ -486,7 +486,7 @@ namespace CoreNamespace
                         speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMultiplier, 9* TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.22f * TimingClass.SpeedsMultiplier, 0.22f * TimingClass.SpeedsMultiplier, 0.5f * TimingClass.SpeedsMultiplier, false);
                         rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
-                        gun = new Gun(3, 50 * TimingClass.SpeedsMultiplier, 9, 15);
+                        gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 9 / TimingClass.SpeedsMultiplier, 15);
                         gun.owner = this;
                         this.hp = 80;
                         this.team = Player;
@@ -501,7 +501,7 @@ namespace CoreNamespace
                         maxTimeAfterDeath = 8*0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMultiplier, 1 * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.32f * TimingClass.SpeedsMultiplier, 0.32f * TimingClass.SpeedsMultiplier, 0.2f * TimingClass.SpeedsMultiplier, false);
-                        gun = new Gun(4, 50 * TimingClass.SpeedsMultiplier, 18, 40);                        
+                        gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 18 / TimingClass.SpeedsMultiplier, 40);                        
                         this.hp = 400;
                         this.team = Player;                        
                         IsAliveInPrevLoop = true;
@@ -519,7 +519,7 @@ namespace CoreNamespace
                         maxTimeAfterDeath = 12*0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMultiplier, 1.0f * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.07f * TimingClass.SpeedsMultiplier, 0.07f * TimingClass.SpeedsMultiplier, 0.04f * TimingClass.SpeedsMultiplier, false);
-                        gun = new Gun(15, 50 * TimingClass.SpeedsMultiplier, 27, 200);
+                        gun = new Gun(4, 50 * TimingClass.SpeedsMultiplier, 27 / TimingClass.SpeedsMultiplier, 200);
                         this.hp = 800;
                         this.team = Player;
                         IsAliveInPrevLoop = true;

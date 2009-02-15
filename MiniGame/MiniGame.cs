@@ -203,17 +203,17 @@ namespace MiniGame
             if (playingNow)
             {
                 if (newState.IsKeyDown(Keys.End))
-                    Core.CameraPosition.Z += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2000.0f;
+                    Core.CameraPosition.Z += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
                 if (newState.IsKeyDown(Keys.Home))
-                    Core.CameraPosition.Z -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2000.0f;
+                    Core.CameraPosition.Z -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
                 if (newState.IsKeyDown(Keys.Right))
-                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
+                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
                 if (newState.IsKeyDown(Keys.Left))
-                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
+                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
                 if (newState.IsKeyDown(Keys.Down))
-                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
+                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
                 if (newState.IsKeyDown(Keys.Up))
-                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
+                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
 
 #if FAlLSE
                 if (Mouse.GetState().X > Core.viewer.screenWidth - 30 )

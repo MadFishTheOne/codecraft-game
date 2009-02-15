@@ -332,10 +332,12 @@ namespace CoreNamespace
             {
                 return variable.currValue;
             }
-            public bool RotateCCWToAngle(float AimedAngle, out bool AimIsNear)
+            public bool RotateCCWToAngle(float AimedAngle, out float AimIsNearDecrementing)
             {
-                if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 1) AimIsNear = true;
-                else AimIsNear = false;
+                float angleDist= AngleClass.Distance(AimedAngle, Value);
+                if (angleDist< MathHelper.Pi / 180f * 30)
+                    AimIsNearDecrementing = angleDist / (MathHelper.Pi / 180f * 30);
+                else AimIsNearDecrementing = 1;
                 return AngleClass.Difference(Value, AimedAngle) < 0;
                 //AimedAngle = AngleClass.Normalize(AimedAngle);
                 //if (aimedValue > Value) return true;                
@@ -500,7 +502,7 @@ namespace CoreNamespace
                         blowRadius = 120;
                         maxTimeAfterDeath = 8*0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMultiplier, 1 * TimingClass.SpeedsMultiplier, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.32f * TimingClass.SpeedsMultiplier, 0.32f * TimingClass.SpeedsMultiplier, 0.2f * TimingClass.SpeedsMultiplier, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.12f * TimingClass.SpeedsMultiplier, 0.12f * TimingClass.SpeedsMultiplier, 0.39f * TimingClass.SpeedsMultiplier, false);
                         gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 18 / TimingClass.SpeedsMultiplier, 40);                        
                         this.hp = 400;
                         this.team = Player;                        
@@ -510,7 +512,9 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CorvetteSize;
-                        rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
+                        rotationAngle = new DerivativeControlledParameter(
+                            Angle
+                            , -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun.owner = this;
                         break;
                     case ShipTypes.Cruiser:
@@ -518,7 +522,7 @@ namespace CoreNamespace
                         blowRadius = 120;
                         maxTimeAfterDeath = 12*0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMultiplier, 1.0f * TimingClass.SpeedsMultiplier, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.07f * TimingClass.SpeedsMultiplier, 0.07f * TimingClass.SpeedsMultiplier, 0.04f * TimingClass.SpeedsMultiplier, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.05f * TimingClass.SpeedsMultiplier, 0.05f * TimingClass.SpeedsMultiplier, 0.2f * TimingClass.SpeedsMultiplier, false);
                         gun = new Gun(4, 50 * TimingClass.SpeedsMultiplier, 27 / TimingClass.SpeedsMultiplier, 200);
                         this.hp = 800;
                         this.team = Player;
@@ -528,7 +532,9 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CruiserSize;
-                        rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
+                        rotationAngle = new DerivativeControlledParameter(
+                            0//Angle
+                            , -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun.owner = this;
                         break;
                 }
@@ -690,17 +696,24 @@ namespace CoreNamespace
                     }
                     //hp -= 1;
                     gun.Update();
-                    bool AimIsNear;
+                    float AimIsNearDecrementing;
                     //rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear);
-                    if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear))
+                    if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing))
                     {
+                        if (rotationSpeed.Value<0)
                         rotationSpeed.Derivative = rotationSpeed.MaxDerivative;
+                        else
+                            rotationSpeed.Derivative = rotationSpeed.MaxDerivative * AimIsNearDecrementing;
                     }
                     else
                     {
-                        rotationSpeed.Derivative = -rotationSpeed.MaxDerivative;
+                        if (rotationSpeed.Value > 0)
+                            rotationSpeed.Derivative = -rotationSpeed.MaxDerivative;
+                        else
+                            rotationSpeed.Derivative = -rotationSpeed.MaxDerivative * AimIsNearDecrementing;
+                        
                     }
-                    if (AimIsNear) rotationSpeed.Derivative = -rotationSpeed.Value;
+                    //rotationSpeed.Derivative *= AimIsNearDecrementing;
                     rotationSpeed.Update();
                     if (PlayerOwner == 0) { }
                     rotationAngle.Derivative = rotationSpeed.Value;

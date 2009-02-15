@@ -13,7 +13,7 @@ namespace DemoAI
         #region IAI Members
         public string Author
         {
-            get { return "MiniGame Team"; }
+            get { return "Cluster Team"; }
         }
         public string Description
         {

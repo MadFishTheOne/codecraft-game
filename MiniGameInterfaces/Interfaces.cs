@@ -197,6 +197,14 @@ namespace MiniGameInterfaces
         /// get interface of a specific shot
         /// </summary>
         IShot GetShot(int Index);
+        /// <summary>
+        /// gets near units and shots for specified position
+        /// </summary>
+        /// <param name="Position">position to specify</param>
+        /// <param name="Radius">near zone radius</param>
+        /// <param name="NearUnits">list of units in the near zone</param>
+        /// <param name="NearShots">list of shots in the near zone</param>
+        void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots);        
     }
     public interface IAI
     {

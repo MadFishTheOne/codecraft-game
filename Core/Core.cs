@@ -23,6 +23,7 @@ namespace CoreNamespace
         {
             const int border = 3000;
             const int gameObjectsCCells = 66;
+            const float cellSize = border * 2 / gameObjectsCCells;
             ArrayList[,] gameObjects;
             public GameObjectsClass()
             {
@@ -32,7 +33,6 @@ namespace CoreNamespace
                     {
                         gameObjects[i, j] = new ArrayList();
                     }
-
             }
             int GetLogicCoo(float RealCoo)
             {
@@ -72,28 +72,27 @@ namespace CoreNamespace
                     shot.SetLogicCoo(X, Y);
                 }
             }
-            public void GetNearObjects(Unit Unit, out List<Unit> NearUnits, out List<Shots.Shot> NearShots)
+            public void GetNearObjects(Vector2 Position, float Radius, out List<Unit> NearUnits, out List<Shots.Shot> NearShots)
             {
                 NearUnits = new List<Unit>();
                 NearShots = new List<Shots.Shot>();
-                int Radius = 0;// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
-                int X,Y;
-                Unit.GetLogicCoo(out X, out Y);
+                
+                int RadiusLogic =(int)(Radius/cellSize);// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
+                int X=GetLogicCoo( Position.X);
+                int Y=GetLogicCoo(Position.Y);
+                
                 int minX, minY, maxX, maxY;
-                minX = (int)Math.Min(Math.Max(X-Radius, 0), gameObjectsCCells -1);
-                minY = (int)Math.Min(Math.Max(Y - Radius, 0), gameObjectsCCells -1);
-
-                maxX = (int)Math.Min(Math.Max(X + Radius, 0), gameObjectsCCells -1);
-                maxY = (int)Math.Min(Math.Max(Y + Radius, 0), gameObjectsCCells -1);
+                minX = (int)Math.Min(Math.Max(X - RadiusLogic, 0), gameObjectsCCells - 1);
+                minY = (int)Math.Min(Math.Max(Y - RadiusLogic, 0), gameObjectsCCells - 1);
+                maxX = (int)Math.Min(Math.Max(X + RadiusLogic, 0), gameObjectsCCells - 1);
+                maxY = (int)Math.Min(Math.Max(Y + RadiusLogic, 0), gameObjectsCCells - 1);
                 for (int i=minX;i<=maxX;i++)
                     for (int j = minY; j <= maxY; j++)
                     {
                         //if (i == 49 && j == 28) { }
-                        
                         foreach (object obj in gameObjects[i, j])
                         {
-                            if (obj != Unit)
-                            {
+                           
                                 Unit nearUnit = obj as Unit;
                                 if (nearUnit != null)
                                 {
@@ -104,20 +103,16 @@ namespace CoreNamespace
                                 {
                                     NearShots.Add(nearShot);
                                 }
-                            }
+                            
                         }
                     }
-
-
             }
-
             internal void RemoveShot(Shots.Shot shot)
             {
                 int X,Y;
                 shot.GetLogicCoo(out X,out Y);
                 gameObjects[X, Y].Remove(shot);
             }
-
             internal void RemoveUnit(Unit unit)
             {
                 int X, Y;
@@ -126,8 +121,6 @@ namespace CoreNamespace
             }
         }
         GameObjectsClass gameObjects;
-        
-        
         class AngleClass
         {
             public static float Normalize(float angle)
@@ -141,7 +134,6 @@ namespace CoreNamespace
             public static float Distance(float angle1, float angle2)
             {
                 float prevDist = Math.Abs(Normalize(angle1 - angle2));
-                
                 return (float)Math.Min(prevDist, Math.Abs(Normalize(MathHelper.TwoPi - prevDist)));
             }
             public static float Difference(float angle1, float angle2)
@@ -327,17 +319,12 @@ namespace CoreNamespace
             }
             public bool RotateCCWToAngle(float AimedAngle, out bool AimIsNear)
             {
-
                 if (Math.Abs(AimedAngle - Value) < MathHelper.Pi / 180f * 1) AimIsNear = true;
                 else AimIsNear = false;
-
                 return AngleClass.Difference(Value, AimedAngle) < 0;
-
                 //AimedAngle = AngleClass.Normalize(AimedAngle);
                 //if (aimedValue > Value) return true;                
                 //return false;
-
-                
             }
         }
         public class Gun
@@ -408,7 +395,6 @@ namespace CoreNamespace
                 else return false;
             }
         }
-        
         public class Unit : IUnit
         {
             string name;
@@ -419,7 +405,6 @@ namespace CoreNamespace
             float blowDamage;
             public float BlowDamage
             { get { return blowDamage; } }
-            
             float hp;
             /// <summary>
             /// team identifier
@@ -503,7 +488,6 @@ namespace CoreNamespace
                         rotationSpeed = new DerivativeControlledParameter(0, -0.32f, 0.32f, 0.2f, false);
                         gun = new Gun(4, 50, 18, 40);                        
                         this.hp = 400;
-
                         this.team = Player;                        
                         IsAliveInPrevLoop = true;
                         this.shots = Core.shots;
@@ -522,7 +506,6 @@ namespace CoreNamespace
                         rotationSpeed = new DerivativeControlledParameter(0, -0.07f, 0.07f, 0.04f, false);                        
                         gun = new Gun(15, 50, 27, 200);
                         this.hp = 800;
-
                         this.team = Player;
                         IsAliveInPrevLoop = true;
                         this.shots = Core.shots;
@@ -535,7 +518,6 @@ namespace CoreNamespace
                         break;
                 }
             }
-
             internal void SetHP(float value) { hp = value; }
             #region IUnit Members
             public float HP { get { return hp; } }
@@ -708,14 +690,12 @@ namespace CoreNamespace
                 return new Rectangle(forward - right + position, forward + right + position,
                     -forward + right + position, -forward - right + position);
             }
-
             int logicX, logicY;
             internal void GetLogicCoo(out int oldX, out int oldY)
             {
                 oldX = logicX;
                 oldY = logicY;
             }
-
             internal void SetLogicCoo(int X, int Y)
             {
                 logicX = X;
@@ -833,12 +813,10 @@ namespace CoreNamespace
             public void DrawEnvironment()
             {
                 Vector4[] param=new Vector4[1];
-
                 param[0].X = 0;
                 param[0].Y = 0;
                 param[0].Z = 0;
                 param[0].W = 0;
-
                 graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
                 graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
                 graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
@@ -848,21 +826,16 @@ namespace CoreNamespace
                 graphics.GraphicsDevice.VertexDeclaration = vertexDecl;
                 graphics.GraphicsDevice.Vertices[0].SetSource(vertexBuffer, 0, vertexDecl.GetVertexStrideSize(0));
                 graphics.GraphicsDevice.Indices = indexBuffer;
-
                 environmentEffect.Parameters["ViewProj"].SetValue(ViewProj);
                 environmentEffect.Parameters["PlayerColors"].SetValue(TeamColors);
                 environmentEffect.Parameters["tex"].SetValue(EnvironmentTexture);
                 environmentEffect.Parameters["Positions"].SetValue(param);
-
                 environmentEffect.Parameters["Size"].SetValue(new Vector2(30000,30000));
-
                 environmentEffect.Begin();
-                
                 EffectPass p = environmentEffect.CurrentTechnique.Passes[0];
                 p.Begin();
                 graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 1 * 6, 0, 1 * 2);
                 p.End();
-           
                 environmentEffect.End();
             }
             public void DrawUnits(List<Unit> units)
@@ -1036,7 +1009,6 @@ namespace CoreNamespace
                     return new BoundingSphere(new Microsoft.Xna.Framework.Vector3((pos + End) * 0.5f, 0), size * 0.5f);
                 }
                 Vector2 forward;
-               
                 public Vector2 End
                 {
                     get
@@ -1060,7 +1032,6 @@ namespace CoreNamespace
                             size = 90; break;
                         default: size = 1; break;
                     }
-                    
                     pos = Pos;
                     direction = Dir;
                     damage = Damage;
@@ -1087,14 +1058,12 @@ namespace CoreNamespace
                     get { return new GameVector(direction.X, direction.Y); }
                 }
                 #endregion
-
                 int logicX, logicY;
                 internal void GetLogicCoo(out int oldX, out int oldY)
                 {
                     oldX = logicX;
                     oldY = logicY;
                 }
-
                 internal void SetLogicCoo(int X, int Y)
                 {
                     logicX = X;
@@ -1242,12 +1211,10 @@ namespace CoreNamespace
                 {
                     gameObjects.RemoveUnit(units[i]);
                     units.RemoveAt(i);
-                    
                     i--;
                 }
             }
             UnitIntersections();
-            
             shots.Update();
         }
         //private void ShotsWithUnitsIntersections()
@@ -1290,20 +1257,18 @@ namespace CoreNamespace
                 gameObjects.UpdateUnit(unit);            }
             foreach (Shots.Shot shot in shots)
             { gameObjects.UpdateShot(shot); }
-
-
             for (int i = 0; i < units.Count ; i++)
                 if (units[i].HP >= 0)
                 {                  
                     Rectangle rect1 = units[i].GetRectangle();
                     BoundingSphere sphere1 = rect1.BoxBoundingSphere;
-
                     List<Unit> nearUnits = new List<Unit>();
                     List<Shots.Shot> nearShots = new List<Shots.Shot>();
-                    gameObjects.GetNearObjects(units[i], out nearUnits, out nearShots);
+                    gameObjects.GetNearObjects(units[i].position,0, out nearUnits, out nearShots);
                     if (units[i].ShipType == ShipTypes.Destroyer)
                     { }
                     foreach (Unit nearUnit in nearUnits)
+                        if (nearUnit!=units[i])
                     {
                         Rectangle rect2 = nearUnit.GetRectangle();
                         if (sphere1.Intersects(rect2.BoxBoundingSphere))
@@ -1330,7 +1295,6 @@ namespace CoreNamespace
                             }
                         }
                     }
-                   
                 }
                 else
                 {
@@ -1384,7 +1348,6 @@ namespace CoreNamespace
             //units[0].SetAngle(MathHelper.PiOver2);
             //units[0].SetSpeed(15f);
         }
-
         private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
         {
             float angle = (currTeam > 0) ? MathHelper.Pi : 0;
@@ -1532,6 +1495,25 @@ namespace CoreNamespace
         {
             return (IShot)shots.shots[Index];
         }
+         
+        public void GetNearUnits(GameVector Position, float Radius,out List<IUnit> NearUnits,out List<IShot>  NearShots)
+        {
+            List<Unit> nearUnits;
+            List<Shots.Shot> nearShots;
+            gameObjects.GetNearObjects(new Vector2( Position.X,Position.Y), Radius, out nearUnits, out nearShots);
+            NearUnits = new List<IUnit>();
+            foreach (Unit unit in nearUnits)
+            {
+                NearUnits.Add((IUnit)unit);
+            }
+            NearShots= new List<IShot>();
+            foreach (IShot shot in nearShots)
+            {
+                NearShots.Add((IShot)shot);
+            }
+        }
+
+        
 
         #endregion
     }

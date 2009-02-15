@@ -83,10 +83,10 @@ namespace CoreNamespace
                 int RadiusLogic =(int)(Radius/cellSize);// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
                 int X=GetLogicCoo( Position.X);
                 int Y=GetLogicCoo(Position.Y);
-                if (RadiusLogic == 0 && (GetLogicCoo(X + 10) != X || GetLogicCoo(X - 10) != X || GetLogicCoo(Y + 10) != Y || GetLogicCoo(Y - 10) != Y))
-                {
-                    RadiusLogic++;
-                }
+                //if (RadiusLogic == 0 && (GetLogicCoo(X + 10) != X || GetLogicCoo(X - 10) != X || GetLogicCoo(Y + 10) != Y || GetLogicCoo(Y - 10) != Y))
+                //{
+                //    RadiusLogic++;
+                //}
 
                 int minX, minY, maxX, maxY;
                 minX = (int)Math.Min(Math.Max(X - RadiusLogic, 0), gameObjectsCCells - 1);

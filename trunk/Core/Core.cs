@@ -590,7 +590,10 @@ namespace CoreNamespace
             {
                 get { return shipType; }
             }
-
+            public float ShootingRadius
+            {
+                get { return gun.MaxDistance; }
+            }
             #region controlling the unit
 
             public void Accelerate(float amount)

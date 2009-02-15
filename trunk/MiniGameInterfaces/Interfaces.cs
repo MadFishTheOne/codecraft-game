@@ -120,6 +120,10 @@ namespace MiniGameInterfaces
         /// gun damage in HP
         /// </summary>
         float Damage { get; }
+        /// <summary>
+        /// shooting radius o unit's gun
+        /// </summary>
+        float ShootingRadius { get; }
         #endregion
         #region Controlling the unit
         /// <summary>

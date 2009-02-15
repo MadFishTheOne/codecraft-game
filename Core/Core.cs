@@ -170,7 +170,7 @@ namespace CoreNamespace
         }
         public class TimingClass
         {
-            public const float SpeedsMuller = 10;
+            public const float SpeedsMultiplier = 10;
             /// <summary>
             /// in milliseconds
             /// </summary>
@@ -483,10 +483,10 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = DestroyerSize;
-                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMuller, 9 * TimingClass.SpeedsMuller, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.72f * TimingClass.SpeedsMuller, 0.72f * TimingClass.SpeedsMuller, 0.5f * TimingClass.SpeedsMuller, false);
+                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMultiplier, 9 * TimingClass.SpeedsMultiplier, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.72f * TimingClass.SpeedsMultiplier, 0.72f * TimingClass.SpeedsMultiplier, 0.5f * TimingClass.SpeedsMultiplier, false);
                         rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
-                        gun = new Gun(3, 50 * TimingClass.SpeedsMuller, 9, 15);
+                        gun = new Gun(3, 50 * TimingClass.SpeedsMultiplier, 9, 15);
                         gun.owner = this;
                         this.hp = 80;
                         this.team = Player;
@@ -499,9 +499,9 @@ namespace CoreNamespace
                         blowDamage = 150;
                         blowRadius = 120;
                         maxTimeAfterDeath = 8*0.2f;
-                        speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMuller, 1 * TimingClass.SpeedsMuller, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.32f * TimingClass.SpeedsMuller, 0.32f * TimingClass.SpeedsMuller, 0.2f * TimingClass.SpeedsMuller, false);
-                        gun = new Gun(4, 50 * TimingClass.SpeedsMuller, 18, 40);                        
+                        speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMultiplier, 1 * TimingClass.SpeedsMultiplier, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.32f * TimingClass.SpeedsMultiplier, 0.32f * TimingClass.SpeedsMultiplier, 0.2f * TimingClass.SpeedsMultiplier, false);
+                        gun = new Gun(4, 50 * TimingClass.SpeedsMultiplier, 18, 40);                        
                         this.hp = 400;
                         this.team = Player;                        
                         IsAliveInPrevLoop = true;
@@ -517,9 +517,9 @@ namespace CoreNamespace
                         blowDamage = 300;
                         blowRadius = 120;
                         maxTimeAfterDeath = 12*0.2f;
-                        speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMuller, 1.0f * TimingClass.SpeedsMuller, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.07f * TimingClass.SpeedsMuller, 0.07f * TimingClass.SpeedsMuller, 0.04f * TimingClass.SpeedsMuller, false);
-                        gun = new Gun(15, 50 * TimingClass.SpeedsMuller, 27, 200);
+                        speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMultiplier, 1.0f * TimingClass.SpeedsMultiplier, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.07f * TimingClass.SpeedsMultiplier, 0.07f * TimingClass.SpeedsMultiplier, 0.04f * TimingClass.SpeedsMultiplier, false);
+                        gun = new Gun(15, 50 * TimingClass.SpeedsMultiplier, 27, 200);
                         this.hp = 800;
                         this.team = Player;
                         IsAliveInPrevLoop = true;

@@ -530,7 +530,7 @@ namespace CoreNamespace
                         break;
                 }
             }
-            internal void SetHP(float value) { hp = value; }
+            internal void SetHP(float value) { hp = value; if (hp < 0)  hp = -1;}
             #region IUnit Members
             public float HP { get { return hp; } }
             public string Name
@@ -1405,18 +1405,23 @@ namespace CoreNamespace
         }
         private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
         {
+            int MaxShipsInLine = 8;
+            int CShips = 0;
             float angle = (currTeam > 0) ? MathHelper.Pi : 0;
             for (int i = 0; i < CCruisers; i++)
             {
-                units.Add(new Unit(ShipTypes.Cruiser, currTeam, pos + new Vector2(150 * i, 0), angle, "Cruiser -" + i.ToString() + "-"));
+                units.Add(new Unit(ShipTypes.Cruiser, currTeam, pos + new Vector2(150 * (CShips % MaxShipsInLine) + 23 + 75 * ((CShips / MaxShipsInLine)%2), 150 * (CShips / MaxShipsInLine)), angle, "Cruiser -" + i.ToString() + "-"));
+                CShips++;
             }
             for (int i = 0; i < CCorvettes; i++)
             {
-                units.Add(new Unit(ShipTypes.Corvette, currTeam, pos + new Vector2(150 * (i + CCruisers), 0), angle, "Corvette -" + i.ToString() + "-"));
+                units.Add(new Unit(ShipTypes.Corvette, currTeam, pos + new Vector2(150 * (CShips % MaxShipsInLine) + 23 + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine)), angle, "Corvette -" + i.ToString() + "-"));
+                CShips++;
             }
             for (int i = 0; i < CDestroyers; i++)
             {
-                units.Add(new Unit(ShipTypes.Destroyer, currTeam, pos + new Vector2(150 * (i + CCruisers + CCorvettes), 0), angle, "Destroyer -" + i.ToString() + "-"));
+                units.Add(new Unit(ShipTypes.Destroyer, currTeam, pos + new Vector2(150 * (CShips % MaxShipsInLine) + 23 + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine)), angle, "Destroyer -" + i.ToString() + "-"));
+                CShips++;
             }
 
         }

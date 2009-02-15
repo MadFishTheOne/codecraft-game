@@ -1461,15 +1461,15 @@ namespace CoreNamespace
             playersText = new string[players.Count];
             playersTotalUpdateTime = new float[players.Count];
             coreTotalUpdateTime = 0;
+            units.Clear();
+            shots.Clear();
+            gameObjects = new GameObjectsClass();
+            AddUnits();
             for (int i = 0; i < players.Count; i++)
             {
                 playersText[i] = "";
                 players[i].Init(i, this);
             }
-            units.Clear();
-            shots.Clear();
-            gameObjects = new GameObjectsClass();
-            AddUnits();
         }
         public struct Rectangle
         {

@@ -1391,7 +1391,7 @@ namespace CoreNamespace
                     CDestroyers = Convert.ToInt32(text);
                 }
                 else CDestroyers = 0;
-                CreateUnitsForPlayer(currTeam,CCruisers,CCorvettes,CDestroyers,new Vector2(0,(currTeam-0.5f)*6000));
+                CreateUnitsForPlayer(currTeam,CCruisers,CCorvettes,CDestroyers,new Vector2(0,000));
                 currTeam++;
                 if (rd.EndOfStream) { break; }
                 
@@ -1408,22 +1408,36 @@ namespace CoreNamespace
         }
         private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
         {
+            int sign = currTeam == 0 ? -1 : 1;
             int MaxShipsInLine = 8;
             int CShips = 0;
             float angle = (currTeam > 0) ? MathHelper.Pi : 0;
+            Vector2 position;
             for (int i = 0; i < CCruisers; i++)
             {
-                units.Add(new Unit(ShipTypes.Cruiser, currTeam, pos + new Vector2(150 * (CShips % MaxShipsInLine) + 23 + 75 * ((CShips / MaxShipsInLine)%2), 150 * (CShips / MaxShipsInLine)), angle, "Cruiser -" + i.ToString() + "-"));
+                position=pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine)%2), 150 * (CShips / MaxShipsInLine));
+                position.Y += 2000;
+                position.Y*=sign;
+                position.X+=23 ;
+                units.Add(new Unit(ShipTypes.Cruiser, currTeam, position, angle, "Cruiser -" + i.ToString() + "-"));
                 CShips++;
             }
             for (int i = 0; i < CCorvettes; i++)
             {
-                units.Add(new Unit(ShipTypes.Corvette, currTeam, pos + new Vector2(150 * (CShips % MaxShipsInLine) + 23 + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine)), angle, "Corvette -" + i.ToString() + "-"));
+                position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
+                position.Y += 2000;
+                position.Y *= sign;
+                position.X += 23;
+                units.Add(new Unit(ShipTypes.Corvette, currTeam, position, angle, "Corvette -" + i.ToString() + "-"));
                 CShips++;
             }
             for (int i = 0; i < CDestroyers; i++)
             {
-                units.Add(new Unit(ShipTypes.Destroyer, currTeam, pos + new Vector2(150 * (CShips % MaxShipsInLine) + 23 + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine)), angle, "Destroyer -" + i.ToString() + "-"));
+                position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
+                position.Y += 2000;
+                position.Y *= sign;
+                position.X += 23;
+                units.Add(new Unit(ShipTypes.Destroyer, currTeam, position, angle, "Destroyer -" + i.ToString() + "-"));
                 CShips++;
             }
 

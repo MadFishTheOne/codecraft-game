@@ -92,11 +92,12 @@ namespace CoreNamespace
                 minY = (int)Math.Min(Math.Max(Y - RadiusLogic, 0), gameObjectsCCells - 1);
                 maxX = (int)Math.Min(Math.Max(X + RadiusLogic, 0), gameObjectsCCells - 1);
                 maxY = (int)Math.Min(Math.Max(Y + RadiusLogic, 0), gameObjectsCCells - 1);
-                
-                for (int i = minX; i <= maxX; i++)
-                    for (int j = minY; j <= maxY; j++)
+
+                int i, j, k;
+                for (i = minX; i <= maxX; i++)
+                    for (j = minY; j <= maxY; j++)
                     {
-                        for (int k = 0; k < gameObjects[i, j].Count; k++)
+                        for (k = 0; k < gameObjects[i, j].Count; k++)
                         {
                             Unit nearUnit = gameObjects[i, j][k] as Unit;
                             if (nearUnit != null)

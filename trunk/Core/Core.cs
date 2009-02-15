@@ -1413,15 +1413,16 @@ namespace CoreNamespace
             int CShips = 0;
             float angle = (currTeam > 0) ? MathHelper.Pi : 0;
             Vector2 position;
-            for (int i = 0; i < CCruisers; i++)
+            for (int i = 0; i < CDestroyers; i++)
             {
-                position=pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine)%2), 150 * (CShips / MaxShipsInLine));
+                position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
                 position.Y += 2000;
-                position.Y*=sign;
-                position.X+=23 ;
-                units.Add(new Unit(ShipTypes.Cruiser, currTeam, position, angle, "Cruiser -" + i.ToString() + "-"));
+                position.Y *= sign;
+                position.X += 23;
+                units.Add(new Unit(ShipTypes.Destroyer, currTeam, position, angle, "Destroyer -" + i.ToString() + "-"));
                 CShips++;
-            }
+
+            }           
             for (int i = 0; i < CCorvettes; i++)
             {
                 position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
@@ -1431,13 +1432,14 @@ namespace CoreNamespace
                 units.Add(new Unit(ShipTypes.Corvette, currTeam, position, angle, "Corvette -" + i.ToString() + "-"));
                 CShips++;
             }
-            for (int i = 0; i < CDestroyers; i++)
+
+            for (int i = 0; i < CCruisers; i++)
             {
                 position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
                 position.Y += 2000;
                 position.Y *= sign;
                 position.X += 23;
-                units.Add(new Unit(ShipTypes.Destroyer, currTeam, position, angle, "Destroyer -" + i.ToString() + "-"));
+                units.Add(new Unit(ShipTypes.Cruiser, currTeam, position, angle, "Cruiser -" + i.ToString() + "-"));
                 CShips++;
             }
 

@@ -536,6 +536,11 @@ namespace CoreNamespace
             internal void SetHP(float value) { hp = value; if (hp < 0)  hp = -1;}
             #region IUnit Members
             public float HP { get { return hp; } }
+
+            public bool Dead
+            {
+                get { return hp < 0; }
+            }
             public string Name
             {
                 get { return name; }

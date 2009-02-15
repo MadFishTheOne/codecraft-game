@@ -304,11 +304,11 @@ namespace CoreNamespace
                 }
                 else
                 {
-                    currValue += currDerivative * Core.Timing.DeltaTime;
-                    if (currValue > max) currValue = max;
-                    if (currValue < min) currValue = min;
+                    currValue += currDerivative * Core.Timing.DeltaTime;                    
                 }
                 if (isAngle) currValue = AngleClass.Normalize(currValue);
+                if (currValue > max) currValue = max;
+                if (currValue < min) currValue = min;
             }
             public float Value
             {

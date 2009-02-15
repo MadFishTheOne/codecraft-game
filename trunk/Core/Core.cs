@@ -14,6 +14,8 @@ using Microsoft.Xna.Framework.Storage;
 using System.Collections;
 using MiniGameInterfaces;
 using System.IO;
+
+
 //using System.Windows.Forms;
 //using System.Drawing;
 namespace CoreNamespace
@@ -22,8 +24,8 @@ namespace CoreNamespace
     {
         class GameObjectsClass
         {
-            const int border = 3000;
-            const int gameObjectsCCells = 66;
+            const int border = 4000;
+            const int gameObjectsCCells = 46;
             const float cellSize = border * 2 / gameObjectsCCells;
             ArrayList[,] gameObjects;
             public GameObjectsClass()
@@ -81,28 +83,37 @@ namespace CoreNamespace
                 int RadiusLogic =(int)(Radius/cellSize);// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
                 int X=GetLogicCoo( Position.X);
                 int Y=GetLogicCoo(Position.Y);
-                
+                if (RadiusLogic == 0 && (GetLogicCoo(X + 10) != X || GetLogicCoo(X - 10) != X || GetLogicCoo(Y + 10) != Y || GetLogicCoo(Y - 10) != Y))
+                {
+                    RadiusLogic++;
+                }
+
                 int minX, minY, maxX, maxY;
                 minX = (int)Math.Min(Math.Max(X - RadiusLogic, 0), gameObjectsCCells - 1);
                 minY = (int)Math.Min(Math.Max(Y - RadiusLogic, 0), gameObjectsCCells - 1);
                 maxX = (int)Math.Min(Math.Max(X + RadiusLogic, 0), gameObjectsCCells - 1);
                 maxY = (int)Math.Min(Math.Max(Y + RadiusLogic, 0), gameObjectsCCells - 1);
+                
                 for (int i=minX;i<=maxX;i++)
                     for (int j = minY; j <= maxY; j++)
                     {
                         //if (i == 49 && j == 28) { }
-                        foreach (object obj in gameObjects[i, j])
+                        //foreach (object obj in gameObjects[i, j])
+                            for (int k=0;k<gameObjects[i,j].Count;k++)
                         {
                            
-                                Unit nearUnit = obj as Unit;
+                                Unit nearUnit = gameObjects[i,j][k] as Unit;
                                 if (nearUnit != null)
                                 {
                                     NearUnits.Add(nearUnit);
                                 }
-                                Shots.Shot nearShot = obj as Shots.Shot;
-                                if (nearShot != null)
+                                else
                                 {
-                                    NearShots.Add(nearShot);
+                                    Shots.Shot nearShot = gameObjects[i, j][k]  as Shots.Shot;
+                                    if (nearShot != null)
+                                    {
+                                        NearShots.Add(nearShot);
+                                    }
                                 }
                             
                         }
@@ -120,8 +131,9 @@ namespace CoreNamespace
                 unit.GetLogicCoo(out X, out Y);
                 gameObjects[X, Y].Remove(unit);
             }
+
         }
-        GameObjectsClass gameObjects;
+        static GameObjectsClass gameObjects;
         class AngleClass
         {
             public static float Normalize(float angle)
@@ -210,7 +222,7 @@ namespace CoreNamespace
                     deltaTime = 0.0f;
                 prevTime = currTime;
             }
-            public const float maxDeltaTime = 0.05f;
+            public const float maxDeltaTime = 0.1f;
             public float DeltaTime
             {
                 get
@@ -393,8 +405,8 @@ namespace CoreNamespace
                 if (CanShoot)
                 {
                     currDelay = delay;
-                    shots.Add(new Shots.Shot(owner.position + new Vector2(owner.Forward.X, owner.Forward.Y) * owner.size.Y * 0.6f,
-                        owner.ForwardVector * speed, Damage, lifeTime,owner.ShipType));
+                    shots.Add(new Shots.Shot(owner.position + new Vector2(owner.Forward.X, owner.Forward.Y) * (owner.size.Y*0.5f +1),
+                        owner.ForwardVector * speed, Damage, lifeTime,owner));
                     return true;
                 }
                 else return false;
@@ -670,7 +682,7 @@ namespace CoreNamespace
                     //                rotationAngle.Derivative = (rotationAngle.AimedValue - rotationAngle.Value) * 0.05f;
                     rotationAngle.Update();
                     speed.Update();
-                    position += ForwardVector * speed * Timing.DeltaTime;
+                    position += ForwardVector * speed.Value * Timing.DeltaTime;
                     isDying = false;
                 }
                 else
@@ -1025,9 +1037,16 @@ namespace CoreNamespace
                 public float damage;
                 public float lifeTime;
                 //public const long MaxLifeTime = 2000;
-                public Shot(Vector2 Pos, Vector2 Dir, float Damage, float LifeTime,ShipTypes OwnerType)
+                Unit parent;
+                public bool IsChildOf(Unit unitToCheck)
                 {
-                    switch (OwnerType)
+                    return unitToCheck == parent;
+                }
+
+                public Shot(Vector2 Pos, Vector2 Dir, float Damage, float LifeTime,Unit ParentUnit)
+                {
+                    parent = ParentUnit;
+                    switch (parent.ShipType)
                     {
                         case ShipTypes.Destroyer:
                             size = 24; break;
@@ -1110,6 +1129,7 @@ namespace CoreNamespace
                     if (shots[i].lifeTime <= 0)
                     {
                         shots.RemoveAt(i);
+                        gameObjects.RemoveShot(shots[i]);
                         i--;
                     }
                 }
@@ -1249,8 +1269,9 @@ namespace CoreNamespace
                     i--;
                 }
             }
-            UnitIntersections();
             shots.Update();
+            UnitIntersections();
+            
             coreTotalUpdateTime += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
         }
         //private void ShotsWithUnitsIntersections()
@@ -1288,14 +1309,16 @@ namespace CoreNamespace
         {
             foreach (Unit unit in units)
             {
-                //if (unit.ShipType == ShipTypes.Destroyer)
-                //{ }
+                if (unit.ShipType == ShipTypes.Destroyer)
+                { }
                 gameObjects.UpdateUnit(unit);            }
             foreach (Shots.Shot shot in shots)
             { gameObjects.UpdateShot(shot); }
             for (int i = 0; i < units.Count ; i++)
                 if (units[i].HP >= 0)
-                {                  
+                {
+                    if (units[i].ShipType == ShipTypes.Destroyer)
+                    { }
                     Rectangle rect1 = units[i].GetRectangle();
                     BoundingSphere sphere1 = rect1.BoxBoundingSphere;
                     List<Unit> nearUnits = new List<Unit>();
@@ -1319,6 +1342,7 @@ namespace CoreNamespace
                         }
                     }
                     foreach (Shots.Shot shot in nearShots)
+                        if (shot.lifeTime>0&&!shot.IsChildOf(units[i]))
                     {
                         if (shot.GetBoundingSphere().Intersects(sphere1))
                         {                            
@@ -1369,7 +1393,7 @@ namespace CoreNamespace
                     CDestroyers = Convert.ToInt32(text);
                 }
                 else CDestroyers = 0;
-                CreateUnitsForPlayer(currTeam,CCruisers,CCorvettes,CDestroyers,new Vector2(0,currTeam*1000));
+                CreateUnitsForPlayer(currTeam,CCruisers,CCorvettes,CDestroyers,new Vector2(0,(currTeam-0.5f)*6000));
                 currTeam++;
                 if (rd.EndOfStream) { break; }
                 

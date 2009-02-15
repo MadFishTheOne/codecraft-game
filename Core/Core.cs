@@ -689,7 +689,7 @@ namespace CoreNamespace
                         float timeToStop = speed.Value / speed.MaxDerivative;
                         float StopDistanceSq = speed.Value * timeToStop - speed.MaxDerivative * timeToStop * timeToStop / 2;
                         if (AngleClass.Distance(GetAngleTo(tgtLocation), rotationAngle.Value) < MathHelper.PiOver4 &&
-                            (StopDistanceSq > Vector2.DistanceSquared(position, tgtLocation) || !stopsNearPoint))
+                            (StopDistanceSq < Vector2.DistanceSquared(position, tgtLocation) || !stopsNearPoint))
                             SetSpeedGoingToTgt(MaxSpeed);
                         else SetSpeedGoingToTgt(0);
                         //if (distanceSq < 30*30&&speed.Value<10) { goesToPoint = false; }

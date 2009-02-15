@@ -202,16 +202,18 @@ namespace MiniGame
 
             if (playingNow)
             {
-                Core.CameraPosition.Z += newState.IsKeyDown(Keys.End)?1:0; //1000 - Mouse.GetState().ScrollWheelValue * 0.5f;
-                Core.CameraPosition.Z -= newState.IsKeyDown(Keys.Home) ? 1 : 0;
+                if (newState.IsKeyDown(Keys.End))
+                    Core.CameraPosition.Z += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2000.0f;
+                if (newState.IsKeyDown(Keys.Home))
+                    Core.CameraPosition.Z -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2000.0f;
                 if (newState.IsKeyDown(Keys.Right))
-                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
                 if (newState.IsKeyDown(Keys.Left))
-                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
                 if (newState.IsKeyDown(Keys.Down))
-                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
                 if (newState.IsKeyDown(Keys.Up))
-                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 1500.0f;
 
 #if FAlLSE
                 if (Mouse.GetState().X > Core.viewer.screenWidth - 30 )
@@ -248,7 +250,8 @@ namespace MiniGame
                     Core.viewer.DrawText(plugins[i].Author, new Vector2(60, 60 + i * 20), 0, Color.White);
                     Core.viewer.DrawText(plugins[i].Description, new Vector2(250, 60 + i * 20), 0, Color.Gray);
                 }
-                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list, and [Del] to clear list. [Enter] starts the game.", new Vector2(60, 360), 0, Color.LightGoldenrodYellow);
+                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list,", new Vector2(60, 340), 0, Color.LightGoldenrodYellow);
+                Core.viewer.DrawText("and [Del] to clear list. [Enter] starts the game.", new Vector2(60, 360), 0, Color.LightGoldenrodYellow);
                 Core.viewer.DrawText("Selected players:", new Vector2(60, 400), 0, Color.Yellow);
                 for (int i = 0; i < players.Count; i++)
                 {

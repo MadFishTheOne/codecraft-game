@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -144,8 +145,12 @@ namespace CoreNamespace
                 //return (float)Math.Min(prevDist, Math.Abs(Normalize(MathHelper.TwoPi - prevDist)));
             }
         }
+
         List<IAI> players;
-        List<string> playersText;
+        string[] playersText;
+        float[] playersTotalUpdateTime;
+        float coreTotalUpdateTime;
+
         public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
             gameObjects = new GameObjectsClass();
@@ -1123,6 +1128,23 @@ namespace CoreNamespace
         static internal Shots shots;
         public static Viewer viewer;
         internal static int CurrentPlayer;
+
+        public string SecondsToString(float seconds)
+        {
+            int iMinutes = (int)(seconds / 60);
+            seconds -= iMinutes * 60;
+            int iSeconds = (int)seconds;
+            seconds -= iSeconds;
+            int iMillis = (int)(seconds * 1000);
+            string sSeconds = iSeconds.ToString();
+            while (sSeconds.Length < 2)
+                sSeconds = "0" + sSeconds;
+            string sMillis = iMillis.ToString();
+            while (sMillis.Length < 4)
+                sMillis = "0" + sMillis;
+            return iMinutes.ToString() + ":" + sSeconds + "." + sMillis;
+        }
+
         public void Draw()
         {
             Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
@@ -1135,6 +1157,7 @@ namespace CoreNamespace
             int[] cruisers = new int[players.Count];
             int[] total = new int[players.Count];
             string[] infoString = new string[players.Count];
+            string[] timeString = new string[players.Count];
             bool gameEnd = true;
             bool gameDraw = true;
             int gameWinner = -1;
@@ -1159,22 +1182,30 @@ namespace CoreNamespace
                 gameWinner = units[i].PlayerOwner;
             }
             for (int i = 0; i < players.Count; i++)
+            {
                 infoString[i] = destroyers[i].ToString() + "+" + corvettes[i].ToString() + "+" + cruisers[i].ToString() + "=" + total[i].ToString();
+                timeString[i] = SecondsToString(playersTotalUpdateTime[i]);
+            }
+            string coreTimeString = SecondsToString(coreTotalUpdateTime);
             //
             string[] lines;
             viewer.DrawText(players[0].Author, new Vector2(100, 20), 0, new Color(Core.Viewer.TeamColors[0]));
             viewer.DrawText(players[0].Description, new Vector2(100, 40), 0, Color.Gray);
             viewer.DrawText(infoString[0], new Vector2(100, 60), 0, Color.White);
+            viewer.DrawText(timeString[0], new Vector2(100, 80), 0, Color.White);
             lines = playersText[0].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
-                viewer.DrawText(lines[i], new Vector2(100, 80 + i * 20), 0, Color.Yellow);
+                viewer.DrawText(lines[i], new Vector2(100, 120 + i * 20), 0, Color.Yellow);
             viewer.DrawText("vs.", new Vector2(Core.viewer.screenWidth / 2, 20), 1, Color.White);
+            viewer.DrawText("Core update time:", new Vector2(Core.viewer.screenWidth / 2, 60), 1, Color.White);
+            viewer.DrawText(coreTimeString, new Vector2(Core.viewer.screenWidth / 2, 80), 1, Color.White);
             viewer.DrawText(players[1].Author, new Vector2(Core.viewer.screenWidth - 100, 20), 2, new Color(Core.Viewer.TeamColors[1]));
             viewer.DrawText(players[1].Description, new Vector2(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
             viewer.DrawText(infoString[1], new Vector2(Core.viewer.screenWidth - 100, 60), 2, Color.White);
+            viewer.DrawText(timeString[1], new Vector2(Core.viewer.screenWidth - 100, 80), 2, Color.White);
             lines = playersText[1].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
-                viewer.DrawText(lines[i], new Vector2(Core.viewer.screenWidth - 100, 80 + i * 20), 2, Color.Yellow);
+                viewer.DrawText(lines[i], new Vector2(Core.viewer.screenWidth - 100, 120 + i * 20), 2, Color.Yellow);
             //
             if (gameEnd)
             {
@@ -1192,13 +1223,17 @@ namespace CoreNamespace
         }
         public void Update()
         {
-            CurrentPlayer = 0;
-            foreach (IAI player in players)
+            Stopwatch sw = new Stopwatch();
+            for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
             {
-                player.Update();
-                CurrentPlayer++;
+                sw.Reset();
+                sw.Start();
+                players[CurrentPlayer].Update();
+                playersTotalUpdateTime[CurrentPlayer] += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
             }
             CurrentPlayer = -1;
+            sw.Reset();
+            sw.Start();
             ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
                  Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
             for (int i = 0; i < units.Count; i++)
@@ -1216,6 +1251,7 @@ namespace CoreNamespace
             }
             UnitIntersections();
             shots.Update();
+            coreTotalUpdateTime += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
         }
         //private void ShotsWithUnitsIntersections()
         //{
@@ -1368,11 +1404,14 @@ namespace CoreNamespace
         public void Reset(List<IAI> Players)
         {
             players = Players;
-            playersText = new List<string>();
+            playersText = new string[players.Count];
+            playersTotalUpdateTime = new float[players.Count];
+            coreTotalUpdateTime = 0;
             for (int i = 0; i < players.Count; i++)
-                playersText.Add("");
-            for (int i = 0; i < players.Count; i++)
+            {
+                playersText[i] = "";
                 players[i].Init(i, this);
+            }
             units.Clear();
             shots.Clear();
             gameObjects = new GameObjectsClass();

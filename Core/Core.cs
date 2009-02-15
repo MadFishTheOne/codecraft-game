@@ -212,7 +212,8 @@ namespace CoreNamespace
                 if (!paused)
                 {
                     deltaTime = (currTime - prevTime) * 0.001f;
-                    //deltaTime = 0.015f;
+                    if (deltaTime > 0.5f)
+                        deltaTime = 0.015f;
                     deltaTime *= timeSpeed;
                     nowTime += deltaTime;
                 }

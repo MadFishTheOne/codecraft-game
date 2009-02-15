@@ -54,8 +54,7 @@ namespace CoreNamespace
                 gameObjects[oldX, oldY].Remove(unit);
 
                 if (!node.Contains(unit))
-                {
-                    
+                {                    
                     node.Add(unit);
                     unit.SetLogicCoo(X, Y);
                 }
@@ -94,28 +93,24 @@ namespace CoreNamespace
                 maxX = (int)Math.Min(Math.Max(X + RadiusLogic, 0), gameObjectsCCells - 1);
                 maxY = (int)Math.Min(Math.Max(Y + RadiusLogic, 0), gameObjectsCCells - 1);
                 
-                for (int i=minX;i<=maxX;i++)
+                for (int i = minX; i <= maxX; i++)
                     for (int j = minY; j <= maxY; j++)
                     {
-                        //if (i == 49 && j == 28) { }
-                        //foreach (object obj in gameObjects[i, j])
-                            for (int k=0;k<gameObjects[i,j].Count;k++)
+                        for (int k = 0; k < gameObjects[i, j].Count; k++)
                         {
-                           
-                                Unit nearUnit = gameObjects[i,j][k] as Unit;
-                                if (nearUnit != null)
+                            Unit nearUnit = gameObjects[i, j][k] as Unit;
+                            if (nearUnit != null)
+                            {
+                                NearUnits.Add(nearUnit);
+                            }
+                            else
+                            {
+                                Shots.Shot nearShot = gameObjects[i, j][k] as Shots.Shot;
+                                if (nearShot != null)
                                 {
-                                    NearUnits.Add(nearUnit);
+                                    NearShots.Add(nearShot);
                                 }
-                                else
-                                {
-                                    Shots.Shot nearShot = gameObjects[i, j][k]  as Shots.Shot;
-                                    if (nearShot != null)
-                                    {
-                                        NearShots.Add(nearShot);
-                                    }
-                                }
-                            
+                            }
                         }
                     }
             }

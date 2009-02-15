@@ -1500,10 +1500,10 @@ namespace CoreNamespace
             shots.Clear();
             gameObjects = new GameObjectsClass();
             AddUnits();
-            for (int i = 0; i < players.Count; i++)
+            for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
             {
-                playersText[i] = "";
-                players[i].Init(i, this);
+                playersText[CurrentPlayer] = "";
+                players[CurrentPlayer].Init(CurrentPlayer, this);
             }
         }
         public struct Rectangle

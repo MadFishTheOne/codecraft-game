@@ -94,7 +94,7 @@ namespace MiniGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            Core.CameraPosition.Z = 500;
+            Core.CameraPosition.Z = 9000;
             base.Initialize();
         }
 

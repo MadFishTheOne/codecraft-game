@@ -19,6 +19,115 @@ namespace CoreNamespace
 {
     public class Core : IGame
     {
+        class GameObjectsClass
+        {
+            const int border = 3000;
+            const int gameObjectsCCells = 66;
+            ArrayList[,] gameObjects;
+            public GameObjectsClass()
+            {
+                gameObjects = new ArrayList[gameObjectsCCells, gameObjectsCCells];
+                for(int i=0;i<gameObjectsCCells;i++)
+                    for (int j = 0; j < gameObjectsCCells; j++)
+                    {
+                        gameObjects[i, j] = new ArrayList();
+                    }
+
+            }
+            int GetLogicCoo(float RealCoo)
+            {
+                int X = (int)((RealCoo + border) / (2 * border) * gameObjectsCCells);
+                X = (int)Math.Min(Math.Max(X, 0), gameObjectsCCells - 1);
+                return X;
+            }            
+            public void UpdateUnit(Unit unit)
+            {
+                int X = GetLogicCoo(unit.position.X);
+                int Y = GetLogicCoo(unit.position.Y);
+                int oldX, oldY;
+                
+                ArrayList node = gameObjects[X, Y];
+                unit.GetLogicCoo(out oldX, out oldY);
+                gameObjects[oldX, oldY].Remove(unit);
+
+                if (!node.Contains(unit))
+                {
+                    
+                    node.Add(unit);
+                    unit.SetLogicCoo(X, Y);
+                }
+            }
+            public void UpdateShot(Shots.Shot shot)
+            {
+                int X = GetLogicCoo(shot.Position.X);
+                int Y = GetLogicCoo(shot.Position.Y);
+                int oldX, oldY;
+                shot.GetLogicCoo(out oldX, out oldY);
+                gameObjects[oldX, oldY].Remove(shot);
+                ArrayList node = gameObjects[X, Y];
+                if (!node.Contains(shot))
+                {
+                    
+                    node.Add(shot);
+                    shot.SetLogicCoo(X, Y);
+                }
+            }
+            public void GetNearObjects(Unit Unit, out List<Unit> NearUnits, out List<Shots.Shot> NearShots)
+            {
+                NearUnits = new List<Unit>();
+                NearShots = new List<Shots.Shot>();
+                int Radius = 0;// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
+                int X,Y;
+                Unit.GetLogicCoo(out X, out Y);
+                int minX, minY, maxX, maxY;
+                minX = (int)Math.Min(Math.Max(X-Radius, 0), gameObjectsCCells -1);
+                minY = (int)Math.Min(Math.Max(Y - Radius, 0), gameObjectsCCells -1);
+
+                maxX = (int)Math.Min(Math.Max(X + Radius, 0), gameObjectsCCells -1);
+                maxY = (int)Math.Min(Math.Max(Y + Radius, 0), gameObjectsCCells -1);
+                for (int i=minX;i<=maxX;i++)
+                    for (int j = minY; j <= maxY; j++)
+                    {
+                        //if (i == 49 && j == 28) { }
+                        
+                        foreach (object obj in gameObjects[i, j])
+                        {
+                            if (obj != Unit)
+                            {
+                                Unit nearUnit = obj as Unit;
+                                if (nearUnit != null)
+                                {
+                                    NearUnits.Add(nearUnit);
+                                }
+                                Shots.Shot nearShot = obj as Shots.Shot;
+                                if (nearShot != null)
+                                {
+                                    NearShots.Add(nearShot);
+                                }
+                            }
+                        }
+                    }
+
+
+            }
+
+            internal void RemoveShot(Shots.Shot shot)
+            {
+                int X,Y;
+                shot.GetLogicCoo(out X,out Y);
+                gameObjects[X, Y].Remove(shot);
+            }
+
+            internal void RemoveUnit(Unit unit)
+            {
+                int X, Y;
+                unit.GetLogicCoo(out X, out Y);
+                gameObjects[X, Y].Remove(unit);
+            }
+        }
+        GameObjectsClass gameObjects;
+        
+        
         class AngleClass
         {
             public static float Normalize(float angle)
@@ -47,6 +156,7 @@ namespace CoreNamespace
         List<string> playersText;
         public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
+            gameObjects = new GameObjectsClass();
             timing = new TimingClass();
             viewer = new Viewer(ScreenWidth, ScreenHeight, content, graphics);
             units = new List<Unit>();
@@ -598,6 +708,19 @@ namespace CoreNamespace
                 return new Rectangle(forward - right + position, forward + right + position,
                     -forward + right + position, -forward - right + position);
             }
+
+            int logicX, logicY;
+            internal void GetLogicCoo(out int oldX, out int oldY)
+            {
+                oldX = logicX;
+                oldY = logicY;
+            }
+
+            internal void SetLogicCoo(int X, int Y)
+            {
+                logicX = X;
+                logicY=Y;
+            }
         }
         public class Viewer
         {
@@ -731,7 +854,7 @@ namespace CoreNamespace
                 environmentEffect.Parameters["tex"].SetValue(EnvironmentTexture);
                 environmentEffect.Parameters["Positions"].SetValue(param);
 
-                environmentEffect.Parameters["Size"].SetValue(new Vector2(20000,20000));
+                environmentEffect.Parameters["Size"].SetValue(new Vector2(30000,30000));
 
                 environmentEffect.Begin();
                 
@@ -964,6 +1087,19 @@ namespace CoreNamespace
                     get { return new GameVector(direction.X, direction.Y); }
                 }
                 #endregion
+
+                int logicX, logicY;
+                internal void GetLogicCoo(out int oldX, out int oldY)
+                {
+                    oldX = logicX;
+                    oldY = logicY;
+                }
+
+                internal void SetLogicCoo(int X, int Y)
+                {
+                    logicX = X;
+                    logicY = Y;
+                }
             }
             public List<Shot> shots;
             List<Unit> units;
@@ -1104,37 +1240,39 @@ namespace CoreNamespace
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
                 if (units[i].TimeToDie)
                 {
+                    gameObjects.RemoveUnit(units[i]);
                     units.RemoveAt(i);
+                    
                     i--;
                 }
             }
             UnitIntersections();
-            ShotsWithUnitsIntersections();
+            
             shots.Update();
         }
-        private void ShotsWithUnitsIntersections()
-        {
-            foreach (Unit unit in units)
-                if (unit.HP >= 0)
-                {
-                    Rectangle rect = unit.GetRectangle();
-                    BoundingSphere sphere = rect.BoxBoundingSphere;
-                    for (int i = 0; i < shots.shots.Count; i++)
-                    {
-                        if (unit.ShipType == ShipTypes.Destroyer&&Vector2.Distance(unit.position,shots.shots[i].pos)<10) { }
-                        if (shots.shots[i].GetBoundingSphere().Intersects(sphere))
-                        {
-                            if (unit.ShipType ==  ShipTypes.Destroyer) { }
-                            if (rect.IntersectsLine(shots.shots[i].pos, shots.shots[i].End))
-                            {
-                                //if (unit.Name == "Ship2") { }
-                                unit.SetHP(unit.HP - shots.shots[i].damage);
-                                shots.shots.RemoveAt(i);
-                            }
-                        }
-                    }
-                }
-        }
+        //private void ShotsWithUnitsIntersections()
+        //{
+        //    foreach (Unit unit in units)
+        //        if (unit.HP >= 0)
+        //        {
+        //            Rectangle rect = unit.GetRectangle();
+        //            BoundingSphere sphere = rect.BoxBoundingSphere;
+        //            for (int i = 0; i < shots.shots.Count; i++)
+        //            {
+        //               // if (unit.ShipType == ShipTypes.Destroyer&&Vector2.Distance(unit.position,shots.shots[i].pos)<10) { }
+        //                if (shots.shots[i].GetBoundingSphere().Intersects(sphere))
+        //                {
+        //                    if (unit.ShipType ==  ShipTypes.Destroyer) { }
+        //                    if (rect.IntersectsLine(shots.shots[i].pos, shots.shots[i].End))
+        //                    {
+        //                        //if (unit.Name == "Ship2") { }
+        //                        unit.SetHP(unit.HP - shots.shots[i].damage);
+        //                        shots.shots.RemoveAt(i);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //}
         private void DamageAllAround(Vector2 pos, float radius, float Damage)
         {
             foreach (Unit unit in units)
@@ -1145,26 +1283,58 @@ namespace CoreNamespace
         }
         private void UnitIntersections()
         {
-            for (int i = 0; i < units.Count - 1; i++)
+            foreach (Unit unit in units)
+            {
+                //if (unit.ShipType == ShipTypes.Destroyer)
+                //{ }
+                gameObjects.UpdateUnit(unit);            }
+            foreach (Shots.Shot shot in shots)
+            { gameObjects.UpdateShot(shot); }
+
+
+            for (int i = 0; i < units.Count ; i++)
                 if (units[i].HP >= 0)
-                {
+                {                  
                     Rectangle rect1 = units[i].GetRectangle();
                     BoundingSphere sphere1 = rect1.BoxBoundingSphere;
-                    for (int j = i + 1; j < units.Count; j++)
-                        if (units[j].HP >= 0)
+
+                    List<Unit> nearUnits = new List<Unit>();
+                    List<Shots.Shot> nearShots = new List<Shots.Shot>();
+                    gameObjects.GetNearObjects(units[i], out nearUnits, out nearShots);
+                    if (units[i].ShipType == ShipTypes.Destroyer)
+                    { }
+                    foreach (Unit nearUnit in nearUnits)
+                    {
+                        Rectangle rect2 = nearUnit.GetRectangle();
+                        if (sphere1.Intersects(rect2.BoxBoundingSphere))
                         {
-                            Rectangle rect2 = units[j].GetRectangle();
-                            if (sphere1.Intersects(rect2.BoxBoundingSphere))
+                            if (rect1.IntersectsRectangle(rect2))
                             {
-                                if (rect1.IntersectsRectangle(rect2))
-                                {
-                                    float hp1 = units[i].HP;
-                                    float hp2 = units[j].HP;
-                                    units[i].SetHP(hp1 - hp2 * 1.5f);
-                                    units[j].SetHP(hp2 - hp1 * 1.5f);
-                                }
+                                float hp1 = units[i].HP;
+                                float hp2 = nearUnit.HP;
+                                units[i].SetHP(hp1 - hp2 * 1.5f);
+                                nearUnit.SetHP(hp2 - hp1 * 1.5f);
                             }
                         }
+                    }
+                    foreach (Shots.Shot shot in nearShots)
+                    {
+                        if (shot.GetBoundingSphere().Intersects(sphere1))
+                        {                            
+                            if (rect1.IntersectsLine(shot.pos, shot.End))
+                            {
+                                //if (unit.Name == "Ship2") { }
+                                units[i].SetHP(units[i].HP - shot.damage);
+                                shots.shots.Remove(shot);
+                                gameObjects.RemoveShot(shot);
+                            }
+                        }
+                    }
+                   
+                }
+                else
+                {
+                    gameObjects.RemoveUnit(units[i]);
                 }
         }
         System.Collections.Generic.List<Unit> units;
@@ -1242,6 +1412,7 @@ namespace CoreNamespace
                 players[i].Init(i, this);
             units.Clear();
             shots.Clear();
+            gameObjects = new GameObjectsClass();
             AddUnits();
         }
         public struct Rectangle

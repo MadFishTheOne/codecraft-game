@@ -94,7 +94,7 @@ namespace MiniGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            Core.CameraPosition.Z = 500;
             base.Initialize();
         }
 
@@ -202,15 +202,27 @@ namespace MiniGame
 
             if (playingNow)
             {
-                Core.CameraPosition.Z = 1000 - Mouse.GetState().ScrollWheelValue * 0.5f;
-                if (Mouse.GetState().X > Core.viewer.screenWidth - 30 || newState.IsKeyDown(Keys.Right))
+                Core.CameraPosition.Z += newState.IsKeyDown(Keys.End)?1:0; //1000 - Mouse.GetState().ScrollWheelValue * 0.5f;
+                Core.CameraPosition.Z -= newState.IsKeyDown(Keys.Home) ? 1 : 0;
+                if (newState.IsKeyDown(Keys.Right))
+                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                if (newState.IsKeyDown(Keys.Left))
+                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                if (newState.IsKeyDown(Keys.Down))
+                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+                if (newState.IsKeyDown(Keys.Up))
+                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+
+#if FAlLSE
+                if (Mouse.GetState().X > Core.viewer.screenWidth - 30 )
                     Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
                 if (Mouse.GetState().X < 30 || newState.IsKeyDown(Keys.Left))
                     Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-                if (Mouse.GetState().Y > Core.viewer.screenHeight - 30 || newState.IsKeyDown(Keys.Down))
+                if (Mouse.GetState().Y > Core.viewer.screenHeight - 30)
                     Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
-                if (Mouse.GetState().Y < 30 || newState.IsKeyDown(Keys.Up))
+                if (Mouse.GetState().Y < 30 )
                     Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
+#endif
                 Core.Timing.Update();
                 while (Core.Timing.DeltaTimeGlobal > 0)
                 {

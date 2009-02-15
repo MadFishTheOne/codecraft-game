@@ -22,6 +22,7 @@ namespace CoreNamespace
 {
     public class Core : IGame
     {
+
         class GameObjectsClass
         {
             const int border = 4000;
@@ -79,7 +80,7 @@ namespace CoreNamespace
                 NearUnits = new List<Unit>();
                 NearShots = new List<Shots.Shot>();
                 
-                int RadiusLogic =(int)(Radius/cellSize);// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
+                int RadiusLogic =(int)(Radius/cellSize)+1;// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
                 int X=GetLogicCoo( Position.X);
                 int Y=GetLogicCoo(Position.Y);
                 //if (RadiusLogic == 0 && (GetLogicCoo(X + 10) != X || GetLogicCoo(X - 10) != X || GetLogicCoo(Y + 10) != Y || GetLogicCoo(Y - 10) != Y))
@@ -169,6 +170,7 @@ namespace CoreNamespace
         }
         public class TimingClass
         {
+            public const float SpeedsMuller = 10;
             /// <summary>
             /// in milliseconds
             /// </summary>
@@ -465,7 +467,7 @@ namespace CoreNamespace
                 gun.owner = this;
                 this.hp = HP;
                 this.team = team;
-                maxTimeAfterDeath = 5;
+                maxTimeAfterDeath = 5*0.2f;
                 timeAfterDeath = 0;
                 IsAliveInPrevLoop = true;
                 this.shots = Core.shots;
@@ -481,14 +483,14 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = DestroyerSize;
-                        speed = new DerivativeControlledParameter(0, 0, 20, 9, false);
-                        rotationSpeed = new DerivativeControlledParameter(0,-0.72f,0.72f,0.5f,false);
+                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMuller, 9 * TimingClass.SpeedsMuller, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.72f * TimingClass.SpeedsMuller, 0.72f * TimingClass.SpeedsMuller, 0.5f * TimingClass.SpeedsMuller, false);
                         rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
-                        gun = new Gun(3,50,9,15);
+                        gun = new Gun(3, 50 * TimingClass.SpeedsMuller, 9, 15);
                         gun.owner = this;
                         this.hp = 80;
                         this.team = Player;
-                        maxTimeAfterDeath = 5;
+                        maxTimeAfterDeath = 5*0.2f;
                         timeAfterDeath = 0;
                         IsAliveInPrevLoop = true;
                         this.shots = Core.shots;
@@ -496,10 +498,10 @@ namespace CoreNamespace
                     case ShipTypes.Corvette:
                         blowDamage = 150;
                         blowRadius = 120;
-                        maxTimeAfterDeath = 8;
-                        speed = new DerivativeControlledParameter(0, 0, 5, 1, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.32f, 0.32f, 0.2f, false);
-                        gun = new Gun(4, 50, 18, 40);                        
+                        maxTimeAfterDeath = 8*0.2f;
+                        speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMuller, 1 * TimingClass.SpeedsMuller, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.32f * TimingClass.SpeedsMuller, 0.32f * TimingClass.SpeedsMuller, 0.2f * TimingClass.SpeedsMuller, false);
+                        gun = new Gun(4, 50 * TimingClass.SpeedsMuller, 18, 40);                        
                         this.hp = 400;
                         this.team = Player;                        
                         IsAliveInPrevLoop = true;
@@ -514,10 +516,10 @@ namespace CoreNamespace
                     case ShipTypes.Cruiser:
                         blowDamage = 300;
                         blowRadius = 120;
-                        maxTimeAfterDeath = 12;                        
-                        speed = new DerivativeControlledParameter(0, 0, 2, 1.0f, false);
-                        rotationSpeed = new DerivativeControlledParameter(0, -0.07f, 0.07f, 0.04f, false);                        
-                        gun = new Gun(15, 50, 27, 200);
+                        maxTimeAfterDeath = 12*0.2f;
+                        speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMuller, 1.0f * TimingClass.SpeedsMuller, false);
+                        rotationSpeed = new DerivativeControlledParameter(0, -0.07f * TimingClass.SpeedsMuller, 0.07f * TimingClass.SpeedsMuller, 0.04f * TimingClass.SpeedsMuller, false);
+                        gun = new Gun(15, 50 * TimingClass.SpeedsMuller, 27, 200);
                         this.hp = 800;
                         this.team = Player;
                         IsAliveInPrevLoop = true;

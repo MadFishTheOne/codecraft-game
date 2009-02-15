@@ -86,6 +86,10 @@ namespace MiniGameInterfaces
         /// unit current hit points 
         /// </summary>
         float HP { get; }
+        /// <summary>
+        /// is unit already dead
+        /// </summary>
+        bool Dead { get; }
         #endregion
         #region Getting unit characteristics
         /// <summary>

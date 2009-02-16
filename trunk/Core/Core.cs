@@ -513,6 +513,7 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CorvetteSize;
+                        size.Y *= 0.9f; //real object size (see texture)
                         rotationAngle = new DerivativeControlledParameter(
                             Angle
                             , -MathHelper.Pi, MathHelper.Pi, 1000, true);
@@ -533,6 +534,8 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CruiserSize;
+                        size.X *= 0.7f; //real object size (see texture)
+                        size.Y *= 0.9f; //real object size (see texture)
                         rotationAngle = new DerivativeControlledParameter(
                             0//Angle
                             , -MathHelper.Pi, MathHelper.Pi, 1000, true);
@@ -552,9 +555,13 @@ namespace CoreNamespace
             {
                 get { return name; }
             }
-            public MiniGameInterfaces.GameVector Position
+            public GameVector Position
             {
                 get { return new GameVector(position.X, position.Y); }
+            }
+            public float Speed
+            {
+                get { return speed.Value; }
             }
             public GameVector Forward
             {
@@ -935,7 +942,7 @@ namespace CoreNamespace
                     }
                     else
                     {
-                        if (units[currUnit].size == DestroyerSize)
+                        if (units[currUnit].ShipType == ShipTypes.Destroyer)
                         {
                             DestroyerBatchParams[CDestroyersInBatch].X = units[currUnit].position.X;
                             DestroyerBatchParams[CDestroyersInBatch].Y = units[currUnit].position.Y;
@@ -944,7 +951,7 @@ namespace CoreNamespace
                             CDestroyersInBatch++;
                             if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture, DestroyerSize);
                         }
-                        if (units[currUnit].size == CorvetteSize)
+                        if (units[currUnit].ShipType == ShipTypes.Corvette)
                         {
                             CorvetteBatchParams[CCorvettesInBatch].X = units[currUnit].position.X;
                             CorvetteBatchParams[CCorvettesInBatch].Y = units[currUnit].position.Y;
@@ -953,7 +960,7 @@ namespace CoreNamespace
                             CCorvettesInBatch++;
                             if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSize);
                         }
-                        if (units[currUnit].size == CruiserSize)
+                        if (units[currUnit].ShipType == ShipTypes.Cruiser)
                         {
                             CruiserBatchParams[CCruisersInBatch].X = units[currUnit].position.X;
                             CruiserBatchParams[CCruisersInBatch].Y = units[currUnit].position.Y;
@@ -1406,8 +1413,8 @@ namespace CoreNamespace
         }
         System.Collections.Generic.List<Unit> units;
         public static Vector2 DestroyerSize = new Vector2(25, 25);
-        public static Vector2 CorvetteSize = new Vector2(20, 80);
-        public static Vector2 CruiserSize = new Vector2(40, 160);
+        public static Vector2 CorvetteSize = new Vector2(30, 80);
+        public static Vector2 CruiserSize = new Vector2(60, 140);
         public void AddUnits()
         {
             StreamReader rd=  File.OpenText("units to create.txt");
@@ -1642,7 +1649,21 @@ namespace CoreNamespace
             }
         }
 
-        
+        public float Time
+        {
+            get
+            {
+                return timing.NowTime;
+            }
+        }
+
+        public float TimeElapsed
+        {
+            get
+            {
+                return timing.DeltaTime;
+            }
+        }
 
         #endregion
     }

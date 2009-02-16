@@ -149,14 +149,14 @@ namespace MiniGame
                 if (IsKeyReleased(Keys.PageUp) || IsKeyReleased(Keys.S))
                 {
                     Core.Timing.TimeSpeed *= 2;
-                    if (Core.Timing.TimeSpeed > 512)
-                        Core.Timing.TimeSpeed = 512;
+                    if (Core.Timing.TimeSpeed > 128)
+                        Core.Timing.TimeSpeed = 128;
                 }
                 if (IsKeyReleased(Keys.PageDown) || IsKeyReleased(Keys.X))
                 {
                     Core.Timing.TimeSpeed /= 2;
-                    if (Core.Timing.TimeSpeed < 0.25f)
-                        Core.Timing.TimeSpeed = 0.25f;
+                    if (Core.Timing.TimeSpeed < 0.0625f)
+                        Core.Timing.TimeSpeed = 0.0625f;
                 }
                 if (IsKeyReleased(Keys.Pause) || IsKeyReleased(Keys.Space))
                     Core.Timing.Paused = !Core.Timing.Paused;

@@ -63,9 +63,13 @@ namespace MiniGameInterfaces
         /// </summary>
         string Name { get; }
         /// <summary>
-        /// position in the world. in pixels
+        /// position in the world
         /// </summary>
         GameVector Position { get; }
+        /// <summary>
+        /// current speed
+        /// </summary>
+        float Speed { get; }
         /// <summary>
         /// looking direction. unit vector
         /// </summary>
@@ -212,7 +216,15 @@ namespace MiniGameInterfaces
         /// <param name="Radius">near zone radius</param>
         /// <param name="NearUnits">list of units in the near zone</param>
         /// <param name="NearShots">list of shots in the near zone</param>
-        void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots);        
+        void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots);
+        /// <summary>
+        /// total time elapsed from the begginning of the game
+        /// </summary>
+        float Time { get; }
+        /// <summary>
+        /// time elapsed from the previous update
+        /// </summary>
+        float TimeElapsed { get; }
     }
     public interface IAI
     {

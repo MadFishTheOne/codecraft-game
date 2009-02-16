@@ -44,6 +44,7 @@ namespace CoreNamespace
                 X = (int)Math.Min(Math.Max(X, 0), gameObjectsCCells - 1);
                 return X;
             }            
+
             public void UpdateUnit(Unit unit)
             {
                 int X = GetLogicCoo(unit.position.X);
@@ -513,7 +514,7 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CorvetteSize;
-                        size.Y *= 0.9f; //real object size (see texture)
+                        //size.Y *= 0.9f; //real object size (see texture)
                         rotationAngle = new DerivativeControlledParameter(
                             Angle
                             , -MathHelper.Pi, MathHelper.Pi, 1000, true);
@@ -534,8 +535,8 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = CruiserSize;
-                        size.X *= 0.7f; //real object size (see texture)
-                        size.Y *= 0.9f; //real object size (see texture)
+                        //size.X *= 0.7f; //real object size (see texture)
+                        //size.Y *= 0.9f; //real object size (see texture)
                         rotationAngle = new DerivativeControlledParameter(
                             0//Angle
                             , -MathHelper.Pi, MathHelper.Pi, 1000, true);
@@ -926,6 +927,7 @@ namespace CoreNamespace
                 int CCruisersInBatch = 0;
                 int CBlowsInBatch = 0;
                 int currUnit = 0;
+                
                 while (currUnit < units.Count)
                 {
                     if (units[currUnit].HP < 0)
@@ -991,7 +993,8 @@ namespace CoreNamespace
             void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text, Vector2 Size)
             {
                 shipEffect.Begin();
-                shipEffect.Parameters["Size"].SetValue(Size);
+                float SizeMultiplier = 1.2f;
+                shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
                 shipEffect.Parameters["tex"].SetValue(Text);
                 shipEffect.Parameters["Positions"].SetValue(UnitInstanceParams);
                 EffectPass p = shipEffect.CurrentTechnique.Passes[0];
@@ -1413,8 +1416,8 @@ namespace CoreNamespace
         }
         System.Collections.Generic.List<Unit> units;
         public static Vector2 DestroyerSize = new Vector2(25, 25);
-        public static Vector2 CorvetteSize = new Vector2(30, 80);
-        public static Vector2 CruiserSize = new Vector2(60, 140);
+        public static Vector2 CorvetteSize = new Vector2(20, 80);
+        public static Vector2 CruiserSize = new Vector2(35, 140);
         public void AddUnits()
         {
             StreamReader rd=  File.OpenText("units to create.txt");

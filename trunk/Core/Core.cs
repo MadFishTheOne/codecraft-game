@@ -20,6 +20,45 @@ using System.IO;
 //using System.Drawing;
 namespace CoreNamespace
 {
+    public class Config
+    {
+        private static Config instance = null;
+
+        public Dictionary<string, string> settings;
+
+        private Config()
+        {
+            settings = new Dictionary<string, string>();
+            StreamReader rd = File.OpenText("MiniGame.ini");
+            string st, paramString, valueString;
+            int t;
+            while (!rd.EndOfStream)
+            {
+                st = rd.ReadLine();
+                if ((st.Length > 0) && (st[0] != '#'))
+                {
+                    t = st.IndexOf(" ");
+                    if (t != -1)
+                    {
+                        paramString = st.Substring(0, t);
+                        valueString = st.Substring(t + 1).Trim();
+                        settings.Add(paramString, valueString);
+                    }
+                }
+            }
+            rd.Close();
+        }
+
+        public static Config Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new Config();
+                return instance;
+            }
+        }
+    }
     public class Core : IGame
     {
 
@@ -538,7 +577,7 @@ namespace CoreNamespace
                         //size.X *= 0.7f; //real object size (see texture)
                         //size.Y *= 0.9f; //real object size (see texture)
                         rotationAngle = new DerivativeControlledParameter(
-                            0//Angle
+                            Angle
                             , -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun.owner = this;
                         break;
@@ -1438,46 +1477,17 @@ namespace CoreNamespace
         public static Vector2 CruiserSize = new Vector2(35, 140);
         public void AddUnits()
         {
-            StreamReader rd=  File.OpenText("units to create.txt");
-            int currTeam = 0;
-            int CCruisers=0,CCorvettes=0,CDestroyers=0;
-            while (rd.ReadLine().Contains("Player"))
+            string playerString;
+            for(int i=0;i<players.Count;i++)
             {
-                string text = rd.ReadLine();
-                if (text.Contains("Cruisers"))
+                playerString="Player"+i.ToString()+".";
+                if(Config.Instance.settings.ContainsKey(playerString+"Cruisers") && 
+                    Config.Instance.settings.ContainsKey(playerString+"Corvettes") && 
+                    Config.Instance.settings.ContainsKey(playerString+"Destroyers") )
                 {
-                    text = text.Remove(0, text.IndexOf(':')+1);
-                    CCruisers = Convert.ToInt32(text);
+                    CreateUnitsForPlayer(i, Convert.ToInt32(Config.Instance.settings[playerString + "Cruisers"]), Convert.ToInt32(Config.Instance.settings[playerString + "Corvettes"]), Convert.ToInt32(Config.Instance.settings[playerString + "Destroyers"]), new Vector2(0, 000));
                 }
-                else CCruisers = 0;
-                text = rd.ReadLine();
-                if (text.Contains("Corvettes"))
-                {
-                    text = text.Remove(0, text.IndexOf(':')+1);
-                    CCorvettes = Convert.ToInt32(text);
-                }
-                else CCorvettes = 0;
-                text = rd.ReadLine();
-                if (text.Contains("Destroyers"))
-                {
-                    text = text.Remove(0, text.IndexOf(':')+1);
-                    CDestroyers = Convert.ToInt32(text);
-                }
-                else CDestroyers = 0;
-                CreateUnitsForPlayer(currTeam,CCruisers,CCorvettes,CDestroyers,new Vector2(0,000));
-                currTeam++;
-                if (rd.EndOfStream) { break; }
-                
             }
-            rd.Close();
-
-
-            
-           
-            //units[0].GoTo(new GameVector(300, 200), false);
-
-            //units[0].SetAngle(MathHelper.PiOver2);
-            //units[0].SetSpeed(15f);
         }
         private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
         {

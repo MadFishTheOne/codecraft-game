@@ -999,16 +999,25 @@ namespace CoreNamespace
             }
             void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text,Texture2D TextSmall, Vector2 Size)
             {
+                float BigLength = 4000;
                 shipEffect.Begin();
                 float SizeMultiplier = 1.2f;
-                if (CameraPosition.Z > 4000) SizeMultiplier *= CameraPosition.Z / 4000;
+                if (CameraPosition.Z > BigLength) SizeMultiplier *= CameraPosition.Z / BigLength;
                 
                 shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
-                shipEffect.Parameters["tex"].SetValue((CameraPosition.Z<4000)? Text:TextSmall);
+                shipEffect.Parameters["tex"].SetValue((CameraPosition.Z < BigLength) ? Text : TextSmall);
                 shipEffect.Parameters["Positions"].SetValue(UnitInstanceParams);
                 EffectPass p = shipEffect.CurrentTechnique.Passes[0];
                 p.Begin();
                 graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
+                p.End();
+                shipEffect.Parameters["tex"].SetValue(Text);
+                p.Begin();
+                if (CameraPosition.Z > BigLength)
+                {
+                    
+                    graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
+                }
                 p.End();
                 CUnits = 0;
                 shipEffect.End();

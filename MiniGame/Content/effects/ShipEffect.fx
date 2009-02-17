@@ -54,7 +54,7 @@ technique TransformTechnique
     {
         vertexShader = compile vs_2_0 Transform();
         pixelShader = compile ps_2_0 PixelShader();
-        ZEnable = true;
+        ZEnable = false;
         ZWriteEnable = true;
         AlphaBlendEnable = false;
         AlphaTestEnable = true;

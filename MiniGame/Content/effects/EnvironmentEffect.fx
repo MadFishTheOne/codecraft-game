@@ -43,7 +43,8 @@ VS_OUTPUT Transform(
 
 float4 PixelShader( VS_OUTPUT vsout ) : COLOR
 {
-   return tex2D(textureSampler, vsout.TextureCoordinate);	
+   float4 res=tex2D(textureSampler, vsout.TextureCoordinate);	
+   return float4(res.x*0.3,res.y*0.3,res.z*0.3,1);
    
 
 }

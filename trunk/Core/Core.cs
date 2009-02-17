@@ -781,7 +781,10 @@ namespace CoreNamespace
             SpriteBatch spriteBatch;
             ContentManager content;
             Texture2D DestroyerTexture, CorvetteTexture,
-                CruiserTexture, LaserTexture,
+                CruiserTexture,
+                DestroyerSmall, CorvetteSmall,
+                CruiserSmall, 
+                LaserTexture,
                 //EngineTexture,
                 //MiniMapTexture,
                 FirePunchTexture,EnvironmentTexture;
@@ -861,6 +864,10 @@ namespace CoreNamespace
                 DestroyerTexture = content.Load<Texture2D>("textures\\DestroyerTexture");
                 CorvetteTexture = content.Load<Texture2D>("textures\\CorvetteTexture");
                 CruiserTexture = content.Load<Texture2D>("textures\\CruiserTexture");
+                DestroyerSmall = content.Load<Texture2D>("textures\\DestroyerSmall");
+                CorvetteSmall = content.Load<Texture2D>("textures\\CorvetteSmall");
+                CruiserSmall = content.Load<Texture2D>("textures\\CruiserSmall");
+
                 LaserTexture = content.Load<Texture2D>("textures\\LaserTexture");
                 EnvironmentTexture = content.Load<Texture2D>("textures\\EnvironmentTexture");
                 //EngineTexture = content.Load<Texture2D>("textures\\EngineTexture");
@@ -951,7 +958,7 @@ namespace CoreNamespace
                             DestroyerBatchParams[CDestroyersInBatch].Z = units[currUnit].RotationAngle;
                             DestroyerBatchParams[CDestroyersInBatch].W = units[currUnit].PlayerOwner;
                             CDestroyersInBatch++;
-                            if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture, DestroyerSize);
+                            if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize);
                         }
                         if (units[currUnit].ShipType == ShipTypes.Corvette)
                         {
@@ -960,7 +967,7 @@ namespace CoreNamespace
                             CorvetteBatchParams[CCorvettesInBatch].Z = units[currUnit].RotationAngle;
                             CorvetteBatchParams[CCorvettesInBatch].W = units[currUnit].PlayerOwner;
                             CCorvettesInBatch++;
-                            if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSize);
+                            if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize);
                         }
                         if (units[currUnit].ShipType == ShipTypes.Cruiser)
                         {
@@ -969,14 +976,14 @@ namespace CoreNamespace
                             CruiserBatchParams[CCruisersInBatch].Z = units[currUnit].RotationAngle;
                             CruiserBatchParams[CCruisersInBatch].W = units[currUnit].PlayerOwner;
                             CCruisersInBatch++;
-                            if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSize);
+                            if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize);
                         }
                     }
                     currUnit++;
                 }
-                if (CDestroyersInBatch > 0) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture, DestroyerSize);
-                if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSize);
-                if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSize);
+                if (CDestroyersInBatch > 0) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize);
+                if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize);
+                if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize);
                 if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
             }
             private void DrawBlowBatch(Vector4[] BlowBatchParams, ref int CBlowsInBatch)
@@ -990,12 +997,14 @@ namespace CoreNamespace
                 CBlowsInBatch = 0;
                 blowEffect.End();
             }
-            void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text, Vector2 Size)
+            void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text,Texture2D TextSmall, Vector2 Size)
             {
                 shipEffect.Begin();
                 float SizeMultiplier = 1.2f;
+                if (CameraPosition.Z > 4000) SizeMultiplier *= CameraPosition.Z / 4000;
+                
                 shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
-                shipEffect.Parameters["tex"].SetValue(Text);
+                shipEffect.Parameters["tex"].SetValue((CameraPosition.Z<4000)? Text:TextSmall);
                 shipEffect.Parameters["Positions"].SetValue(UnitInstanceParams);
                 EffectPass p = shipEffect.CurrentTechnique.Passes[0];
                 p.Begin();

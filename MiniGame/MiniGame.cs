@@ -42,11 +42,27 @@ namespace MiniGame
             graphics.PreferredBackBufferWidth = 640;
             graphics.PreferredBackBufferHeight = 480;
 #else
-            graphics.IsFullScreen = true;
-            graphics.PreferredBackBufferWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
-            graphics.PreferredBackBufferHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+            graphics.IsFullScreen = (Config.Instance.settings["Video.FullScreen"].ToLower() == "true");
+            if (Config.Instance.settings["Video.ScreenWidth"] == "0")
+            {
+                if (graphics.IsFullScreen)
+                {
+                    graphics.PreferredBackBufferWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+                    graphics.PreferredBackBufferHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+                }
+                else
+                {
+                    graphics.PreferredBackBufferWidth = 640;
+                    graphics.PreferredBackBufferHeight = 480;
+                }
+            }
+            else
+            {
+                graphics.PreferredBackBufferWidth = Convert.ToInt32(Config.Instance.settings["Video.ScreenWidth"]);
+                graphics.PreferredBackBufferHeight = Convert.ToInt32(Config.Instance.settings["Video.ScreenHeight"]);
+            }
 #endif
-            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.SynchronizeWithVerticalRetrace = (Config.Instance.settings["Video.VSync"].ToLower() == "true");
 
             IsFixedTimeStep = false;
 
@@ -136,9 +152,10 @@ namespace MiniGame
         protected override void Update(GameTime gameTime)
         {
             newState = Keyboard.GetState();
-
+#if DEBUG
             if (IsKeyReleased(Keys.Q))
                 System.Diagnostics.Debugger.Break(); //entering debug mode
+#endif
             if (playingNow)
             {
                 if (IsKeyReleased(Keys.Escape))

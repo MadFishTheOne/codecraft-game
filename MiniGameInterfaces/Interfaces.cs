@@ -20,15 +20,15 @@ namespace MiniGameInterfaces
         }
         public static GameVector operator +(GameVector pt1, GameVector pt2)
         {
-            return new GameVector(pt1.X+pt2.X,pt1.Y+pt2.Y);
+            return new GameVector(pt1.X + pt2.X, pt1.Y + pt2.Y);
         }
         public static GameVector operator -(GameVector pt1, GameVector pt2)
         {
-            return new GameVector(pt1.X-pt2.X,pt1.Y-pt2.Y);
+            return new GameVector(pt1.X - pt2.X, pt1.Y - pt2.Y);
         }
         public static GameVector operator *(GameVector pt1, float op2)
         {
-            return new GameVector(pt1.X *op2, pt1.Y *op2);
+            return new GameVector(pt1.X * op2, pt1.Y * op2);
         }
         public static GameVector operator /(GameVector pt1, float op2)
         {
@@ -36,11 +36,15 @@ namespace MiniGameInterfaces
         }
         public float Length()
         {
-            return (float)Math.Sqrt(X*X+Y*Y);
+            return (float)Math.Sqrt(X * X + Y * Y);
         }
         public float LengthSquared()
         {
             return X * X + Y * Y;
+        }
+        public float Angle()
+        {
+            return (float)Math.Atan2(X, Y);
         }
         public static GameVector Normalize(GameVector pt)
         {
@@ -53,6 +57,14 @@ namespace MiniGameInterfaces
         public static float Cos(GameVector pt1, GameVector pt2)
         {
             return (float)(Dot(pt1, pt2) / Math.Sqrt(pt1.LengthSquared() * pt2.LengthSquared()));
+        }
+        public static float Distance(GameVector pt1, GameVector pt2)
+        {
+            return (pt2 - pt1).Length();
+        }
+        public static float DistanceSquared(GameVector pt1, GameVector pt2)
+        {
+            return (pt2 - pt1).LengthSquared();
         }
     }
     public interface IUnit
@@ -129,7 +141,7 @@ namespace MiniGameInterfaces
         /// </summary>
         float Damage { get; }
         /// <summary>
-        /// shooting radius o unit's gun
+        /// shooting radius of unit's gun
         /// </summary>
         float ShootingRadius { get; }
         #endregion
@@ -246,4 +258,3 @@ namespace MiniGameInterfaces
         void Update();
     }
 }
- 

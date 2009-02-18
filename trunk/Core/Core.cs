@@ -201,6 +201,13 @@ namespace CoreNamespace
         string[] playersText;
         float[] playersTotalUpdateTime;
         float coreTotalUpdateTime;
+        bool gameEnd;
+        bool gameDraw;
+        int gameWinner;
+        int[] destroyers;
+        int[] corvettes;
+        int[] cruisers;
+        int[] total;
 
         public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
@@ -1311,25 +1318,15 @@ namespace CoreNamespace
             return iMinutes.ToString() + ":" + sSeconds + "." + sMillis;
         }
 
-        public void Draw()
+        public void CalculateNumberOfUnits()
         {
-            Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
-            ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
-                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
-            //
-            viewer.DrawEnvironment();
-            viewer.DrawUnits(units);
-            viewer.DrawShots(shots);
-            //
-            int[] destroyers = new int[players.Count];
-            int[] corvettes = new int[players.Count];
-            int[] cruisers = new int[players.Count];
-            int[] total = new int[players.Count];
-            string[] infoString = new string[players.Count];
-            string[] timeString = new string[players.Count];
-            bool gameEnd = true;
-            bool gameDraw = true;
-            int gameWinner = -1;
+            for (int i = 0; i < players.Count; i++)
+            {
+                destroyers[i] = 0;
+                corvettes[i] = 0;
+                cruisers[i] = 0;
+                total[i] = 0;
+            }
             for (int i = 0; i < units.Count; i++)
             {
                 switch (units[i].ShipType)
@@ -1345,11 +1342,38 @@ namespace CoreNamespace
                         break;
                 }
                 total[units[i].PlayerOwner]++;
-                gameDraw = false;
-                if ((gameWinner != -1) && (units[i].PlayerOwner != gameWinner))
-                    gameEnd = false;
-                gameWinner = units[i].PlayerOwner;
             }
+        }
+
+        public void CheckEndOfGame()
+        {
+            gameEnd = true;
+            gameDraw = (units.Count == 0);
+            gameWinner = -1;
+            gameDraw = false;
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (total[i] > 0)
+                {
+                    if (gameWinner != -1)
+                        gameEnd = false;
+                    gameWinner = units[i].PlayerOwner;
+                }
+            }
+        }
+
+        public void Draw()
+        {
+            Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
+            ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
+                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
+            //
+            viewer.DrawEnvironment();
+            viewer.DrawUnits(units);
+            viewer.DrawShots(shots);
+            //
+            string[] infoString = new string[players.Count];
+            string[] timeString = new string[players.Count];
             for (int i = 0; i < players.Count; i++)
             {
                 infoString[i] = destroyers[i].ToString() + "+" + corvettes[i].ToString() + "+" + cruisers[i].ToString() + "=" + total[i].ToString();
@@ -1394,7 +1418,9 @@ namespace CoreNamespace
         }
         public void Update()
         {
-            
+            if (gameEnd)
+                return;
+            //AI update
             Stopwatch sw = new Stopwatch();
             for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
             {
@@ -1403,13 +1429,12 @@ namespace CoreNamespace
                 players[CurrentPlayer].Update();
                 playersTotalUpdateTime[CurrentPlayer] += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
             }
+            //Core update
             CurrentPlayer = -1;
             sw.Reset();
             sw.Start();
-
             UnitIntersections();
             shots.Update();
-            
             for (int i = 0; i < units.Count; i++)
             {              
                
@@ -1423,10 +1448,10 @@ namespace CoreNamespace
                     i--;
                 }
             }
-            
-            
-            
             coreTotalUpdateTime += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
+            //Global game state update
+            CalculateNumberOfUnits();
+            CheckEndOfGame();
         }
         //private void ShotsWithUnitsIntersections()
         //{
@@ -1589,6 +1614,11 @@ namespace CoreNamespace
                 playersText[CurrentPlayer] = "";
                 players[CurrentPlayer].Init(CurrentPlayer, this);
             }
+            gameEnd = false;
+            destroyers = new int[players.Count];
+            corvettes = new int[players.Count];
+            cruisers = new int[players.Count];
+            total = new int[players.Count];
         }
         public struct Rectangle
         {

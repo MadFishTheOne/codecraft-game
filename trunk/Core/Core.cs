@@ -541,7 +541,7 @@ namespace CoreNamespace
                     case ShipTypes.Corvette:
                         blowDamage = 150;
                         blowRadius = 120;
-                        maxTimeAfterDeath = 8*0.2f;
+                        maxTimeAfterDeath = 5*0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMultiplier, 1 * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.12f * TimingClass.SpeedsMultiplier, 0.12f * TimingClass.SpeedsMultiplier, 0.39f * TimingClass.SpeedsMultiplier, false);
                         gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 18 / TimingClass.SpeedsMultiplier, 40);                        
@@ -561,8 +561,8 @@ namespace CoreNamespace
                         break;
                     case ShipTypes.Cruiser:
                         blowDamage = 300;
-                        blowRadius = 120;
-                        maxTimeAfterDeath = 12*0.2f;
+                        blowRadius = 150;
+                        maxTimeAfterDeath = 8*0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMultiplier, 1.0f * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.05f * TimingClass.SpeedsMultiplier, 0.05f * TimingClass.SpeedsMultiplier, 0.2f * TimingClass.SpeedsMultiplier, false);
                         gun = new Gun(4, 50 * TimingClass.SpeedsMultiplier, 27 / TimingClass.SpeedsMultiplier, 200);
@@ -655,6 +655,10 @@ namespace CoreNamespace
             public float ShootingRadius
             {
                 get { return gun.MaxDistance; }
+            }
+            public float AngleTo(GameVector target)
+            {
+                return GetAngleTo(new Vector2(target.X,target.Y));
             }
             #region controlling the unit
 
@@ -951,11 +955,11 @@ namespace CoreNamespace
             public void DrawUnits(List<Unit> units)
             {
                 graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-                graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
+                graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
                 graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
                 graphics.GraphicsDevice.RenderState.AlphaSourceBlend = Blend.SourceAlpha;
                 graphics.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-                graphics.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;
+                graphics.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.InverseSourceAlpha;
                 shipEffect.Parameters["ViewProj"].SetValue(ViewProj);
                 shipEffect.Parameters["PlayerColors"].SetValue(TeamColors);
                 blowEffect.Parameters["ViewProj"].SetValue(ViewProj);
@@ -997,7 +1001,7 @@ namespace CoreNamespace
                             DestroyerBatchParams[CDestroyersInBatch].Z = units[currUnit].RotationAngle;
                             DestroyerBatchParams[CDestroyersInBatch].W = units[currUnit].PlayerOwner;
                             CDestroyersInBatch++;
-                            if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize);
+                            if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize,ShipTypes.Destroyer);
                         }
                         if (units[currUnit].ShipType == ShipTypes.Corvette)
                         {
@@ -1006,7 +1010,7 @@ namespace CoreNamespace
                             CorvetteBatchParams[CCorvettesInBatch].Z = units[currUnit].RotationAngle;
                             CorvetteBatchParams[CCorvettesInBatch].W = units[currUnit].PlayerOwner;
                             CCorvettesInBatch++;
-                            if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize);
+                            if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize,ShipTypes.Corvette);
                         }
                         if (units[currUnit].ShipType == ShipTypes.Cruiser)
                         {
@@ -1015,14 +1019,14 @@ namespace CoreNamespace
                             CruiserBatchParams[CCruisersInBatch].Z = units[currUnit].RotationAngle;
                             CruiserBatchParams[CCruisersInBatch].W = units[currUnit].PlayerOwner;
                             CCruisersInBatch++;
-                            if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize);
+                            if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize,ShipTypes.Cruiser);
                         }
                     }
                     currUnit++;
                 }
-                if (CDestroyersInBatch > 0) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize);
-                if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize);
-                if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize);
+                if (CDestroyersInBatch > 0) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize,ShipTypes.Destroyer);
+                if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize,ShipTypes.Corvette);
+                if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize,ShipTypes.Cruiser);
                 if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
             }
             private void DrawBlowBatch(Vector4[] BlowBatchParams, ref int CBlowsInBatch)
@@ -1036,28 +1040,40 @@ namespace CoreNamespace
                 CBlowsInBatch = 0;
                 blowEffect.End();
             }
-            void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text,Texture2D TextSmall, Vector2 Size)
+            void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text,Texture2D TextSmall, Vector2 Size,ShipTypes type)
             {
-                float BigLength = 4000;
+                float BigLength = 3000;
                 shipEffect.Begin();
-                float SizeMultiplier = 1.2f;
-                if (CameraPosition.Z > BigLength) SizeMultiplier *= CameraPosition.Z / BigLength;
-                
-                shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
-                shipEffect.Parameters["tex"].SetValue((CameraPosition.Z < BigLength) ? Text : TextSmall);
-                shipEffect.Parameters["Positions"].SetValue(UnitInstanceParams);
+                float SizeMultiplier=0;
                 EffectPass p = shipEffect.CurrentTechnique.Passes[0];
+                
+                shipEffect.Parameters["Positions"].SetValue(UnitInstanceParams);
+                
+                if (CameraPosition.Z > BigLength)
+                {
+                    shipEffect.Parameters["tex"].SetValue(TextSmall);
+                    switch (type)
+                    {
+                        case ShipTypes.Corvette: SizeMultiplier = 2.2f; break;
+                        case ShipTypes.Cruiser: SizeMultiplier = 1.6f; break;
+                        case ShipTypes.Destroyer: SizeMultiplier = 3.2f; break;
+                    }
+                    
+                    SizeMultiplier *= CameraPosition.Z / BigLength;
+                    shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
+                    p.Begin();
+                    graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
+                    p.End();
+                }                 
+                if (CameraPosition.Z > BigLength) SizeMultiplier =1.2f* CameraPosition.Z / BigLength;
+                else SizeMultiplier = 1.2f;
+                shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
+                shipEffect.Parameters["tex"].SetValue(Text);
+
                 p.Begin();
                 graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
                 p.End();
-                shipEffect.Parameters["tex"].SetValue(Text);
-                p.Begin();
-                if (CameraPosition.Z > BigLength)
-                {
-                    
-                    graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
-                }
-                p.End();
+                
                 CUnits = 0;
                 shipEffect.End();
             }
@@ -1354,6 +1370,7 @@ namespace CoreNamespace
         }
         public void Update()
         {
+            
             Stopwatch sw = new Stopwatch();
             for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
             {
@@ -1365,8 +1382,15 @@ namespace CoreNamespace
             CurrentPlayer = -1;
             sw.Reset();
             sw.Start();
+
+            UnitIntersections();
+            shots.Update();
             for (int i = 0; i < units.Count; i++)
             {
+                List<IUnit> NEAR1;
+                List<IShot> NEAR2;
+                this.GetNearUnits(new GameVector(units[i].position.X,units[i].position.Y), 600, out NEAR1, out NEAR2);
+
                 //units[i].Shoot();
                 units[i].Update();
                 if (units[i].IsDying)
@@ -1378,8 +1402,8 @@ namespace CoreNamespace
                     i--;
                 }
             }
-            shots.Update();
-            UnitIntersections();
+            
+            
             
             coreTotalUpdateTime += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
         }
@@ -1667,11 +1691,14 @@ namespace CoreNamespace
         {
             List<Unit> nearUnits;
             List<Shots.Shot> nearShots;
-            gameObjects.GetNearObjects(new Vector2( Position.X,Position.Y), Radius, out nearUnits, out nearShots);
+            Vector2 pos=new Vector2( Position.X,Position.Y);
+            gameObjects.GetNearObjects(pos, Radius, out nearUnits, out nearShots);
             NearUnits = new List<IUnit>();
             foreach (Unit unit in nearUnits)
+                if (Vector2.DistanceSquared(unit.position,pos)<Radius*Radius)
             {
                 NearUnits.Add((IUnit)unit);
+                    
             }
             NearShots= new List<IShot>();
             foreach (IShot shot in nearShots)

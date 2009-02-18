@@ -66,6 +66,8 @@ namespace MiniGameInterfaces
         {
             return (pt2 - pt1).LengthSquared();
         }
+
+        
     }
     public interface IUnit
     {
@@ -144,6 +146,12 @@ namespace MiniGameInterfaces
         /// shooting radius of unit's gun
         /// </summary>
         float ShootingRadius { get; }
+        /// <summary>
+        /// gets an angle to target vector
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        float AngleTo(GameVector target);
         #endregion
         #region Controlling the unit
         /// <summary>

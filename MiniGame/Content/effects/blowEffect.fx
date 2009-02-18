@@ -42,7 +42,7 @@ VS_OUTPUT Transform(
     
 	Out.Position = mul(currPos,ViewProj);    
     Out.TextureCoordinate =  Text; 
-    Out.T=pow(t,0.5);
+    Out.T=pow(t,1.00);
     return Out;
 }
 

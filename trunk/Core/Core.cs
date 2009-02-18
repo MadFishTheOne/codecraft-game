@@ -305,6 +305,7 @@ namespace CoreNamespace
         public struct DerivativeControlledParameter
         {
             float currValue;
+            float prevValue;
             float min, max;
             public float Min
             { get { return min; } }
@@ -323,6 +324,7 @@ namespace CoreNamespace
             bool isAngle;
             public DerivativeControlledParameter(float CurrValue, float Min, float Max, float MaxDerivative, bool IsAngle)
             {
+                prevValue = CurrValue;
                 this.currValue = CurrValue;
                 this.max = Max;
                 this.maxDerivative = MaxDerivative;
@@ -344,8 +346,10 @@ namespace CoreNamespace
                     aimEnabled = false;
                 }
             }
+            
             public void Update()
             {
+                prevValue = currValue;
                 if (aimEnabled)
                 {
                     float DeltaValue = maxDerivative * Timing.DeltaTime;
@@ -366,6 +370,7 @@ namespace CoreNamespace
                     if (currValue > max) currValue = max;
                     if (currValue < min) currValue = min;
                 }
+                if (prevValue * currValue < 0) currValue = 0;                
             }
             public float Value
             {
@@ -391,17 +396,17 @@ namespace CoreNamespace
             {
                 return variable.currValue;
             }
-            public bool RotateCCWToAngle(float AimedAngle, out float AimIsNearDecrementing,out bool Equals)
+            public bool RotateCCWToAngle(float AimedAngle, out float AimIsNearDecrementing)//,out bool Equals)
             {
                 float angleDist= AngleClass.Distance(AimedAngle, Value);
-                Equals = false;
+            //    Equals = false;
                 if (angleDist < MathHelper.Pi / 180f * 30)
                 {
                     AimIsNearDecrementing = angleDist / (MathHelper.Pi / 180f * 30);
-                    if (angleDist < MathHelper.Pi / 180f * 1)
-                    {
-                        Equals = true;
-                    }
+                    //if (angleDist < MathHelper.Pi / 180f * 1)
+                    //{
+                    //    Equals = true;
+                    //}
                 }
                 else AimIsNearDecrementing = 1;
                 return AngleClass.Difference(Value, AimedAngle) < 0;
@@ -798,7 +803,7 @@ namespace CoreNamespace
                         float AimIsNearDecrementing;
                         //rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear);
                         bool StopRotation;
-                        if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing, out StopRotation))
+                        if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing))
                         {
                             if (rotationSpeed.Value < 0)
                                 rotationSpeed.Derivative = rotationSpeed.MaxDerivative;
@@ -812,8 +817,8 @@ namespace CoreNamespace
                             else
                                 rotationSpeed.Derivative = -rotationSpeed.MaxDerivative * AimIsNearDecrementing;
                         }
-                        if (StopRotation && Math.Abs(rotationSpeed.Value) < 0.08f) 
-                            rotationSpeed = new DerivativeControlledParameter(0, rotationSpeed.Min, rotationSpeed.Max, rotationSpeed.MaxDerivative, false);
+                        //if (StopRotation && Math.Abs(rotationSpeed.Value) < 0.08f) 
+                        //    rotationSpeed = new DerivativeControlledParameter(0, rotationSpeed.Min, rotationSpeed.Max, rotationSpeed.MaxDerivative, false);
                     }
                     //rotationSpeed.Derivative *= AimIsNearDecrementing;
                     rotationSpeed.Update();
@@ -1458,7 +1463,7 @@ namespace CoreNamespace
             {              
                
                 units[i].Update();
-                
+                //units[i].SetAngle(2);
                 if (units[i].IsDying)
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
                 if (units[i].TimeToDie)

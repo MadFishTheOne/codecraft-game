@@ -349,10 +349,10 @@ namespace CoreNamespace
                 if (aimEnabled)
                 {
                     float DeltaValue = maxDerivative * Timing.DeltaTime;
-                    if (currValue > aimedValue + DeltaValue) currValue -= DeltaValue;
+                    if (currValue > aimedValue + DeltaValue) currValue -= maxDerivative;
                     else
                     {
-                        if (currValue < aimedValue - DeltaValue) currValue += DeltaValue;
+                        if (currValue < aimedValue - DeltaValue) currValue += maxDerivative;
                         else currValue = aimedValue;
                     }
                 }
@@ -361,8 +361,11 @@ namespace CoreNamespace
                     currValue += currDerivative * Core.Timing.DeltaTime;                    
                 }
                 if (isAngle) currValue = AngleClass.Normalize(currValue);
-                if (currValue > max) currValue = max;
-                if (currValue < min) currValue = min;
+                else
+                {
+                    if (currValue > max) currValue = max;
+                    if (currValue < min) currValue = min;
+                }
             }
             public float Value
             {
@@ -388,11 +391,18 @@ namespace CoreNamespace
             {
                 return variable.currValue;
             }
-            public bool RotateCCWToAngle(float AimedAngle, out float AimIsNearDecrementing)
+            public bool RotateCCWToAngle(float AimedAngle, out float AimIsNearDecrementing,out bool Equals)
             {
                 float angleDist= AngleClass.Distance(AimedAngle, Value);
-                if (angleDist< MathHelper.Pi / 180f * 30)
+                Equals = false;
+                if (angleDist < MathHelper.Pi / 180f * 30)
+                {
                     AimIsNearDecrementing = angleDist / (MathHelper.Pi / 180f * 30);
+                    if (angleDist < MathHelper.Pi / 180f * 1)
+                    {
+                        Equals = true;
+                    }
+                }
                 else AimIsNearDecrementing = 1;
                 return AngleClass.Difference(Value, AimedAngle) < 0;
                 //AimedAngle = AngleClass.Normalize(AimedAngle);
@@ -787,7 +797,8 @@ namespace CoreNamespace
                     {
                         float AimIsNearDecrementing;
                         //rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear);
-                        if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing))
+                        bool StopRotation;
+                        if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing, out StopRotation))
                         {
                             if (rotationSpeed.Value < 0)
                                 rotationSpeed.Derivative = rotationSpeed.MaxDerivative;
@@ -801,10 +812,12 @@ namespace CoreNamespace
                             else
                                 rotationSpeed.Derivative = -rotationSpeed.MaxDerivative * AimIsNearDecrementing;
                         }
+                        if (StopRotation && Math.Abs(rotationSpeed.Value) < 0.08f) 
+                            rotationSpeed = new DerivativeControlledParameter(0, rotationSpeed.Min, rotationSpeed.Max, rotationSpeed.MaxDerivative, false);
                     }
                     //rotationSpeed.Derivative *= AimIsNearDecrementing;
                     rotationSpeed.Update();
-                    if (PlayerOwner == 0) { }
+                    
                     rotationAngle.Derivative = rotationSpeed.Value;
                     //                rotationAngle.Derivative = (rotationAngle.AimedValue - rotationAngle.Value) * 0.05f;
                     rotationAngle.Update();
@@ -1445,6 +1458,7 @@ namespace CoreNamespace
             {              
                
                 units[i].Update();
+                
                 if (units[i].IsDying)
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
                 if (units[i].TimeToDie)

@@ -736,7 +736,6 @@ namespace CoreNamespace
                 
                 if (hp >= 0)
                 {
-                    if (PlayerOwner == 1) { }
                     if (goesToPoint)
                     {
                         

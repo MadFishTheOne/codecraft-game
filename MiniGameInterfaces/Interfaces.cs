@@ -167,6 +167,11 @@ namespace MiniGameInterfaces
         /// </summary>
         void DeAccelerate();
         /// <summary>
+        /// accelerate rotation by given amount
+        /// </summary>
+        /// <param name="amount"></param>
+        void RotationAccelerate(float amount);
+        /// <summary>
         /// set constant speed to move with it. unit will reach and hold this speed unitl new acceleration or setting speed command received
         /// </summary>
         void SetSpeed(float Speed);

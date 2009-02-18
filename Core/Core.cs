@@ -669,19 +669,29 @@ namespace CoreNamespace
             public void Accelerate(float amount)
             {
                 if (AccessDenied()) return;
+                speed.DisableAim();
                 speed.Derivative = amount;//speed.MaxDerivative;
                 goesToPoint = false;
             }
             public void Accelerate()
             {
                 if (AccessDenied()) return;
+                speed.DisableAim();
                 speed.Derivative = speed.MaxDerivative;
                 goesToPoint = false;
             }
             public void DeAccelerate()
             {
                 if (AccessDenied()) return;
+                speed.DisableAim();
                 speed.Derivative = -speed.MaxDerivative;
+                goesToPoint = false;
+            }
+            public void RotationAccelerate(float amount)
+            {
+                if (AccessDenied()) return;
+                rotationAngle.DisableAim();
+                rotationSpeed.Derivative = amount;
                 goesToPoint = false;
             }
             public void SetSpeed(float Speed)

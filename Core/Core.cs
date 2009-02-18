@@ -318,6 +318,8 @@ namespace CoreNamespace
             public float AimedValue
             { get { return aimedValue; } }
             bool aimEnabled;
+            public bool AimEnabled
+            { get { return aimEnabled; } }
             bool isAngle;
             public DerivativeControlledParameter(float CurrValue, float Min, float Max, float MaxDerivative, bool IsAngle)
             {
@@ -763,12 +765,10 @@ namespace CoreNamespace
             { get { return timeAfterDeath >= maxTimeAfterDeath; } }
             internal void Update()
             {
-                
                 if (hp >= 0)
                 {
                     if (goesToPoint)
                     {
-                        
                         float AngleToTgt = GetAngleTo(tgtLocation);
                         
                         SetAngleGoingToTgt(AngleToTgt);
@@ -783,22 +783,24 @@ namespace CoreNamespace
                     }
                     //hp -= 1;
                     gun.Update();
-                    float AimIsNearDecrementing;
-                    //rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear);
-                    if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing))
+                    if (rotationAngle.AimEnabled)
                     {
-                        if (rotationSpeed.Value<0)
-                        rotationSpeed.Derivative = rotationSpeed.MaxDerivative;
+                        float AimIsNearDecrementing;
+                        //rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear);
+                        if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing))
+                        {
+                            if (rotationSpeed.Value < 0)
+                                rotationSpeed.Derivative = rotationSpeed.MaxDerivative;
+                            else
+                                rotationSpeed.Derivative = rotationSpeed.MaxDerivative * AimIsNearDecrementing;
+                        }
                         else
-                            rotationSpeed.Derivative = rotationSpeed.MaxDerivative * AimIsNearDecrementing;
-                    }
-                    else
-                    {
-                        if (rotationSpeed.Value > 0)
-                            rotationSpeed.Derivative = -rotationSpeed.MaxDerivative;
-                        else
-                            rotationSpeed.Derivative = -rotationSpeed.MaxDerivative * AimIsNearDecrementing;
-                        
+                        {
+                            if (rotationSpeed.Value > 0)
+                                rotationSpeed.Derivative = -rotationSpeed.MaxDerivative;
+                            else
+                                rotationSpeed.Derivative = -rotationSpeed.MaxDerivative * AimIsNearDecrementing;
+                        }
                     }
                     //rotationSpeed.Derivative *= AimIsNearDecrementing;
                     rotationSpeed.Update();

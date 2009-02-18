@@ -108,6 +108,13 @@ namespace MiniGameInterfaces
         /// is unit already dead
         /// </summary>
         bool Dead { get; }
+        /// <summary>
+        /// defines intersection with given sector
+        /// </summary>
+        /// <param name="pt1">sector vertex</param>
+        /// <param name="pt2">sector vertex</param>
+        /// <returns>true if ship intersects vector</returns>
+        bool IntersectsSector(GameVector pt1, GameVector pt2);        
         #endregion
         #region Getting unit characteristics
         /// <summary>

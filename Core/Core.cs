@@ -360,9 +360,13 @@ namespace CoreNamespace
             public void SetAimedValue(float AimedValue)
             {
                 aimedValue = AimedValue;
-                if (aimedValue > max) aimedValue = max;
-                if (aimedValue < min) aimedValue = min;
+                
                 if (isAngle) aimedValue = AngleClass.Normalize(aimedValue);
+                else
+                {
+                    if (aimedValue > max) aimedValue = max;
+                    if (aimedValue < min) aimedValue = min;
+                }
                 aimEnabled = true;
             }
             public void DisableAim()
@@ -732,8 +736,10 @@ namespace CoreNamespace
                 
                 if (hp >= 0)
                 {
+                    if (PlayerOwner == 1) { }
                     if (goesToPoint)
                     {
+                        
                         float AngleToTgt = GetAngleTo(tgtLocation);
                         
                         SetAngleGoingToTgt(AngleToTgt);
@@ -1390,8 +1396,7 @@ namespace CoreNamespace
                 List<IUnit> NEAR1;
                 List<IShot> NEAR2;
                 this.GetNearUnits(new GameVector(units[i].position.X,units[i].position.Y), 600, out NEAR1, out NEAR2);
-
-                //units[i].Shoot();
+                                
                 units[i].Update();
                 if (units[i].IsDying)
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);

@@ -97,6 +97,10 @@ namespace MiniGameInterfaces
         /// </summary>
         float RotationAngle { get; }
         /// <summary>
+        /// rotation speed in radians per second
+        /// </summary>
+        float RotationSpeed { get; }
+        /// <summary>
         /// player owner
         /// </summary>
         int PlayerOwner { get; }

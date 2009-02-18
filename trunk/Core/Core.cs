@@ -656,6 +656,10 @@ namespace CoreNamespace
             {
                 get { return rotationAngle.Value; }
             }
+            public float RotationSpeed
+            {
+                get { return rotationSpeed.Value; }
+            }
             public int PlayerOwner { get { return team; } }
             private bool AccessDenied()
             {

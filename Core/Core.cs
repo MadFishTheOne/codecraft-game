@@ -61,10 +61,12 @@ namespace CoreNamespace
     }
     public class Core : IGame
     {
-
+        /// <summary>
+        /// map border. unit is out of borders if abs(x)>border||abs(y)>border
+        /// </summary>
+        const int border = 4000;
         class GameObjectsClass
-        {
-            const int border = 4000;
+        {        
             const int gameObjectsCCells = 46;
             const float cellSize = border * 2 / gameObjectsCCells;
             ArrayList[,] gameObjects;
@@ -664,6 +666,13 @@ namespace CoreNamespace
             {
                 return GetAngleTo(new Vector2(target.X,target.Y));
             }
+            public bool IntersectsSector(GameVector pt1, GameVector pt2)
+            {
+                Vector2 intersection;
+                return this.GetRectangle().IntersectsLine(
+                    new Vector2( pt1.X,pt1.Y), new Vector2(pt2.X,pt2.Y), out intersection);
+            }
+
             #region controlling the unit
 
             public void Accelerate(float amount)
@@ -1400,12 +1409,10 @@ namespace CoreNamespace
 
             UnitIntersections();
             shots.Update();
+            
             for (int i = 0; i < units.Count; i++)
-            {
-                List<IUnit> NEAR1;
-                List<IShot> NEAR2;
-                this.GetNearUnits(new GameVector(units[i].position.X,units[i].position.Y), 600, out NEAR1, out NEAR2);
-                                
+            {              
+               
                 units[i].Update();
                 if (units[i].IsDying)
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);

@@ -369,8 +369,9 @@ namespace CoreNamespace
                 {
                     if (currValue > max) currValue = max;
                     if (currValue < min) currValue = min;
+                    if (prevValue * currValue < 0) currValue = 0;                
                 }
-                if (prevValue * currValue < 0) currValue = 0;                
+                
             }
             public float Value
             {
@@ -1463,7 +1464,7 @@ namespace CoreNamespace
             {              
                
                 units[i].Update();
-                //units[i].SetAngle(2);
+                //units[i].SetAngle(205);
                 if (units[i].IsDying)
                     DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
                 if (units[i].TimeToDie)

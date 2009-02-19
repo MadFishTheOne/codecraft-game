@@ -1416,7 +1416,7 @@ namespace CoreNamespace
         public void Draw()
         {
             Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
-            ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, -1, 0)) *
+            ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, 1, 0)) *
                  Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
             //
             viewer.DrawEnvironment();
@@ -1453,6 +1453,7 @@ namespace CoreNamespace
             //
             if (gameEnd)
             {
+                
                 if (gameDraw)
                 {
                     viewer.DrawText("DRAW!", new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);

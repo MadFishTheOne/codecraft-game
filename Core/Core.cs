@@ -808,7 +808,6 @@ namespace CoreNamespace
                     {
                         float AimIsNearDecrementing;
                         //rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNear);
-                        bool StopRotation;
                         if (rotationAngle.RotateCCWToAngle(rotationAngle.AimedValue, out AimIsNearDecrementing))
                         {
                             if (rotationSpeed.Value < 0)

@@ -208,6 +208,8 @@ namespace CoreNamespace
         int[] corvettes;
         int[] cruisers;
         int[] total;
+        bool gameEndSoon;
+        float endOfGameTimer;
 
         public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
@@ -1372,17 +1374,41 @@ namespace CoreNamespace
 
         public void CheckEndOfGame()
         {
-            gameEnd = true;
-            gameDraw = (units.Count == 0);
-            gameWinner = -1;
-            gameDraw = false;
-            for (int i = 0; i < players.Count; i++)
+            if (gameEnd)
+                return;
+            if (!gameEndSoon)
             {
-                if (total[i] > 0)
+                gameEndSoon = true;
+                gameWinner = -1;
+                for (int i = 0; i < players.Count; i++)
                 {
-                    if (gameWinner != -1)
-                        gameEnd = false;
-                    gameWinner = units[i].PlayerOwner;
+                    if (total[i] > 0)
+                    {
+                        if (gameWinner != -1)
+                            gameEndSoon = false;
+                        gameWinner = units[i].PlayerOwner;
+                    }
+                }
+                if (gameEndSoon)
+                    endOfGameTimer = 2.0f; //Maybe this could be more precise
+            }
+            else
+            {
+                endOfGameTimer -= Timing.DeltaTime;
+                if (endOfGameTimer < 0)
+                {
+                    gameEnd = true;
+                    gameDraw = (units.Count == 0);
+                    gameWinner = -1;
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        if (total[i] > 0)
+                        {
+                            if (gameWinner != -1)
+                                gameEnd = false;
+                            gameWinner = units[i].PlayerOwner;
+                        }
+                    }
                 }
             }
         }
@@ -1645,6 +1671,7 @@ namespace CoreNamespace
             corvettes = new int[players.Count];
             cruisers = new int[players.Count];
             total = new int[players.Count];
+            gameEndSoon = false;
         }
         public struct Rectangle
         {

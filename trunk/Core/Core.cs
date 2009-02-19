@@ -516,7 +516,7 @@ namespace CoreNamespace
             DerivativeControlledParameter rotationSpeed, rotationAngle;
             public Vector2 ForwardVector
             {
-                get { return new Vector2((float)Math.Sin(rotationAngle), (float)Math.Cos(rotationAngle)); }
+                get { return new Vector2((float)Math.Cos(rotationAngle), (float)Math.Sin(rotationAngle)); }
             }
             Gun gun;
             internal float timeAfterDeath;
@@ -638,7 +638,10 @@ namespace CoreNamespace
             }
             public GameVector Forward
             {
-                get { return new GameVector((float)Math.Sin(rotationAngle), (float)Math.Cos(rotationAngle)); }
+                get 
+                {
+                    return new GameVector(ForwardVector.X, ForwardVector.Y);                   
+                }
             }
             public float TimeToRecharge
             {
@@ -777,7 +780,7 @@ namespace CoreNamespace
             #endregion
             private float GetAngleTo(Vector2 Target)
             {
-                return (float)Math.Atan2(Target.X - position.X, Target.Y - position.Y);
+                return (float)Math.Atan2(Target.Y - position.Y, Target.X - position.X);
             }
             public bool TimeToDie
             { get { return timeAfterDeath >= maxTimeAfterDeath; } }
@@ -1385,8 +1388,10 @@ namespace CoreNamespace
                     if (total[i] > 0)
                     {
                         if (gameWinner != -1)
+                        //why the F.. this threw an exception???!!!1адын  
                             gameEndSoon = false;
-                        gameWinner = units[i].PlayerOwner;
+                            gameWinner = units[i].PlayerOwner;
+                        
                     }
                 }
                 if (gameEndSoon)
@@ -1596,8 +1601,8 @@ namespace CoreNamespace
         }
         System.Collections.Generic.List<Unit> units;
         public static Vector2 DestroyerSize = new Vector2(25, 25);
-        public static Vector2 CorvetteSize = new Vector2(20, 80);
-        public static Vector2 CruiserSize = new Vector2(35, 140);
+        public static Vector2 CorvetteSize = new Vector2(80, 20);//HATE YOUUUUUUUUUUUU!!!!!!!!!!SHITTTTTT!!!HOLYY SHITT
+        public static Vector2 CruiserSize = new Vector2(140, 35);
         public void AddUnits()
         {
             string playerString;
@@ -1621,30 +1626,30 @@ namespace CoreNamespace
             Vector2 position;
             for (int i = 0; i < CDestroyers; i++)
             {
-                position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
-                position.Y += 2000;
-                position.Y *= sign;
-                position.X += 23;
+                position = pos + new Vector2( 150 * (CShips / MaxShipsInLine),150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
+                position.X += 2000;
+                position.X *= sign;
+                position.Y += 23;
                 units.Add(new Unit(ShipTypes.Destroyer, currTeam, position, angle, "Destroyer -" + i.ToString() + "-"));
                 CShips++;
 
             }           
             for (int i = 0; i < CCorvettes; i++)
             {
-                position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
-                position.Y += 2000;
-                position.Y *= sign;
-                position.X += 23;
+                position = pos + new Vector2(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
+                position.X += 2000;
+                position.X *= sign;
+                position.Y += 23;
                 units.Add(new Unit(ShipTypes.Corvette, currTeam, position, angle, "Corvette -" + i.ToString() + "-"));
                 CShips++;
             }
 
             for (int i = 0; i < CCruisers; i++)
             {
-                position = pos + new Vector2(150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2), 150 * (CShips / MaxShipsInLine));
-                position.Y += 2000;
-                position.Y *= sign;
-                position.X += 23;
+                position = pos + new Vector2(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
+                position.X += 2000;
+                position.X *= sign;
+                position.Y += 23;
                 units.Add(new Unit(ShipTypes.Cruiser, currTeam, position, angle, "Cruiser -" + i.ToString() + "-"));
                 CShips++;
             }

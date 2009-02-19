@@ -42,8 +42,14 @@ namespace DemoAI
                 game.SetText("FUCK!\nEPIC FAIL!!11");
             if (enemy == null)
                 game.SetText("Yahoo!\nI'm the winner!");
+            
             if (myUnit != null && enemy != null)
             {
+                game.SetText("pos.X="+myUnit.Position.X+
+                    "\npos.Y="+myUnit.Position.Y+
+                    "\nforw.X="+myUnit.Forward.X+
+                    "\nforw.Y="+myUnit.Forward.Y+
+                    "\nangle="+myUnit.RotationAngle);
                 GameVector toTgt = enemy.Position - myUnit.Position;
                 if (toTgt.Length() > 40)
                     myUnit.GoTo(enemy.Position, false);

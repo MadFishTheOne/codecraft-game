@@ -34,7 +34,7 @@ VS_OUTPUT Transform(
 	currPos.y=+Pos.x*sin(Positions[Index].z)-Pos.y*cos(Positions[Index].z)+Positions[Index].y;	
     
 	Out.Position = mul(currPos,ViewProj);    
-    Out.TextureCoordinate =  Text;
+    Out.TextureCoordinate = float2(Text.y,Text.x);   //i hate you. AAA!
     Out.Color=float4(PlayerColors[(int)Positions[Index].w],1);
     
     return Out;

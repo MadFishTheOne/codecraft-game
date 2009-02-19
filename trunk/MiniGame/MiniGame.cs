@@ -226,13 +226,13 @@ namespace MiniGame
                     if (Core.CameraPosition.Z < 200.0f)
                         Core.CameraPosition.Z = 200.0f;
                 }
-                if (newState.IsKeyDown(Keys.Right))
-                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
                 if (newState.IsKeyDown(Keys.Left))
+                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
+                if (newState.IsKeyDown(Keys.Right))
                     Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
-                if (newState.IsKeyDown(Keys.Down))
-                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
                 if (newState.IsKeyDown(Keys.Up))
+                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
+                if (newState.IsKeyDown(Keys.Down))
                     Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 2500.0f;
 
 #if FAlLSE

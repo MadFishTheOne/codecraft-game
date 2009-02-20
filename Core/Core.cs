@@ -852,8 +852,8 @@ namespace CoreNamespace
             {
                 Vector2 forward = ForwardVector;
                 Vector2 right = new Vector2(forward.Y, -forward.X);
-                forward *= size.Y*0.5f;
-                right *= size.X*0.5f;
+                forward *= size.X*0.5f;
+                right *= size.Y*0.5f;
                 return new Rectangle(forward - right + position, forward + right + position,
                     -forward + right + position, -forward - right + position);
             }

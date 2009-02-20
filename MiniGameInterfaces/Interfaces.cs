@@ -44,7 +44,7 @@ namespace MiniGameInterfaces
         }
         public float Angle()
         {
-            return (float)Math.Atan2(X, Y);
+            return (float)Math.Atan2(Y, X);
         }
         public static GameVector Normalize(GameVector pt)
         {

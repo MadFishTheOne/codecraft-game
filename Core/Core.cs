@@ -1387,10 +1387,11 @@ namespace CoreNamespace
                     if (total[i] > 0)
                     {
                         if (gameWinner != -1)
-                        //why the F.. this threw an exception???!!!1адын  
+                        {
                             gameEndSoon = false;
-                            gameWinner = units[i].PlayerOwner;
-                        
+                            break;
+                        }
+                        gameWinner = i;
                     }
                 }
                 if (gameEndSoon)
@@ -1409,8 +1410,11 @@ namespace CoreNamespace
                         if (total[i] > 0)
                         {
                             if (gameWinner != -1)
+                            {
                                 gameEnd = false;
-                            gameWinner = units[i].PlayerOwner;
+                                break;
+                            }
+                            gameWinner = i;
                         }
                     }
                 }

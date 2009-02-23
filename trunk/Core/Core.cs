@@ -14,8 +14,6 @@ using Microsoft.Xna.Framework.Storage;
 using System.Collections;
 using MiniGameInterfaces;
 using System.IO;
-
-
 //using System.Windows.Forms;
 //using System.Drawing;
 namespace CoreNamespace
@@ -23,9 +21,7 @@ namespace CoreNamespace
     public class Config
     {
         private static Config instance = null;
-
         public Dictionary<string, string> settings;
-
         private Config()
         {
             settings = new Dictionary<string, string>();
@@ -48,7 +44,6 @@ namespace CoreNamespace
             }
             rd.Close();
         }
-
         public static Config Instance
         {
             get
@@ -61,19 +56,32 @@ namespace CoreNamespace
     }
     public class Core : IGame
     {
+        ///// <summary>
+        ///// I cant write it in GameVector. but this is needed method
+        ///// </summary>
+        ///// <param name="vec"></param>
+        ///// <returns></returns>
+        //internal static GameVector ToGameVector(GameVector vec)
+        //{
+        //    return new GameVector(vec.X, vec.Y);
+        //}
+        internal static Vector2 ToVector2(GameVector vec)
+        {
+            return new Vector2(vec.X, vec.Y);
+        }
         /// <summary>
         /// map border. unit is out of borders if abs(x)>border||abs(y)>border
         /// </summary>
         const int border = 4000;
         class GameObjectsClass
-        {        
+        {
             const int gameObjectsCCells = 46;
             const float cellSize = border * 2 / gameObjectsCCells;
             ArrayList[,] gameObjects;
             public GameObjectsClass()
             {
                 gameObjects = new ArrayList[gameObjectsCCells, gameObjectsCCells];
-                for(int i=0;i<gameObjectsCCells;i++)
+                for (int i = 0; i < gameObjectsCCells; i++)
                     for (int j = 0; j < gameObjectsCCells; j++)
                     {
                         gameObjects[i, j] = new ArrayList();
@@ -84,20 +92,17 @@ namespace CoreNamespace
                 int X = (int)((RealCoo + border) / (2 * border) * gameObjectsCCells);
                 X = (int)Math.Min(Math.Max(X, 0), gameObjectsCCells - 1);
                 return X;
-            }            
-
+            }
             public void UpdateUnit(Unit unit)
             {
                 int X = GetLogicCoo(unit.position.X);
                 int Y = GetLogicCoo(unit.position.Y);
                 int oldX, oldY;
-                
                 ArrayList node = gameObjects[X, Y];
                 unit.GetLogicCoo(out oldX, out oldY);
                 gameObjects[oldX, oldY].Remove(unit);
-
                 if (!node.Contains(unit))
-                {                    
+                {
                     node.Add(unit);
                     unit.SetLogicCoo(X, Y);
                 }
@@ -112,30 +117,26 @@ namespace CoreNamespace
                 ArrayList node = gameObjects[X, Y];
                 if (!node.Contains(shot))
                 {
-                    
                     node.Add(shot);
                     shot.SetLogicCoo(X, Y);
                 }
             }
-            public void GetNearObjects(Vector2 Position, float Radius, out List<Unit> NearUnits, out List<Shots.Shot> NearShots)
+            public void GetNearObjects(GameVector Position, float Radius, out List<Unit> NearUnits, out List<Shots.Shot> NearShots)
             {
                 NearUnits = new List<Unit>();
                 NearShots = new List<Shots.Shot>();
-                
-                int RadiusLogic =(int)(Radius/cellSize)+1;// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
-                int X=GetLogicCoo( Position.X);
-                int Y=GetLogicCoo(Position.Y);
+                int RadiusLogic = (int)(Radius / cellSize) + 1;// (int)(CruiserSize.Y / (border / (float)gameObjectsCCells)) + 1;
+                int X = GetLogicCoo(Position.X);
+                int Y = GetLogicCoo(Position.Y);
                 //if (RadiusLogic == 0 && (GetLogicCoo(X + 10) != X || GetLogicCoo(X - 10) != X || GetLogicCoo(Y + 10) != Y || GetLogicCoo(Y - 10) != Y))
                 //{
                 //    RadiusLogic++;
                 //}
-
                 int minX, minY, maxX, maxY;
                 minX = (int)Math.Min(Math.Max(X - RadiusLogic, 0), gameObjectsCCells - 1);
                 minY = (int)Math.Min(Math.Max(Y - RadiusLogic, 0), gameObjectsCCells - 1);
                 maxX = (int)Math.Min(Math.Max(X + RadiusLogic, 0), gameObjectsCCells - 1);
                 maxY = (int)Math.Min(Math.Max(Y + RadiusLogic, 0), gameObjectsCCells - 1);
-
                 int i, j, k;
                 for (i = minX; i <= maxX; i++)
                     for (j = minY; j <= maxY; j++)
@@ -160,8 +161,8 @@ namespace CoreNamespace
             }
             internal void RemoveShot(Shots.Shot shot)
             {
-                int X,Y;
-                shot.GetLogicCoo(out X,out Y);
+                int X, Y;
+                shot.GetLogicCoo(out X, out Y);
                 gameObjects[X, Y].Remove(shot);
             }
             internal void RemoveUnit(Unit unit)
@@ -170,7 +171,6 @@ namespace CoreNamespace
                 unit.GetLogicCoo(out X, out Y);
                 gameObjects[X, Y].Remove(unit);
             }
-
         }
         static GameObjectsClass gameObjects;
         class AngleClass
@@ -196,7 +196,6 @@ namespace CoreNamespace
                 //return (float)Math.Min(prevDist, Math.Abs(Normalize(MathHelper.TwoPi - prevDist)));
             }
         }
-
         List<IAI> players;
         string[] playersText;
         float[] playersTotalUpdateTime;
@@ -210,7 +209,6 @@ namespace CoreNamespace
         int[] total;
         bool gameEndSoon;
         float endOfGameTimer;
-
         public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
         {
             gameObjects = new GameObjectsClass();
@@ -348,7 +346,6 @@ namespace CoreNamespace
                     aimEnabled = false;
                 }
             }
-            
             public void Update()
             {
                 prevValue = currValue;
@@ -364,16 +361,15 @@ namespace CoreNamespace
                 }
                 else
                 {
-                    currValue += currDerivative * Core.Timing.DeltaTime;                    
+                    currValue += currDerivative * Core.Timing.DeltaTime;
                 }
                 if (isAngle) currValue = AngleClass.Normalize(currValue);
                 else
                 {
                     if (currValue > max) currValue = max;
                     if (currValue < min) currValue = min;
-                    if (prevValue * currValue < 0) currValue = 0;                
+                    if (prevValue * currValue < 0) currValue = 0;
                 }
-                
             }
             public float Value
             {
@@ -382,7 +378,6 @@ namespace CoreNamespace
             public void SetAimedValue(float AimedValue)
             {
                 aimedValue = AimedValue;
-                
                 if (isAngle) aimedValue = AngleClass.Normalize(aimedValue);
                 else
                 {
@@ -401,8 +396,8 @@ namespace CoreNamespace
             }
             public bool RotateCCWToAngle(float AimedAngle, out float AimIsNearDecrementing)//,out bool Equals)
             {
-                float angleDist= AngleClass.Distance(AimedAngle, Value);
-            //    Equals = false;
+                float angleDist = AngleClass.Distance(AimedAngle, Value);
+                //    Equals = false;
                 if (angleDist < MathHelper.Pi / 180f * 30)
                 {
                     AimIsNearDecrementing = angleDist / (MathHelper.Pi / 180f * 30);
@@ -479,8 +474,8 @@ namespace CoreNamespace
                 if (CanShoot)
                 {
                     currDelay = delay;
-                    shots.Add(new Shots.Shot(owner.position + new Vector2(owner.Forward.X, owner.Forward.Y) * (owner.size.Y*0.5f +1),
-                        owner.ForwardVector * speed, Damage, lifeTime,owner));
+                    shots.Add(new Shots.Shot(owner.position + new GameVector(owner.Forward.X, owner.Forward.Y) * (owner.size.Y * 0.5f + 1),
+                        owner.ForwardVector * speed, Damage, lifeTime, owner));
                     return true;
                 }
                 else return false;
@@ -504,19 +499,19 @@ namespace CoreNamespace
             /// <summary>
             /// position on the map. X is left shift, Y - top
             /// </summary>
-            internal Vector2 position;
+            internal GameVector position;
             /// <summary>
             /// Ship is a square. X is a width, Y - length. 
             /// </summary>
-            internal Vector2 size;
+            internal GameVector size;
             /// <summary>
             /// radian per second
             /// </summary>
             DerivativeControlledParameter speed;
             DerivativeControlledParameter rotationSpeed, rotationAngle;
-            public Vector2 ForwardVector
+            public GameVector ForwardVector
             {
-                get { return new Vector2((float)Math.Cos(rotationAngle), (float)Math.Sin(rotationAngle)); }
+                get { return new GameVector((float)Math.Cos(rotationAngle), (float)Math.Sin(rotationAngle)); }
             }
             Gun gun;
             internal float timeAfterDeath;
@@ -524,9 +519,9 @@ namespace CoreNamespace
             private bool IsAliveInPrevLoop;
             bool goesToPoint;
             bool stopsNearPoint;
-            Vector2 tgtLocation;
+            GameVector tgtLocation;
             Shots shots;
-            public Unit(ShipTypes ShipType, string Name, Vector2 Position, Vector2 Size, DerivativeControlledParameter Speed,
+            public Unit(ShipTypes ShipType, string Name, GameVector Position, GameVector Size, DerivativeControlledParameter Speed,
                 DerivativeControlledParameter RotationSpeed,
                 DerivativeControlledParameter RotationAngle, Gun Gun, float HP, int team, Shots shots, float BlowDamage, float BlowRadius)
             {
@@ -543,14 +538,14 @@ namespace CoreNamespace
                 gun.owner = this;
                 this.hp = HP;
                 this.team = team;
-                maxTimeAfterDeath = 5*0.2f;
+                maxTimeAfterDeath = 5 * 0.2f;
                 timeAfterDeath = 0;
                 IsAliveInPrevLoop = true;
                 this.shots = Core.shots;
             }
-            public Unit(ShipTypes ShipType, int Player, Vector2 Position, float Angle,string Name)
+            public Unit(ShipTypes ShipType, int Player, GameVector Position, float Angle, string Name)
             {
-                shipType=ShipType;
+                shipType = ShipType;
                 switch (shipType)
                 {
                     case ShipTypes.Destroyer:
@@ -559,14 +554,14 @@ namespace CoreNamespace
                         name = Name;
                         position = Position;
                         size = DestroyerSize;
-                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMultiplier, 9* TimingClass.SpeedsMultiplier, false);
+                        speed = new DerivativeControlledParameter(0, 0, 20 * TimingClass.SpeedsMultiplier, 9 * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.22f * TimingClass.SpeedsMultiplier, 0.22f * TimingClass.SpeedsMultiplier, 0.5f * TimingClass.SpeedsMultiplier, false);
                         rotationAngle = new DerivativeControlledParameter(Angle, -MathHelper.Pi, MathHelper.Pi, 1000, true);
                         gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 9 / TimingClass.SpeedsMultiplier, 15);
                         gun.owner = this;
                         this.hp = 80;
                         this.team = Player;
-                        maxTimeAfterDeath = 5*0.2f;
+                        maxTimeAfterDeath = 5 * 0.2f;
                         timeAfterDeath = 0;
                         IsAliveInPrevLoop = true;
                         this.shots = Core.shots;
@@ -574,12 +569,12 @@ namespace CoreNamespace
                     case ShipTypes.Corvette:
                         blowDamage = 150;
                         blowRadius = 120;
-                        maxTimeAfterDeath = 5*0.2f;
+                        maxTimeAfterDeath = 5 * 0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 5 * TimingClass.SpeedsMultiplier, 1 * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.12f * TimingClass.SpeedsMultiplier, 0.12f * TimingClass.SpeedsMultiplier, 0.39f * TimingClass.SpeedsMultiplier, false);
-                        gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 18 / TimingClass.SpeedsMultiplier, 40);                        
+                        gun = new Gun(1, 50 * TimingClass.SpeedsMultiplier, 18 / TimingClass.SpeedsMultiplier, 40);
                         this.hp = 400;
-                        this.team = Player;                        
+                        this.team = Player;
                         IsAliveInPrevLoop = true;
                         this.shots = Core.shots;
                         timeAfterDeath = 0;
@@ -595,7 +590,7 @@ namespace CoreNamespace
                     case ShipTypes.Cruiser:
                         blowDamage = 300;
                         blowRadius = 150;
-                        maxTimeAfterDeath = 8*0.2f;
+                        maxTimeAfterDeath = 8 * 0.2f;
                         speed = new DerivativeControlledParameter(0, 0, 2 * TimingClass.SpeedsMultiplier, 1.0f * TimingClass.SpeedsMultiplier, false);
                         rotationSpeed = new DerivativeControlledParameter(0, -0.05f * TimingClass.SpeedsMultiplier, 0.05f * TimingClass.SpeedsMultiplier, 0.2f * TimingClass.SpeedsMultiplier, false);
                         gun = new Gun(4, 50 * TimingClass.SpeedsMultiplier, 27 / TimingClass.SpeedsMultiplier, 200);
@@ -616,10 +611,9 @@ namespace CoreNamespace
                         break;
                 }
             }
-            internal void SetHP(float value) { hp = value; if (hp < 0)  hp = -1;}
+            internal void SetHP(float value) { hp = value; if (hp < 0)  hp = -1; }
             #region IUnit Members
             public float HP { get { return hp; } }
-
             public bool Dead
             {
                 get { return hp < 0; }
@@ -638,9 +632,9 @@ namespace CoreNamespace
             }
             public GameVector Forward
             {
-                get 
+                get
                 {
-                    return new GameVector(ForwardVector.X, ForwardVector.Y);                   
+                    return new GameVector(ForwardVector.X, ForwardVector.Y);
                 }
             }
             public float TimeToRecharge
@@ -698,15 +692,14 @@ namespace CoreNamespace
             }
             public float AngleTo(GameVector target)
             {
-                return GetAngleTo(new Vector2(target.X,target.Y));
+                return GetAngleTo(new GameVector(target.X, target.Y));
             }
             public bool IntersectsSector(GameVector pt1, GameVector pt2)
             {
-                Vector2 intersection;
+                GameVector intersection;
                 return this.GetRectangle().IntersectsLine(
-                    new Vector2( pt1.X,pt1.Y), new Vector2(pt2.X,pt2.Y), out intersection);
+                    pt1, pt2, out intersection);
             }
-
             #region controlling the unit
 
             public void Accelerate(float amount)
@@ -746,9 +739,9 @@ namespace CoreNamespace
             public void SetSpeedGoingToTgt(float Speed)
             {
                 if (AccessDenied()) return;
-                speed.SetAimedValue(Speed);                
+                speed.SetAimedValue(Speed);
             }
-            
+
             public void SetAngle(float Angle)
             {
                 if (AccessDenied()) return;
@@ -766,19 +759,18 @@ namespace CoreNamespace
                 bool res = gun.Shoot();
                 //shots.Add(new Shots.Shot(position + Forward * 50, position + Forward * (gun.MaxDistance+50), gun.Damage));
                 return res;
-            }            
+            }
             public void GoTo(GameVector TargetLocation, bool Stop)
             {
                 if (AccessDenied()) return;
-                    goesToPoint = true;
-                    stopsNearPoint = Stop;
-                    tgtLocation = new Vector2(TargetLocation.X, TargetLocation.Y);
-                
-            } 
+                goesToPoint = true;
+                stopsNearPoint = Stop;
+                tgtLocation = new GameVector(TargetLocation.X, TargetLocation.Y);
+
+            }
             #endregion
-            
             #endregion
-            private float GetAngleTo(Vector2 Target)
+            private float GetAngleTo(GameVector Target)
             {
                 return (float)Math.Atan2(Target.Y - position.Y, Target.X - position.X);
             }
@@ -791,13 +783,12 @@ namespace CoreNamespace
                     if (goesToPoint)
                     {
                         float AngleToTgt = GetAngleTo(tgtLocation);
-                        
                         SetAngleGoingToTgt(AngleToTgt);
-                        float distanceSq = Vector2.DistanceSquared(position, tgtLocation);
+                        float distanceSq = GameVector.DistanceSquared(position, tgtLocation);
                         float timeToStop = speed.Value / speed.MaxDerivative;
                         float StopDistanceSq = speed.Value * timeToStop - speed.MaxDerivative * timeToStop * timeToStop / 2;
                         if (AngleClass.Distance(GetAngleTo(tgtLocation), rotationAngle.Value) < MathHelper.PiOver4 &&
-                            (StopDistanceSq < Vector2.DistanceSquared(position, tgtLocation) || !stopsNearPoint))
+                            (StopDistanceSq < GameVector.DistanceSquared(position, tgtLocation) || !stopsNearPoint))
                             SetSpeedGoingToTgt(MaxSpeed);
                         else SetSpeedGoingToTgt(0);
                         //if (distanceSq < 30*30&&speed.Value<10) { goesToPoint = false; }
@@ -827,7 +818,6 @@ namespace CoreNamespace
                     }
                     //rotationSpeed.Derivative *= AimIsNearDecrementing;
                     rotationSpeed.Update();
-                    
                     rotationAngle.Derivative = rotationSpeed.Value;
                     //                rotationAngle.Derivative = (rotationAngle.AimedValue - rotationAngle.Value) * 0.05f;
                     rotationAngle.Update();
@@ -848,13 +838,13 @@ namespace CoreNamespace
             {
                 get { return isDying; }
             }
-            internal Rectangle GetRectangle()
+            internal MiniGameInterfaces.Rectangle GetRectangle()
             {
-                Vector2 forward = ForwardVector;
-                Vector2 right = new Vector2(forward.Y, -forward.X);
-                forward *= size.X*0.5f;
-                right *= size.Y*0.5f;
-                return new Rectangle(forward - right + position, forward + right + position,
+                GameVector forward = ForwardVector;
+                GameVector right = new GameVector(forward.Y, -forward.X);
+                forward *= size.X * 0.5f;
+                right *= size.Y * 0.5f;
+                return new MiniGameInterfaces.Rectangle(forward - right + position, forward + right + position,
                     -forward + right + position, -forward - right + position);
             }
             int logicX, logicY;
@@ -866,7 +856,7 @@ namespace CoreNamespace
             internal void SetLogicCoo(int X, int Y)
             {
                 logicX = X;
-                logicY=Y;
+                logicY = Y;
             }
         }
         public class Viewer
@@ -886,11 +876,11 @@ namespace CoreNamespace
             Texture2D DestroyerTexture, CorvetteTexture,
                 CruiserTexture,
                 DestroyerSmall, CorvetteSmall,
-                CruiserSmall, 
+                CruiserSmall,
                 LaserTexture,
                 //EngineTexture,
                 //MiniMapTexture,
-                FirePunchTexture,EnvironmentTexture;
+                FirePunchTexture, EnvironmentTexture;
             internal GraphicsDeviceManager graphics;
             VertexDeclaration vertexDecl;
             #region vertex declaration
@@ -913,11 +903,11 @@ namespace CoreNamespace
             {
                 public Vector3 Position;
                 public float Index;
-                public Vector2 TexCoo;
+                public GameVector TexCoo;
             }
             IndexBuffer indexBuffer;
             VertexBuffer vertexBuffer;
-            Effect shipEffect, blowEffect, shotEffect,environmentEffect;
+            Effect shipEffect, blowEffect, shotEffect, environmentEffect;
             public Viewer(int ScreenWidth, int ScreenHeight, ContentManager Content, GraphicsDeviceManager Graphics)
             {
                 this.screenHeight = ScreenHeight;
@@ -937,12 +927,12 @@ namespace CoreNamespace
                     vertexData[i * 6 + 3].Position = new Vector3(-1, -1, 0);
                     vertexData[i * 6 + 4].Position = new Vector3(-1, 1, 0);
                     vertexData[i * 6 + 5].Position = new Vector3(1, 1, 0);
-                    vertexData[i * 6 + 0].TexCoo = new Vector2(1, 1);
-                    vertexData[i * 6 + 1].TexCoo = new Vector2(1, 0);
-                    vertexData[i * 6 + 2].TexCoo = new Vector2(0, 0);
-                    vertexData[i * 6 + 3].TexCoo = new Vector2(0, 0);
-                    vertexData[i * 6 + 4].TexCoo = new Vector2(0, 1);
-                    vertexData[i * 6 + 5].TexCoo = new Vector2(1, 1);
+                    vertexData[i * 6 + 0].TexCoo = new GameVector(1, 1);
+                    vertexData[i * 6 + 1].TexCoo = new GameVector(1, 0);
+                    vertexData[i * 6 + 2].TexCoo = new GameVector(0, 0);
+                    vertexData[i * 6 + 3].TexCoo = new GameVector(0, 0);
+                    vertexData[i * 6 + 4].TexCoo = new GameVector(0, 1);
+                    vertexData[i * 6 + 5].TexCoo = new GameVector(1, 1);
                     vertexData[i * 6 + 0].Index = i;
                     vertexData[i * 6 + 1].Index = i;
                     vertexData[i * 6 + 2].Index = i;
@@ -970,7 +960,6 @@ namespace CoreNamespace
                 DestroyerSmall = content.Load<Texture2D>("textures\\DestroyerSmall");
                 CorvetteSmall = content.Load<Texture2D>("textures\\CorvetteSmall");
                 CruiserSmall = content.Load<Texture2D>("textures\\CruiserSmall");
-
                 LaserTexture = content.Load<Texture2D>("textures\\LaserTexture");
                 EnvironmentTexture = content.Load<Texture2D>("textures\\EnvironmentTexture");
                 //EngineTexture = content.Load<Texture2D>("textures\\EngineTexture");
@@ -979,14 +968,14 @@ namespace CoreNamespace
                 shipEffect = content.Load<Effect>("effects\\ShipEffect");
                 blowEffect = content.Load<Effect>("effects\\BlowEffect");
                 shotEffect = content.Load<Effect>("effects\\ShotEffect");
-                environmentEffect =  content.Load<Effect>("effects\\EnvironmentEffect");
+                environmentEffect = content.Load<Effect>("effects\\EnvironmentEffect");
                 CreateBuffers();
             }
             const int BlowDetalization = 5;//billboards count in one blow            
             const int MaxBatchSize = 240;
             public void DrawEnvironment()
             {
-                Vector4[] param=new Vector4[1];
+                Vector4[] param = new Vector4[1];
                 param[0].X = 0;
                 param[0].Y = 0;
                 param[0].Z = 0;
@@ -996,7 +985,7 @@ namespace CoreNamespace
                 graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
                 graphics.GraphicsDevice.RenderState.AlphaSourceBlend = Blend.SourceAlpha;
                 graphics.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-                graphics.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;                
+                graphics.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;
                 graphics.GraphicsDevice.VertexDeclaration = vertexDecl;
                 graphics.GraphicsDevice.Vertices[0].SetSource(vertexBuffer, 0, vertexDecl.GetVertexStrideSize(0));
                 graphics.GraphicsDevice.Indices = indexBuffer;
@@ -1004,7 +993,7 @@ namespace CoreNamespace
                 environmentEffect.Parameters["PlayerColors"].SetValue(TeamColors);
                 environmentEffect.Parameters["tex"].SetValue(EnvironmentTexture);
                 environmentEffect.Parameters["Positions"].SetValue(param);
-                environmentEffect.Parameters["Size"].SetValue(new Vector2(30000,30000));
+                environmentEffect.Parameters["Size"].SetValue(new Vector2(30000, 30000));
                 environmentEffect.Begin();
                 EffectPass p = environmentEffect.CurrentTechnique.Passes[0];
                 p.Begin();
@@ -1037,7 +1026,6 @@ namespace CoreNamespace
                 int CCruisersInBatch = 0;
                 int CBlowsInBatch = 0;
                 int currUnit = 0;
-                
                 while (currUnit < units.Count)
                 {
                     if (units[currUnit].HP < 0)
@@ -1061,7 +1049,7 @@ namespace CoreNamespace
                             DestroyerBatchParams[CDestroyersInBatch].Z = units[currUnit].RotationAngle;
                             DestroyerBatchParams[CDestroyersInBatch].W = units[currUnit].PlayerOwner;
                             CDestroyersInBatch++;
-                            if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize,ShipTypes.Destroyer);
+                            if (CDestroyersInBatch == MaxBatchSize) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture, DestroyerSmall, DestroyerSize, ShipTypes.Destroyer);
                         }
                         if (units[currUnit].ShipType == ShipTypes.Corvette)
                         {
@@ -1070,7 +1058,7 @@ namespace CoreNamespace
                             CorvetteBatchParams[CCorvettesInBatch].Z = units[currUnit].RotationAngle;
                             CorvetteBatchParams[CCorvettesInBatch].W = units[currUnit].PlayerOwner;
                             CCorvettesInBatch++;
-                            if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize,ShipTypes.Corvette);
+                            if (CCorvettesInBatch == MaxBatchSize) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSmall, CorvetteSize, ShipTypes.Corvette);
                         }
                         if (units[currUnit].ShipType == ShipTypes.Cruiser)
                         {
@@ -1079,14 +1067,14 @@ namespace CoreNamespace
                             CruiserBatchParams[CCruisersInBatch].Z = units[currUnit].RotationAngle;
                             CruiserBatchParams[CCruisersInBatch].W = units[currUnit].PlayerOwner;
                             CCruisersInBatch++;
-                            if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize,ShipTypes.Cruiser);
+                            if (CCruisersInBatch == MaxBatchSize) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSmall, CruiserSize, ShipTypes.Cruiser);
                         }
                     }
                     currUnit++;
                 }
-                if (CDestroyersInBatch > 0) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture,DestroyerSmall, DestroyerSize,ShipTypes.Destroyer);
-                if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture,CorvetteSmall, CorvetteSize,ShipTypes.Corvette);
-                if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture,CruiserSmall, CruiserSize,ShipTypes.Cruiser);
+                if (CDestroyersInBatch > 0) DrawUnitBatch(DestroyerBatchParams, ref CDestroyersInBatch, DestroyerTexture, DestroyerSmall, DestroyerSize, ShipTypes.Destroyer);
+                if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSmall, CorvetteSize, ShipTypes.Corvette);
+                if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSmall, CruiserSize, ShipTypes.Cruiser);
                 if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
             }
             private void DrawBlowBatch(Vector4[] BlowBatchParams, ref int CBlowsInBatch)
@@ -1100,15 +1088,13 @@ namespace CoreNamespace
                 CBlowsInBatch = 0;
                 blowEffect.End();
             }
-            void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text,Texture2D TextSmall, Vector2 Size,ShipTypes type)
+            void DrawUnitBatch(Vector4[] UnitInstanceParams, ref int CUnits, Texture2D Text, Texture2D TextSmall, GameVector Size, ShipTypes type)
             {
                 float BigLength = 3000;
                 shipEffect.Begin();
-                float SizeMultiplier=0;
+                float SizeMultiplier = 0;
                 EffectPass p = shipEffect.CurrentTechnique.Passes[0];
-                
                 shipEffect.Parameters["Positions"].SetValue(UnitInstanceParams);
-                
                 if (CameraPosition.Z > BigLength)
                 {
                     shipEffect.Parameters["tex"].SetValue(TextSmall);
@@ -1118,22 +1104,19 @@ namespace CoreNamespace
                         case ShipTypes.Cruiser: SizeMultiplier = 1.6f; break;
                         case ShipTypes.Destroyer: SizeMultiplier = 3.2f; break;
                     }
-                    
                     SizeMultiplier *= CameraPosition.Z / BigLength;
-                    shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
+                    shipEffect.Parameters["Size"].SetValue(ToVector2(Size * SizeMultiplier));
                     p.Begin();
                     graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
                     p.End();
-                }                 
-                if (CameraPosition.Z > BigLength) SizeMultiplier =1.2f* CameraPosition.Z / BigLength;
+                }
+                if (CameraPosition.Z > BigLength) SizeMultiplier = 1.2f * CameraPosition.Z / BigLength;
                 else SizeMultiplier = 1.2f;
-                shipEffect.Parameters["Size"].SetValue(Size * SizeMultiplier);
+                shipEffect.Parameters["Size"].SetValue(ToVector2(Size * SizeMultiplier));
                 shipEffect.Parameters["tex"].SetValue(Text);
-
                 p.Begin();
                 graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CUnits * 6, 0, CUnits * 2);
                 p.End();
-                
                 CUnits = 0;
                 shipEffect.End();
             }
@@ -1172,10 +1155,10 @@ namespace CoreNamespace
                 if (CShotsInBatch > 0)
                     DrawShotBatch(ShotBatchParams1, ShotBatchParams2, ref CShotsInBatch);
             }
-            public void DrawText(string text, Vector2 pos, int align, Color color)
+            public void DrawText(string text, GameVector pos, int align, Color color)
             {
                 spriteBatch.Begin();
-                Vector2 fontOrigin = new Vector2(0.0f, 0.0f);;
+                Vector2 fontOrigin = new Vector2(0.0f, 0.0f); ;
                 switch (align)
                 {
                     case 1:
@@ -1185,8 +1168,8 @@ namespace CoreNamespace
                         fontOrigin = new Vector2(font.MeasureString(text).X, 0.0f);
                         break;
                 }
-                spriteBatch.DrawString(font, text, pos + new Vector2(2, 2), Color.Black, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-                spriteBatch.DrawString(font, text, pos, color, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+                spriteBatch.DrawString(font, text, ToVector2(pos + new GameVector(2, 2)), Color.Black, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+                spriteBatch.DrawString(font, text, ToVector2(pos), color, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
                 spriteBatch.End();
             }
         }
@@ -1194,7 +1177,7 @@ namespace CoreNamespace
         {
             public class Shot : IShot
             {
-                public Vector2 pos, direction;
+                public GameVector pos, direction;
                 private float size;
                 public float Size
                 {
@@ -1203,12 +1186,12 @@ namespace CoreNamespace
                         return size;
                     }
                 }
-                public BoundingSphere GetBoundingSphere()
+                public Sphere GetSphere()
                 {
-                    return new BoundingSphere(new Microsoft.Xna.Framework.Vector3((pos + End) * 0.5f, 0), size * 0.5f);
+                    return new Sphere((pos + End) * 0.5f, size * 0.5f);
                 }
-                Vector2 forward;
-                public Vector2 End
+                GameVector forward;
+                public GameVector End
                 {
                     get
                     {
@@ -1224,8 +1207,7 @@ namespace CoreNamespace
                 {
                     return unitToCheck == parent;
                 }
-
-                public Shot(Vector2 Pos, Vector2 Dir, float Damage, float LifeTime,Unit ParentUnit)
+                public Shot(GameVector Pos, GameVector Dir, float Damage, float LifeTime, Unit ParentUnit)
                 {
                     parent = ParentUnit;
                     switch (parent.ShipType)
@@ -1243,9 +1225,9 @@ namespace CoreNamespace
                     damage = Damage;
                     lifeTime = LifeTime;
                     hitSomebody = false;
-                    forward = Vector2.Normalize(direction);
+                    forward = GameVector.Normalize(direction);
                 }
-                public void HitSomebody(Vector2 where)
+                public void HitSomebody(GameVector where)
                 {
                     hitSomebody = true;
                 }
@@ -1286,13 +1268,13 @@ namespace CoreNamespace
             public void Add(Shot shot)
             {
                 shots.Add(shot);
-                Vector2 intersection = Vector2.One * float.PositiveInfinity, currIntersection;
+                GameVector intersection = GameVector.One * float.PositiveInfinity, currIntersection;
                 foreach (Unit unit in units)
                 {
                     if (unit.GetRectangle().IntersectsLine(shot.pos, shot.End, out currIntersection))
                     {
                         shot.hitSomebody = true;
-                        if (Vector2.DistanceSquared(shot.pos, currIntersection) < Vector2.DistanceSquared(shot.pos, intersection))
+                        if (GameVector.DistanceSquared(shot.pos, currIntersection) < GameVector.DistanceSquared(shot.pos, intersection))
                         {
                             intersection = currIntersection;
                         }
@@ -1330,7 +1312,6 @@ namespace CoreNamespace
         static internal Shots shots;
         public static Viewer viewer;
         internal static int CurrentPlayer;
-
         public string SecondsToString(float seconds)
         {
             int iMinutes = (int)(seconds / 60);
@@ -1346,7 +1327,6 @@ namespace CoreNamespace
                 sMillis = "0" + sMillis;
             return iMinutes.ToString() + ":" + sSeconds + "." + sMillis;
         }
-
         public void CalculateNumberOfUnits()
         {
             for (int i = 0; i < players.Count; i++)
@@ -1373,7 +1353,6 @@ namespace CoreNamespace
                 total[units[i].PlayerOwner]++;
             }
         }
-
         public void CheckEndOfGame()
         {
             if (gameEnd)
@@ -1420,7 +1399,6 @@ namespace CoreNamespace
                 }
             }
         }
-
         public void Draw()
         {
             Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
@@ -1441,40 +1419,39 @@ namespace CoreNamespace
             string coreTimeString = SecondsToString(coreTotalUpdateTime);
             //
             string[] lines;
-            viewer.DrawText(players[0].Author, new Vector2(100, 20), 0, new Color(Core.Viewer.TeamColors[0]));
-            viewer.DrawText(players[0].Description, new Vector2(100, 40), 0, Color.Gray);
-            viewer.DrawText(infoString[0], new Vector2(100, 60), 0, Color.White);
-            viewer.DrawText(timeString[0], new Vector2(100, 80), 0, Color.White);
+            viewer.DrawText(players[0].Author, new GameVector(100, 20), 0, new Color(Core.Viewer.TeamColors[0]));
+            viewer.DrawText(players[0].Description, new GameVector(100, 40), 0, Color.Gray);
+            viewer.DrawText(infoString[0], new GameVector(100, 60), 0, Color.White);
+            viewer.DrawText(timeString[0], new GameVector(100, 80), 0, Color.White);
             lines = playersText[0].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
-                viewer.DrawText(lines[i], new Vector2(100, 120 + i * 20), 0, Color.Yellow);
-            viewer.DrawText("vs.", new Vector2(Core.viewer.screenWidth / 2, 20), 1, Color.White);
-            viewer.DrawText("Core update time:", new Vector2(Core.viewer.screenWidth / 2, 60), 1, Color.White);
-            viewer.DrawText(coreTimeString, new Vector2(Core.viewer.screenWidth / 2, 80), 1, Color.White);
-            viewer.DrawText(players[1].Author, new Vector2(Core.viewer.screenWidth - 100, 20), 2, new Color(Core.Viewer.TeamColors[1]));
-            viewer.DrawText(players[1].Description, new Vector2(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
-            viewer.DrawText(infoString[1], new Vector2(Core.viewer.screenWidth - 100, 60), 2, Color.White);
-            viewer.DrawText(timeString[1], new Vector2(Core.viewer.screenWidth - 100, 80), 2, Color.White);
+                viewer.DrawText(lines[i], new GameVector(100, 120 + i * 20), 0, Color.Yellow);
+            viewer.DrawText("vs.", new GameVector(Core.viewer.screenWidth / 2, 20), 1, Color.White);
+            viewer.DrawText("Core update time:", new GameVector(Core.viewer.screenWidth / 2, 60), 1, Color.White);
+            viewer.DrawText(coreTimeString, new GameVector(Core.viewer.screenWidth / 2, 80), 1, Color.White);
+            viewer.DrawText(players[1].Author, new GameVector(Core.viewer.screenWidth - 100, 20), 2, new Color(Core.Viewer.TeamColors[1]));
+            viewer.DrawText(players[1].Description, new GameVector(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
+            viewer.DrawText(infoString[1], new GameVector(Core.viewer.screenWidth - 100, 60), 2, Color.White);
+            viewer.DrawText(timeString[1], new GameVector(Core.viewer.screenWidth - 100, 80), 2, Color.White);
             lines = playersText[1].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
-                viewer.DrawText(lines[i], new Vector2(Core.viewer.screenWidth - 100, 120 + i * 20), 2, Color.Yellow);
+                viewer.DrawText(lines[i], new GameVector(Core.viewer.screenWidth - 100, 120 + i * 20), 2, Color.Yellow);
             //
             if (gameEnd)
             {
-                
                 if (gameDraw)
                 {
-                    viewer.DrawText("DRAW!", new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
+                    viewer.DrawText("DRAW!", new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
                 }
                 else
                 {
-                    viewer.DrawText("Winner:", new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
-                    viewer.DrawText(players[gameWinner].Author, new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 20), 1, new Color(Core.Viewer.TeamColors[gameWinner]));
-                    viewer.DrawText(players[gameWinner].Description, new Vector2(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 40), 1, Color.Gray);
+                    viewer.DrawText("Winner:", new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
+                    viewer.DrawText(players[gameWinner].Author, new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 20), 1, new Color(Core.Viewer.TeamColors[gameWinner]));
+                    viewer.DrawText(players[gameWinner].Description, new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 40), 1, Color.Gray);
                 }
             }
             //
-            viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new Vector2(10, Core.viewer.screenHeight - 30), 0, Color.White);
+            viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new GameVector(10, Core.viewer.screenHeight - 30), 0, Color.White);
         }
         public void Update()
         {
@@ -1496,8 +1473,7 @@ namespace CoreNamespace
             UnitIntersections();
             shots.Update();
             for (int i = 0; i < units.Count; i++)
-            {              
-               
+            {
                 units[i].Update();
                 //units[i].SetAngle(205);
                 if (units[i].IsDying)
@@ -1520,11 +1496,11 @@ namespace CoreNamespace
         //        if (unit.HP >= 0)
         //        {
         //            Rectangle rect = unit.GetRectangle();
-        //            BoundingSphere sphere = rect.BoxBoundingSphere;
+        //            Sphere sphere = rect.BoxSphere;
         //            for (int i = 0; i < shots.shots.Count; i++)
         //            {
-        //               // if (unit.ShipType == ShipTypes.Destroyer&&Vector2.Distance(unit.position,shots.shots[i].pos)<10) { }
-        //                if (shots.shots[i].GetBoundingSphere().Intersects(sphere))
+        //               // if (unit.ShipType == ShipTypes.Destroyer&&GameVector.Distance(unit.position,shots.shots[i].pos)<10) { }
+        //                if (shots.shots[i].GetSphere().Intersects(sphere))
         //                {
         //                    if (unit.ShipType ==  ShipTypes.Destroyer) { }
         //                    if (rect.IntersectsLine(shots.shots[i].pos, shots.shots[i].End))
@@ -1537,65 +1513,66 @@ namespace CoreNamespace
         //            }
         //        }
         //}
-        private void DamageAllAround(Vector2 pos, float radius, float Damage)
+        private void DamageAllAround(GameVector pos, float radius, float Damage)
         {
             foreach (Unit unit in units)
             {
-                if (Vector2.DistanceSquared(unit.position, pos) <= radius * radius)
+                if (GameVector.DistanceSquared(unit.position, pos) <= radius * radius)
                 { unit.SetHP(unit.HP - Damage); }
             }
         }
-        private void 
+        private void
             UnitIntersections()
         {
             foreach (Unit unit in units)
             {
                 if (unit.ShipType == ShipTypes.Destroyer)
                 { }
-                gameObjects.UpdateUnit(unit);            }
+                gameObjects.UpdateUnit(unit);
+            }
             foreach (Shots.Shot shot in shots)
             { gameObjects.UpdateShot(shot); }
-            for (int i = 0; i < units.Count ; i++)
+            for (int i = 0; i < units.Count; i++)
                 if (units[i].HP >= 0)
                 {
                     if (units[i].ShipType == ShipTypes.Destroyer)
                     { }
-                    Rectangle rect1 = units[i].GetRectangle();
-                    BoundingSphere sphere1 = rect1.BoxBoundingSphere;
+                    MiniGameInterfaces.Rectangle rect1 = units[i].GetRectangle();
+                    Sphere sphere1 = rect1.GetSphere;
                     List<Unit> nearUnits = new List<Unit>();
                     List<Shots.Shot> nearShots = new List<Shots.Shot>();
-                    gameObjects.GetNearObjects(units[i].position,0, out nearUnits, out nearShots);
+                    gameObjects.GetNearObjects(units[i].position, 0, out nearUnits, out nearShots);
                     if (units[i].ShipType == ShipTypes.Destroyer)
                     { }
                     foreach (Unit nearUnit in nearUnits)
-                        if (nearUnit!=units[i])
-                    {
-                        Rectangle rect2 = nearUnit.GetRectangle();
-                        if (sphere1.Intersects(rect2.BoxBoundingSphere))
+                        if (nearUnit != units[i])
                         {
-                            if (rect1.IntersectsRectangle(rect2))
+                            MiniGameInterfaces.Rectangle rect2 = nearUnit.GetRectangle();
+                            if (sphere1.Intersects(rect2.GetSphere))
                             {
-                                float hp1 = units[i].HP;
-                                float hp2 = nearUnit.HP;
-                                units[i].SetHP(hp1 - hp2 * 1.5f);
-                                nearUnit.SetHP(hp2 - hp1 * 1.5f);
+                                if (rect1.IntersectsRectangle(rect2))
+                                {
+                                    float hp1 = units[i].HP;
+                                    float hp2 = nearUnit.HP;
+                                    units[i].SetHP(hp1 - hp2 * 1.5f);
+                                    nearUnit.SetHP(hp2 - hp1 * 1.5f);
+                                }
                             }
                         }
-                    }
                     foreach (Shots.Shot shot in nearShots)
-                        if (shot.lifeTime>0&&!shot.IsChildOf(units[i]))
-                    {
-                        if (shot.GetBoundingSphere().Intersects(sphere1))
-                        {                            
-                            if (rect1.IntersectsLine(shot.pos, shot.End))
+                        if (shot.lifeTime > 0 && !shot.IsChildOf(units[i]))
+                        {
+                            if (shot.GetSphere().Intersects(sphere1))
                             {
-                                //if (unit.Name == "Ship2") { }
-                                units[i].SetHP(units[i].HP - shot.damage);
-                                shots.shots.Remove(shot);
-                                gameObjects.RemoveShot(shot);
+                                if (rect1.IntersectsLine(shot.pos, shot.End))
+                                {
+                                    //if (unit.Name == "Ship2") { }
+                                    units[i].SetHP(units[i].HP - shot.damage);
+                                    shots.shots.Remove(shot);
+                                    gameObjects.RemoveShot(shot);
+                                }
                             }
                         }
-                    }
                 }
                 else
                 {
@@ -1603,65 +1580,62 @@ namespace CoreNamespace
                 }
         }
         System.Collections.Generic.List<Unit> units;
-        public static Vector2 DestroyerSize = new Vector2(25, 25);
-        public static Vector2 CorvetteSize = new Vector2(80, 20);//HATE YOUUUUUUUUUUUU!!!!!!!!!!SHITTTTTT!!!HOLYY SHITT
-        public static Vector2 CruiserSize = new Vector2(140, 35);
+        public static GameVector DestroyerSize = new GameVector(25, 25);
+        public static GameVector CorvetteSize = new GameVector(80, 20);
+        public static GameVector CruiserSize = new GameVector(140, 35);
         public void AddUnits()
         {
             string playerString;
-            for(int i=0;i<players.Count;i++)
+            for (int i = 0; i < players.Count; i++)
             {
-                playerString="Player"+i.ToString()+".";
-                if(Config.Instance.settings.ContainsKey(playerString+"Cruisers") && 
-                    Config.Instance.settings.ContainsKey(playerString+"Corvettes") && 
-                    Config.Instance.settings.ContainsKey(playerString+"Destroyers") )
+                playerString = "Player" + i.ToString() + ".";
+                if (Config.Instance.settings.ContainsKey(playerString + "Cruisers") &&
+                    Config.Instance.settings.ContainsKey(playerString + "Corvettes") &&
+                    Config.Instance.settings.ContainsKey(playerString + "Destroyers"))
                 {
-                    CreateUnitsForPlayer(i, Convert.ToInt32(Config.Instance.settings[playerString + "Cruisers"]), Convert.ToInt32(Config.Instance.settings[playerString + "Corvettes"]), Convert.ToInt32(Config.Instance.settings[playerString + "Destroyers"]), new Vector2(0, 000));
+                    CreateUnitsForPlayer(i, Convert.ToInt32(Config.Instance.settings[playerString + "Cruisers"]), Convert.ToInt32(Config.Instance.settings[playerString + "Corvettes"]), Convert.ToInt32(Config.Instance.settings[playerString + "Destroyers"]), new GameVector(0, 000));
                 }
             }
         }
-        private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, Vector2 pos)
+        private void CreateUnitsForPlayer(int currTeam, int CCruisers, int CCorvettes, int CDestroyers, GameVector pos)
         {
             int sign = currTeam == 0 ? -1 : 1;
             int MaxShipsInLine = 8;
             int CShips = 0;
             float angle = (currTeam > 0) ? MathHelper.Pi : 0;
-            Vector2 position;
+            GameVector position;
             for (int i = 0; i < CDestroyers; i++)
             {
-                position = pos + new Vector2( 150 * (CShips / MaxShipsInLine),150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
+                position = pos + new GameVector(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
                 position.X += 2000;
                 position.X *= sign;
                 position.Y += 23;
                 units.Add(new Unit(ShipTypes.Destroyer, currTeam, position, angle, "Destroyer -" + i.ToString() + "-"));
                 CShips++;
-
-            }           
+            }
             for (int i = 0; i < CCorvettes; i++)
             {
-                position = pos + new Vector2(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
+                position = pos + new GameVector(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
                 position.X += 2000;
                 position.X *= sign;
                 position.Y += 23;
                 units.Add(new Unit(ShipTypes.Corvette, currTeam, position, angle, "Corvette -" + i.ToString() + "-"));
                 CShips++;
             }
-
             for (int i = 0; i < CCruisers; i++)
             {
-                position = pos + new Vector2(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
+                position = pos + new GameVector(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
                 position.X += 2000;
                 position.X *= sign;
                 position.Y += 23;
                 units.Add(new Unit(ShipTypes.Cruiser, currTeam, position, angle, "Cruiser -" + i.ToString() + "-"));
                 CShips++;
             }
-
         }
         public void Reset(List<IAI> Players)
         {
             Timing.TimeSpeed = 1.0f;
-            CameraPosition = new Vector3(0,0,9000);
+            CameraPosition = new Vector3(0, 0, 9000);
             players = Players;
             playersText = new string[players.Count];
             playersTotalUpdateTime = new float[players.Count];
@@ -1682,144 +1656,47 @@ namespace CoreNamespace
             total = new int[players.Count];
             gameEndSoon = false;
         }
-        public struct Rectangle
-        {
-            public Vector2 pt1, pt2, pt3, pt4;
-            public Rectangle(Vector2 pt1, Vector2 pt2, Vector2 pt3, Vector2 pt4)
-            {
-                this.pt1 = pt1;
-                this.pt2 = pt2;
-                this.pt3 = pt3;
-                this.pt4 = pt4;
-            }
-            public BoundingSphere BoxBoundingSphere
-            {
-                get
-                {
-                    Vector2 min = new Vector2(Math.Min(Math.Min(pt1.X, pt2.X), Math.Min(pt3.X, pt4.X)),
-                        Math.Min(Math.Min(pt1.Y, pt2.Y), Math.Min(pt3.Y, pt4.Y)));
-                    Vector2 max = new Vector2(Math.Max(Math.Max(pt1.X, pt2.X), Math.Max(pt3.X, pt4.X)),
-                        Math.Max(Math.Max(pt1.Y, pt2.Y), Math.Max(pt3.Y, pt4.Y)));
-                    Vector2 center = (min + max) * 0.5f;
-                    return new BoundingSphere(new Vector3(center, 0), Vector2.Distance(center, min));
-                }
-            }
-            static bool LinesIntersection(Vector2 pt1, Vector2 pt2, Vector2 pt3, Vector2 pt4, out Vector2 intersection)
-            {
-                //pt1+(pt2-pt1)*t1=pt3+(pt4-pt3)*t2
-                //t2=(pt1.x-pt3.x)/(pt4.x-pt3.x)+(pt2.x-pt1.x)/(pt4.x-pt3.x)*t1
-                //pt1.y+(pt2.y-pt1.y)*t1=pt3.y+(pt4.y-pt3.y)*((pt1.x-pt3.x)/(pt4.x-pt3.x)+(pt2.x-pt1.x)/(pt4.x-pt3.x)*t1)
-                //((pt2.y-pt1.y)- (pt4.y-pt3.y)*(pt2.x-pt1.x)/(pt4.x-pt3.x))*t1=pt3.y-pt1.y+(pt4.y-pt3.y)*(pt1.x-pt3.x)/(pt4.x-pt3.x) 
-                float t1 = ((pt3.Y - pt1.Y) * (pt4.X - pt3.X) + (pt4.Y - pt3.Y) * (pt1.X - pt3.X))
-                    / ((pt2.Y - pt1.Y) * (pt4.X - pt3.X) - (pt4.Y - pt3.Y) * (pt2.X - pt1.X));
-                float t2 = (pt1.X - pt3.X) / (pt4.X - pt3.X) + (pt2.X - pt1.X) / (pt4.X - pt3.X) * t1;
-                if (float.IsNaN(t1 + t2))
-                {
-                    t1 = ((pt3.X - pt1.X) * (pt4.Y - pt3.Y) + (pt4.X - pt3.X) * (pt1.Y - pt3.Y))
-                    / ((pt2.X - pt1.X) * (pt4.Y - pt3.Y) - (pt4.X - pt3.X) * (pt2.Y - pt1.Y));
-                     t2 = (pt1.Y - pt3.Y) / (pt4.Y - pt3.Y) + (pt2.Y - pt1.Y) / (pt4.Y - pt3.Y) * t1;
-                }
-                intersection = pt1 + (pt2 - pt1) * t1;
-                return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
-            }
-            public bool IntersectsLine(Vector2 pt5, Vector2 pt6, out Vector2 Intersection)
-            {
-                Intersection = Vector2.One * float.PositiveInfinity;
-                bool res = false;
-                Vector2 currIntersection;
-                if (LinesIntersection(pt1, pt2, pt5, pt6, out currIntersection))
-                { Intersection = currIntersection; res = true; }
-                if (LinesIntersection(pt2, pt3, pt5, pt6, out currIntersection))
-                {
-                    if (Vector2.DistanceSquared(pt5, currIntersection) < Vector2.DistanceSquared(pt5, Intersection))
-                        Intersection = currIntersection;
-                    res = true;
-                }
-                if (LinesIntersection(pt3, pt4, pt5, pt6, out currIntersection))
-                {
-                    if (Vector2.DistanceSquared(pt5, currIntersection) < Vector2.DistanceSquared(pt5, Intersection))
-                        Intersection = currIntersection;
-                    res = true;
-                }
-                if (LinesIntersection(pt4, pt1, pt5, pt6, out currIntersection))
-                {
-                    if (Vector2.DistanceSquared(pt5, currIntersection) < Vector2.DistanceSquared(pt5, Intersection))
-                        Intersection = currIntersection;
-                    res = true;
-                }
-                return res;
-            }
-            public bool IntersectsLine(Vector2 pt5, Vector2 pt6)
-            {
-                Vector2 currIntersection;
-                if (LinesIntersection(pt1, pt2, pt5, pt6, out currIntersection))
-                { return true; }
-                if (LinesIntersection(pt2, pt3, pt5, pt6, out currIntersection))
-                { return true; }
-                if (LinesIntersection(pt3, pt4, pt5, pt6, out currIntersection))
-                { return true; }
-                if (LinesIntersection(pt4, pt1, pt5, pt6, out currIntersection))
-                { return true; }
-                return false;
-            }
-            public bool IntersectsRectangle(Rectangle anotherRect)
-            {
-                if (IntersectsLine(anotherRect.pt1, anotherRect.pt2)) return true;
-                if (IntersectsLine(anotherRect.pt2, anotherRect.pt3)) return true;
-                if (IntersectsLine(anotherRect.pt3, anotherRect.pt4)) return true;
-                if (IntersectsLine(anotherRect.pt4, anotherRect.pt1)) return true;
-                return false;
-            }
-        }
         static public Vector3 CameraPosition;
         static Matrix ViewProj;
-        #region IGame Members
-
+        #region IGame Members        
         void IGame.SetText(string Text)
         {
             playersText[CurrentPlayer] = Text;
         }
-
         int IGame.UnitsCount
         {
             get { return units.Count; }
         }
-
         IUnit IGame.GetUnit(int Index)
         {
             return (IUnit)units[Index];
         }
-
         int IGame.ShotsCount
         {
             get { return shots.shots.Count; }
         }
-
         IShot IGame.GetShot(int Index)
         {
             return (IShot)shots.shots[Index];
         }
-         
-        public void GetNearUnits(GameVector Position, float Radius,out List<IUnit> NearUnits,out List<IShot>  NearShots)
+        public void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots)
         {
             List<Unit> nearUnits;
             List<Shots.Shot> nearShots;
-            Vector2 pos=new Vector2( Position.X,Position.Y);
+            GameVector pos = new GameVector(Position.X, Position.Y);
             gameObjects.GetNearObjects(pos, Radius, out nearUnits, out nearShots);
             NearUnits = new List<IUnit>();
             foreach (Unit unit in nearUnits)
-                if (Vector2.DistanceSquared(unit.position,pos)<Radius*Radius)
-            {
-                NearUnits.Add((IUnit)unit);
-                    
-            }
-            NearShots= new List<IShot>();
+                if (GameVector.DistanceSquared(unit.position, pos) < Radius * Radius)
+                {
+                    NearUnits.Add((IUnit)unit);
+                }
+            NearShots = new List<IShot>();
             foreach (IShot shot in nearShots)
             {
                 NearShots.Add((IShot)shot);
             }
         }
-
         public float Time
         {
             get
@@ -1827,7 +1704,6 @@ namespace CoreNamespace
                 return timing.NowTime;
             }
         }
-
         public float TimeElapsed
         {
             get
@@ -1835,7 +1711,6 @@ namespace CoreNamespace
                 return timing.DeltaTime;
             }
         }
-
         #endregion
     }
 }

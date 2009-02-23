@@ -1155,7 +1155,7 @@ namespace CoreNamespace
                 if (CShotsInBatch > 0)
                     DrawShotBatch(ShotBatchParams1, ShotBatchParams2, ref CShotsInBatch);
             }
-            public void DrawText(string text, GameVector pos, int align, Color color)
+            public void DrawText(string text, GameVector pos, int align, Microsoft.Xna.Framework.Graphics.Color color)
             {
                 spriteBatch.Begin();
                 Vector2 fontOrigin = new Vector2(0.0f, 0.0f); ;
@@ -1168,7 +1168,7 @@ namespace CoreNamespace
                         fontOrigin = new Vector2(font.MeasureString(text).X, 0.0f);
                         break;
                 }
-                spriteBatch.DrawString(font, text, ToVector2(pos + new GameVector(2, 2)), Color.Black, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+                spriteBatch.DrawString(font, text, ToVector2(pos + new GameVector(2, 2)), Microsoft.Xna.Framework.Graphics.Color.Black, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
                 spriteBatch.DrawString(font, text, ToVector2(pos), color, 0, fontOrigin, 1.0f, SpriteEffects.None, 0.5f);
                 spriteBatch.End();
             }
@@ -1186,9 +1186,9 @@ namespace CoreNamespace
                         return size;
                     }
                 }
-                public Sphere GetSphere()
+                public Circle GetSphere()
                 {
-                    return new Sphere((pos + End) * 0.5f, size * 0.5f);
+                    return new Circle((pos + End) * 0.5f, size * 0.5f);
                 }
                 GameVector forward;
                 public GameVector End
@@ -1401,7 +1401,7 @@ namespace CoreNamespace
         }
         public void Draw()
         {
-            Core.viewer.graphics.GraphicsDevice.Clear(Color.Black);
+            Core.viewer.graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
             ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, 1, 0)) *
                  Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)viewer.screenWidth / (float)viewer.screenHeight, 10, 100000);
             //
@@ -1419,39 +1419,39 @@ namespace CoreNamespace
             string coreTimeString = SecondsToString(coreTotalUpdateTime);
             //
             string[] lines;
-            viewer.DrawText(players[0].Author, new GameVector(100, 20), 0, new Color(Core.Viewer.TeamColors[0]));
-            viewer.DrawText(players[0].Description, new GameVector(100, 40), 0, Color.Gray);
-            viewer.DrawText(infoString[0], new GameVector(100, 60), 0, Color.White);
-            viewer.DrawText(timeString[0], new GameVector(100, 80), 0, Color.White);
+            viewer.DrawText(players[0].Author, new GameVector(100, 20), 0, new Microsoft.Xna.Framework.Graphics.Color(Core.Viewer.TeamColors[0]));
+            viewer.DrawText(players[0].Description, new GameVector(100, 40), 0, Microsoft.Xna.Framework.Graphics.Color.Gray);
+            viewer.DrawText(infoString[0], new GameVector(100, 60), 0, Microsoft.Xna.Framework.Graphics.Color.White);
+            viewer.DrawText(timeString[0], new GameVector(100, 80), 0, Microsoft.Xna.Framework.Graphics.Color.White);
             lines = playersText[0].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
-                viewer.DrawText(lines[i], new GameVector(100, 120 + i * 20), 0, Color.Yellow);
-            viewer.DrawText("vs.", new GameVector(Core.viewer.screenWidth / 2, 20), 1, Color.White);
-            viewer.DrawText("Core update time:", new GameVector(Core.viewer.screenWidth / 2, 60), 1, Color.White);
-            viewer.DrawText(coreTimeString, new GameVector(Core.viewer.screenWidth / 2, 80), 1, Color.White);
-            viewer.DrawText(players[1].Author, new GameVector(Core.viewer.screenWidth - 100, 20), 2, new Color(Core.Viewer.TeamColors[1]));
-            viewer.DrawText(players[1].Description, new GameVector(Core.viewer.screenWidth - 100, 40), 2, Color.Gray);
-            viewer.DrawText(infoString[1], new GameVector(Core.viewer.screenWidth - 100, 60), 2, Color.White);
-            viewer.DrawText(timeString[1], new GameVector(Core.viewer.screenWidth - 100, 80), 2, Color.White);
+                viewer.DrawText(lines[i], new GameVector(100, 120 + i * 20), 0, Microsoft.Xna.Framework.Graphics.Color.Yellow);
+            viewer.DrawText("vs.", new GameVector(Core.viewer.screenWidth / 2, 20), 1, Microsoft.Xna.Framework.Graphics.Color.White);
+            viewer.DrawText("Core update time:", new GameVector(Core.viewer.screenWidth / 2, 60), 1, Microsoft.Xna.Framework.Graphics.Color.White);
+            viewer.DrawText(coreTimeString, new GameVector(Core.viewer.screenWidth / 2, 80), 1, Microsoft.Xna.Framework.Graphics.Color.White);
+            viewer.DrawText(players[1].Author, new GameVector(Core.viewer.screenWidth - 100, 20), 2, new Microsoft.Xna.Framework.Graphics.Color(Core.Viewer.TeamColors[1]));
+            viewer.DrawText(players[1].Description, new GameVector(Core.viewer.screenWidth - 100, 40), 2, Microsoft.Xna.Framework.Graphics.Color.Gray);
+            viewer.DrawText(infoString[1], new GameVector(Core.viewer.screenWidth - 100, 60), 2, Microsoft.Xna.Framework.Graphics.Color.White);
+            viewer.DrawText(timeString[1], new GameVector(Core.viewer.screenWidth - 100, 80), 2, Microsoft.Xna.Framework.Graphics.Color.White);
             lines = playersText[1].Split(new char[] { '\n' });
             for (int i = 0; i < lines.Length; i++)
-                viewer.DrawText(lines[i], new GameVector(Core.viewer.screenWidth - 100, 120 + i * 20), 2, Color.Yellow);
+                viewer.DrawText(lines[i], new GameVector(Core.viewer.screenWidth - 100, 120 + i * 20), 2, Microsoft.Xna.Framework.Graphics.Color.Yellow);
             //
             if (gameEnd)
             {
                 if (gameDraw)
                 {
-                    viewer.DrawText("DRAW!", new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
+                    viewer.DrawText("DRAW!", new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Microsoft.Xna.Framework.Graphics.Color.White);
                 }
                 else
                 {
-                    viewer.DrawText("Winner:", new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Color.White);
-                    viewer.DrawText(players[gameWinner].Author, new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 20), 1, new Color(Core.Viewer.TeamColors[gameWinner]));
-                    viewer.DrawText(players[gameWinner].Description, new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 40), 1, Color.Gray);
+                    viewer.DrawText("Winner:", new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2), 1, Microsoft.Xna.Framework.Graphics.Color.White);
+                    viewer.DrawText(players[gameWinner].Author, new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 20), 1, new Microsoft.Xna.Framework.Graphics.Color(Core.Viewer.TeamColors[gameWinner]));
+                    viewer.DrawText(players[gameWinner].Description, new GameVector(Core.viewer.screenWidth / 2, Core.viewer.screenHeight / 2 + 40), 1, Microsoft.Xna.Framework.Graphics.Color.Gray);
                 }
             }
             //
-            viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new GameVector(10, Core.viewer.screenHeight - 30), 0, Color.White);
+            viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new GameVector(10, Core.viewer.screenHeight - 30), 0, Microsoft.Xna.Framework.Graphics.Color.White);
         }
         public void Update()
         {
@@ -1538,7 +1538,7 @@ namespace CoreNamespace
                     if (units[i].ShipType == ShipTypes.Destroyer)
                     { }
                     MiniGameInterfaces.Rectangle rect1 = units[i].GetRectangle();
-                    Sphere sphere1 = rect1.GetSphere;
+                    Circle sphere1 = rect1.GetSphere;
                     List<Unit> nearUnits = new List<Unit>();
                     List<Shots.Shot> nearShots = new List<Shots.Shot>();
                     gameObjects.GetNearObjects(units[i].position, 0, out nearUnits, out nearShots);

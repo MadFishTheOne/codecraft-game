@@ -4,6 +4,24 @@ using System.Linq;
 using System.Text;
 namespace MiniGameInterfaces
 {
+    public struct Color
+    {
+        public float r,g,b;
+        public Color(float R,float G,float B)
+        {
+            r=R;
+            g=G;
+            b=B;
+        }
+        
+    }
+    public interface IDebug
+    {
+        static void DrawRectangle(Rectangle Rectangle,Color Color);
+        void DrawCircle(Circle Circle, Color Color);
+        void DrawPoint(GameVector Vector, Color Color);
+        void DrawLine(Stretch Line);
+    }
     public enum ShipTypes
     {
         Destroyer, Corvette, Cruiser
@@ -337,11 +355,11 @@ namespace MiniGameInterfaces
             return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
         }
     }
-    public struct Sphere
+    public struct Circle
     {
         GameVector center;
         float radius;
-        public Sphere(GameVector Center, float Radius)
+        public Circle(GameVector Center, float Radius)
         {
             center = Center;
             radius = Radius;
@@ -360,7 +378,7 @@ namespace MiniGameInterfaces
                 return GameVector.DistanceSquared(center, perpendicularBasis) < radius * radius;
             }
         }
-        public bool Intersects(Sphere Sphere)
+        public bool Intersects(Circle Sphere)
         {
             return GameVector.DistanceSquared(center, Sphere.center) < (radius + Sphere.radius) * (radius + Sphere.radius);
         }
@@ -376,7 +394,7 @@ namespace MiniGameInterfaces
             this.pt4 = pt4;
         }
 
-        public Sphere GetSphere
+        public Circle GetSphere
         {
             get
             {
@@ -385,7 +403,7 @@ namespace MiniGameInterfaces
                 GameVector max = new GameVector(Math.Max(Math.Max(pt1.X, pt2.X), Math.Max(pt3.X, pt4.X)),
                     Math.Max(Math.Max(pt1.Y, pt2.Y), Math.Max(pt3.Y, pt4.Y)));
                 GameVector center = (min + max) * 0.5f;
-                return new Sphere(center, GameVector.Distance(center, min));
+                return new Circle(center, GameVector.Distance(center, min));
             }
         }
         static bool LinesIntersection(GameVector Start1, GameVector End1, GameVector Start2, GameVector End2, out GameVector Intersection)

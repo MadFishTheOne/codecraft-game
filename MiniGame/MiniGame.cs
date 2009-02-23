@@ -262,24 +262,24 @@ namespace MiniGame
         {
             graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
             if (plugins.Count == 0)
-                Core.viewer.DrawText("No plugins found! Please put some plugins into the game folder.", new Vector2(100, 100), 0, Color.Red);
+                Core.viewer.DrawText("No plugins found! Please put some plugins into the game folder.", new GameVector(100, 100), 0, Color.Red);
             else
             {
-                Core.viewer.DrawText("Available plugins:", new Vector2(60, 20), 0, Color.Yellow);
+                Core.viewer.DrawText("Available plugins:", new GameVector(60, 20), 0, Color.Yellow);
                 for (int i = 0; i < plugins.Count; i++)
                 {
                     if (cursorPosition == i)
-                        Core.viewer.DrawText(">", new Vector2(20, 60 + i * 20), 0, Color.White);
-                    Core.viewer.DrawText(plugins[i].Author, new Vector2(60, 60 + i * 20), 0, Color.White);
-                    Core.viewer.DrawText(plugins[i].Description, new Vector2(250, 60 + i * 20), 0, Color.Gray);
+                        Core.viewer.DrawText(">", new GameVector(20, 60 + i * 20), 0, Color.White);
+                    Core.viewer.DrawText(plugins[i].Author, new GameVector(60, 60 + i * 20), 0, Color.White);
+                    Core.viewer.DrawText(plugins[i].Description, new GameVector(250, 60 + i * 20), 0, Color.Gray);
                 }
-                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list,", new Vector2(60, 340), 0, Color.LightGoldenrodYellow);
-                Core.viewer.DrawText("and [Del] to clear list. [Enter] starts the game.", new Vector2(60, 360), 0, Color.LightGoldenrodYellow);
-                Core.viewer.DrawText("Selected players:", new Vector2(60, 400), 0, Color.Yellow);
+                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list,", new GameVector(60, 340), 0, Color.LightGoldenrodYellow);
+                Core.viewer.DrawText("and [Del] to clear list. [Enter] starts the game.", new GameVector(60, 360), 0, Color.LightGoldenrodYellow);
+                Core.viewer.DrawText("Selected players:", new GameVector(60, 400), 0, Color.Yellow);
                 for (int i = 0; i < players.Count; i++)
                 {
-                    Core.viewer.DrawText(players[i].Author, new Vector2(60, 440 + i * 20), 0, new Color(Core.Viewer.TeamColors[i]));
-                    Core.viewer.DrawText(players[i].Description, new Vector2(250, 440 + i * 20), 0, Color.Gray);
+                    Core.viewer.DrawText(players[i].Author, new GameVector(60, 440 + i * 20), 0, new Color(Core.Viewer.TeamColors[i]));
+                    Core.viewer.DrawText(players[i].Description, new GameVector(250, 440 + i * 20), 0, Color.Gray);
                 }
             }
         }

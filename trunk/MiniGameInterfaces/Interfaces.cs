@@ -393,7 +393,6 @@ namespace MiniGameInterfaces
             this.pt3 = pt3;
             this.pt4 = pt4;
         }
-
         public Circle GetSphere
         {
             get

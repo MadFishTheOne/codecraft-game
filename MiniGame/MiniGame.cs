@@ -14,7 +14,6 @@ using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 using CoreNamespace;
 using MiniGameInterfaces;
-
 namespace MiniGame
 {
     /// <summary>
@@ -25,14 +24,10 @@ namespace MiniGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Core core;
-
         bool playingNow; //is game in progress
-
         List<IAI> plugins; //available AI plugins
         List<IAI> players; //currently selected players
-
         int cursorPosition; //menu cursor position
-
         public MiniGame()
         {
             Content.RootDirectory = "Content";
@@ -69,24 +64,23 @@ namespace MiniGame
             LoadPlugins();
 
             players = new List<IAI>();
-/*            //Here you have to create a list of active players. Somehow :)
-            if (plugins.Count == 0)
-                throw new Exception("EPIC FAIL! No plugins found");
-            else
-            {
-                players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
-                players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
-            }*/
+            /*            //Here you have to create a list of active players. Somehow :)
+                        if (plugins.Count == 0)
+                            throw new Exception("EPIC FAIL! No plugins found");
+                        else
+                        {
+                            players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
+                            players.Add(Activator.CreateInstance(plugins[0].GetType()) as IAI);
+                        }*/
             core = new Core(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, Content, graphics);
         }
-
         private void LoadPlugins()
         {
             plugins = new List<IAI>();
             DirectoryInfo di = new DirectoryInfo(Environment.CurrentDirectory);
             foreach (FileInfo f in di.GetFiles("*.dll"))
             {
-                
+
                 Assembly a = Assembly.LoadFile(f.FullName);
                 foreach (Type t in a.GetTypes())
                 {
@@ -94,13 +88,12 @@ namespace MiniGame
                     {
                         IAI obj = Activator.CreateInstance(t) as IAI;
                         plugins.Add(obj);
-                        
+
                         //System.Windows.Forms.MessageBox.Show("Plugin loaded! "+obj.Author+" "+obj.Description);
                     }
                 }
             }
         }
-
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -112,7 +105,6 @@ namespace MiniGame
             // TODO: Add your initialization logic here
             base.Initialize();
         }
-
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -124,7 +116,6 @@ namespace MiniGame
             Core.viewer.LoadContent();
             // TODO: use this.Content to load your game content here
         }
-
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
         /// all content.
@@ -133,9 +124,7 @@ namespace MiniGame
         {
             // TODO: Unload any non ContentManager content here
         }
-
         KeyboardState oldState, newState;
-
         /// <summary>
         /// determines whether specified key is released
         /// </summary>
@@ -143,7 +132,6 @@ namespace MiniGame
         {
             return oldState.IsKeyDown(key) && newState.IsKeyUp(key);
         }
-
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -198,7 +186,7 @@ namespace MiniGame
                     }
                     if (IsKeyReleased(Keys.Space))
                     {
-                        if(players.Count<2)
+                        if (players.Count < 2)
                             players.Add(Activator.CreateInstance(plugins[cursorPosition].GetType()) as IAI);
                     }
                     if (IsKeyReleased(Keys.Delete))
@@ -219,24 +207,24 @@ namespace MiniGame
             if (playingNow)
             {
                 if (newState.IsKeyDown(Keys.End) || newState.IsKeyDown(Keys.Z))
-                    Core.CameraPosition.Z += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
+                    Viewer.CameraPosition.Z += ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
                 if (newState.IsKeyDown(Keys.Home) || newState.IsKeyDown(Keys.A))
                 {
-                    Core.CameraPosition.Z -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
-                    if (Core.CameraPosition.Z < 200.0f)
-                        Core.CameraPosition.Z = 200.0f;
+                    Viewer.CameraPosition.Z -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 4000.0f;
+                    if (Viewer.CameraPosition.Z < 200.0f)
+                        Viewer.CameraPosition.Z = 200.0f;
                 }
-                float cameraSpeed = 750.0f + (Core.CameraPosition.Z - 200.0f);
+                float cameraSpeed = 750.0f + (Viewer.CameraPosition.Z - 200.0f);
                 if (cameraSpeed > 3000.0f)
                     cameraSpeed = 3000.0f;
                 if (newState.IsKeyDown(Keys.Left))
-                    Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
+                    Viewer.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
                 if (newState.IsKeyDown(Keys.Right))
-                    Core.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
+                    Viewer.CameraPosition.X += ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
                 if (newState.IsKeyDown(Keys.Up))
-                    Core.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
+                    Viewer.CameraPosition.Y += ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
                 if (newState.IsKeyDown(Keys.Down))
-                    Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
+                    Viewer.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
 
 #if FAlLSE
                 if (Mouse.GetState().X > Core.viewer.screenWidth - 30 )
@@ -257,7 +245,6 @@ namespace MiniGame
             }
             base.Update(gameTime);
         }
-
         void DrawMenu()
         {
             graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.CornflowerBlue);
@@ -273,17 +260,16 @@ namespace MiniGame
                     Core.viewer.DrawText(plugins[i].Author, new GameVector(60, 60 + i * 20), 0, Microsoft.Xna.Framework.Graphics.Color.White);
                     Core.viewer.DrawText(plugins[i].Description, new GameVector(250, 60 + i * 20), 0, Microsoft.Xna.Framework.Graphics.Color.Gray);
                 }
-                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list,", new GameVector(60, 340), 0,Microsoft.Xna.Framework.Graphics.Color.LightGoldenrodYellow);
+                Core.viewer.DrawText("Hint: Use arrows to select AI, [Space] to add AI to player list,", new GameVector(60, 340), 0, Microsoft.Xna.Framework.Graphics.Color.LightGoldenrodYellow);
                 Core.viewer.DrawText("and [Del] to clear list. [Enter] starts the game.", new GameVector(60, 360), 0, Microsoft.Xna.Framework.Graphics.Color.LightGoldenrodYellow);
                 Core.viewer.DrawText("Selected players:", new GameVector(60, 400), 0, Microsoft.Xna.Framework.Graphics.Color.Yellow);
                 for (int i = 0; i < players.Count; i++)
                 {
-                    Core.viewer.DrawText(players[i].Author, new GameVector(60, 440 + i * 20), 0, new Microsoft.Xna.Framework.Graphics.Color(Core.Viewer.TeamColors[i]));
+                    Core.viewer.DrawText(players[i].Author, new GameVector(60, 440 + i * 20), 0, new Microsoft.Xna.Framework.Graphics.Color(Viewer.TeamColors[i]));
                     Core.viewer.DrawText(players[i].Description, new GameVector(250, 440 + i * 20), 0, Microsoft.Xna.Framework.Graphics.Color.Gray);
                 }
             }
         }
-
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>

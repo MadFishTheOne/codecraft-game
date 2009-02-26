@@ -15,8 +15,8 @@
 +доробити інтерфейс
 +контроль часу думанні ШІ
 +отримати всі юніти і постріли у радіусі якомусь
-компіляція у реліз
-роздання 4 людям
++компіляція у реліз
++роздання 4 людям
 
 
 +текстури
@@ -24,3 +24,9 @@
 +корвет
 +крейсер
 +простір
+
+IDebug
+    	void DrawRectangle(Rectangle Rectangle,Color Color);
+        void DrawCircle(Circle Circle, Color Color);
+        void DrawPoint(GameVector Vector, Color Color);
+        void DrawLine(Stretch Line);

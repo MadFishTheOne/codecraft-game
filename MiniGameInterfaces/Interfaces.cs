@@ -17,7 +17,7 @@ namespace MiniGameInterfaces
     }
     public interface IDebug
     {
-        static void DrawRectangle(Rectangle Rectangle,Color Color);
+        void DrawRectangle(Rectangle Rectangle,Color Color);
         void DrawCircle(Circle Circle, Color Color);
         void DrawPoint(GameVector Vector, Color Color);
         void DrawLine(Stretch Line);

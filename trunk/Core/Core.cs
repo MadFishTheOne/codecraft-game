@@ -310,6 +310,7 @@ namespace CoreNamespace
             //viewer.DrawCircle(rect1, col);
             //viewer.DrawLine(stretch1, col);
         }
+
         public void Update()
         {
             if (gameEnd)
@@ -564,6 +565,13 @@ namespace CoreNamespace
             get
             {
                 return timing.DeltaTime;
+            }
+        }
+        public IDebug GeometryViewer
+        {
+            get
+            {
+                return (IDebug)viewer;
             }
         }
         #endregion

@@ -451,7 +451,7 @@ namespace CoreNamespace
             }
         }
 
-        public void DrawLine(Stretch Line,MiniGameInterfaces.Color Color)
+        public void DrawLine(Line Line,MiniGameInterfaces.Color Color)
         {
             if (CRectanglesInBatch < MaxBatchSize / 2)
             {

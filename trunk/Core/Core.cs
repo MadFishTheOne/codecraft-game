@@ -200,115 +200,115 @@ namespace CoreNamespace
             //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One*50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
             //viewer.DrawCircle(new Circle(GameVector.One*(-100),70.7f), MiniGameInterfaces.Color.Blue);
             //viewer.DrawPoint(new GameVector(-50, 50), new MiniGameInterfaces.Color(1, 0, 0, 1));
-            //viewer.DrawLine( new Stretch(GameVector.Zero,GameVector.UnitX.Rotate(-timing.NowTime)*3*70.7f),MiniGameInterfaces.Color.Blue);
+            //viewer.DrawLine( new Line(GameVector.Zero,GameVector.UnitX.Rotate(-timing.NowTime)*3*70.7f),MiniGameInterfaces.Color.Blue);
             /////////////COLLIZION TEST 1
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(0, 150), new GameVector(50, 50));
+            //Line line1 = new Line(new GameVector(0, 150), new GameVector(50, 50));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1,stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1,line1.pt2))
             //    col=Color.Red;
             //else col=Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 2
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(50, 100), new GameVector(150, 150));
+            //Line line1 = new Line(new GameVector(50, 100), new GameVector(150, 150));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 3
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(50, 150), new GameVector(150, 50));
+            //Line line1 = new Line(new GameVector(50, 150), new GameVector(150, 50));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 4
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(100, 100), new GameVector(150, 150));
+            //Line line1 = new Line(new GameVector(100, 100), new GameVector(150, 150));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 5
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(-50, 100), new GameVector(50, 100));
+            //Line line1 = new Line(new GameVector(-50, 100), new GameVector(50, 100));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 6
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(-50, 100+1), new GameVector(50, 100+1));
+            //Line line1 = new Line(new GameVector(-50, 100+1), new GameVector(50, 100+1));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 7
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(50, 100), new GameVector(150, 100));
+            //Line line1 = new Line(new GameVector(50, 100), new GameVector(150, 100));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 8
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
-            //Stretch stretch1 = new Stretch(new GameVector(150, 100), new GameVector(200, 100));
+            //Line line1 = new Line(new GameVector(150, 100), new GameVector(200, 100));
             //Color col;
-            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //if (rect1.IntersectsLine(line1.pt1, line1.pt2))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawRectangle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 9
             //Circle rect1 = new Circle(GameVector.Zero, 100);
-            //Stretch stretch1 = new Stretch(new GameVector(0, 75), new GameVector(150, 75));
+            //Line line1 = new Line(new GameVector(0, 75), new GameVector(150, 75));
             //Color col;
-            //if ( rect1.Intersects(stretch1))
+            //if ( rect1.Intersects(line1))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 10
             //Circle rect1 = new Circle(GameVector.Zero, 100);
-            //Stretch stretch1 = new Stretch(new GameVector(-150, 75), new GameVector(150, 75));
+            //Line line1 = new Line(new GameVector(-150, 75), new GameVector(150, 75));
             //Color col;
-            //if (rect1.Intersects(stretch1))
+            //if (rect1.Intersects(line1))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             /////////////COLLIZION TEST 11
             //Circle rect1 = new Circle(GameVector.Zero, 100);
-            //Stretch stretch1 = new Stretch(new GameVector(-150, 100), new GameVector(150, 100));
+            //Line line1 = new Line(new GameVector(-150, 100), new GameVector(150, 100));
             //Color col;
-            //if (rect1.Intersects(stretch1))
+            //if (rect1.Intersects(line1))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
             ///////////COLLIZION TEST 12
             //Circle rect1 = new Circle(GameVector.Zero, 100);
-            //Stretch stretch1 = new Stretch(new GameVector(100, 0), new GameVector(200, 0));
+            //Line line1 = new Line(new GameVector(100, 0), new GameVector(200, 0));
             //Color col;
-            //if (rect1.Intersects(stretch1))
+            //if (rect1.Intersects(line1))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
-            //viewer.DrawLine(stretch1, col);
+            //viewer.DrawLine(line1, col);
         }
 
         public void Update()

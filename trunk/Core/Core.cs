@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
-using Microsoft.Xna.Framework;
+//using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
+//using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
@@ -18,42 +18,7 @@ using System.IO;
 //using System.Drawing;
 namespace CoreNamespace
 {
-    public class Config
-    {
-        private static Config instance = null;
-        public Dictionary<string, string> settings;
-        private Config()
-        {
-            settings = new Dictionary<string, string>();
-            StreamReader rd = File.OpenText("MiniGame.ini");
-            string st, paramString, valueString;
-            int t;
-            while (!rd.EndOfStream)
-            {
-                st = rd.ReadLine();
-                if ((st.Length > 0) && (st[0] != '#'))
-                {
-                    t = st.IndexOf(" ");
-                    if (t != -1)
-                    {
-                        paramString = st.Substring(0, t);
-                        valueString = st.Substring(t + 1).Trim();
-                        settings.Add(paramString, valueString);
-                    }
-                }
-            }
-            rd.Close();
-        }
-        public static Config Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = new Config();
-                return instance;
-            }
-        }
-    }
+    
     public class Core : IGame
     {
         /// <summary>
@@ -74,7 +39,7 @@ namespace CoreNamespace
         int[] total;
         bool gameEndSoon;
         float endOfGameTimer;
-        public Core(int ScreenWidth, int ScreenHeight, ContentManager content, GraphicsDeviceManager graphics)
+        public Core(int ScreenWidth, int ScreenHeight, ContentManager content, Microsoft.Xna.Framework.GraphicsDeviceManager graphics)
         {
             gameObjects = new GameObjectsClass();
             timing = new TimingClass();
@@ -230,6 +195,120 @@ namespace CoreNamespace
             }
             //
             viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new GameVector(10, Core.viewer.screenHeight - 30), 0, Microsoft.Xna.Framework.Graphics.Color.White);
+            ///////////DEBUG DRAW DEMO
+            //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One*100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
+            //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One*50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
+            //viewer.DrawCircle(new Circle(GameVector.One*(-100),70.7f), MiniGameInterfaces.Color.Blue);
+            //viewer.DrawPoint(new GameVector(-50, 50), new MiniGameInterfaces.Color(1, 0, 0, 1));
+            //viewer.DrawLine( new Stretch(GameVector.Zero,GameVector.UnitX.Rotate(-timing.NowTime)*3*70.7f),MiniGameInterfaces.Color.Blue);
+            /////////////COLLIZION TEST 1
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(0, 150), new GameVector(50, 50));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1,stretch1.pt2))
+            //    col=Color.Red;
+            //else col=Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 2
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(50, 100), new GameVector(150, 150));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 3
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(50, 150), new GameVector(150, 50));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 4
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(100, 100), new GameVector(150, 150));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 5
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(-50, 100), new GameVector(50, 100));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 6
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(-50, 100+1), new GameVector(50, 100+1));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 7
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(50, 100), new GameVector(150, 100));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 8
+            //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
+            //Stretch stretch1 = new Stretch(new GameVector(150, 100), new GameVector(200, 100));
+            //Color col;
+            //if (rect1.IntersectsLine(stretch1.pt1, stretch1.pt2))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawRectangle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 9
+            //Circle rect1 = new Circle(GameVector.Zero, 100);
+            //Stretch stretch1 = new Stretch(new GameVector(0, 75), new GameVector(150, 75));
+            //Color col;
+            //if ( rect1.Intersects(stretch1))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawCircle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 10
+            //Circle rect1 = new Circle(GameVector.Zero, 100);
+            //Stretch stretch1 = new Stretch(new GameVector(-150, 75), new GameVector(150, 75));
+            //Color col;
+            //if (rect1.Intersects(stretch1))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawCircle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            /////////////COLLIZION TEST 11
+            //Circle rect1 = new Circle(GameVector.Zero, 100);
+            //Stretch stretch1 = new Stretch(new GameVector(-150, 100), new GameVector(150, 100));
+            //Color col;
+            //if (rect1.Intersects(stretch1))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawCircle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
+            ///////////COLLIZION TEST 12
+            //Circle rect1 = new Circle(GameVector.Zero, 100);
+            //Stretch stretch1 = new Stretch(new GameVector(100, 0), new GameVector(200, 0));
+            //Color col;
+            //if (rect1.Intersects(stretch1))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawCircle(rect1, col);
+            //viewer.DrawLine(stretch1, col);
         }
         public void Update()
         {
@@ -380,7 +459,7 @@ namespace CoreNamespace
             int sign = currTeam == 0 ? -1 : 1;
             int MaxShipsInLine = 8;
             int CShips = 0;
-            float angle = (currTeam > 0) ? MathHelper.Pi : 0;
+            float angle = (currTeam > 0) ?  Microsoft.Xna.Framework.MathHelper.Pi : 0;
             GameVector position;
             for (int i = 0; i < CDestroyers; i++)
             {
@@ -413,7 +492,7 @@ namespace CoreNamespace
         public void Reset(List<IAI> Players)
         {
             Timing.TimeSpeed = 1.0f;
-            Viewer.CameraPosition = new Vector3(0, 0, 9000);
+            Viewer.CameraPosition = new Microsoft.Xna.Framework.Vector3(0, 0, 9000);
             players = Players;
             playersText = new string[players.Count];
             playersTotalUpdateTime = new float[players.Count];
@@ -488,5 +567,41 @@ namespace CoreNamespace
             }
         }
         #endregion
+    }
+    public class Config
+    {
+        private static Config instance = null;
+        public Dictionary<string, string> settings;
+        private Config()
+        {
+            settings = new Dictionary<string, string>();
+            StreamReader rd = File.OpenText("MiniGame.ini");
+            string st, paramString, valueString;
+            int t;
+            while (!rd.EndOfStream)
+            {
+                st = rd.ReadLine();
+                if ((st.Length > 0) && (st[0] != '#'))
+                {
+                    t = st.IndexOf(" ");
+                    if (t != -1)
+                    {
+                        paramString = st.Substring(0, t);
+                        valueString = st.Substring(t + 1).Trim();
+                        settings.Add(paramString, valueString);
+                    }
+                }
+            }
+            rd.Close();
+        }
+        public static Config Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new Config();
+                return instance;
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace CoreNamespace
 {
-    public class Viewer
+    public class Viewer:IDebug
     {
         public static Matrix ViewProj;
         public static Vector3 CameraPosition;
@@ -64,6 +64,7 @@ namespace CoreNamespace
                              VertexElementMethod.Default,
                              VertexElementUsage.TextureCoordinate, 0),
 };
+
         #endregion
         public struct VertexPositionIndexTexture
         {
@@ -73,13 +74,14 @@ namespace CoreNamespace
         }
         IndexBuffer indexBuffer;
         VertexBuffer vertexBuffer;
-        Effect shipEffect, blowEffect, shotEffect, environmentEffect;
+        Effect shipEffect, blowEffect, shotEffect, environmentEffect,debugFigureEffect;
         public Viewer(int ScreenWidth, int ScreenHeight, ContentManager Content, GraphicsDeviceManager Graphics)
         {
             this.screenHeight = ScreenHeight;
             this.screenWidth = ScreenWidth;
             content = Content;
             graphics = Graphics;
+            CRectanglesInBatch = 0;
         }
         void CreateBuffers()
         {
@@ -134,6 +136,7 @@ namespace CoreNamespace
             shipEffect = content.Load<Effect>("effects\\ShipEffect");
             blowEffect = content.Load<Effect>("effects\\BlowEffect");
             shotEffect = content.Load<Effect>("effects\\ShotEffect");
+            debugFigureEffect = content.Load<Effect>("effects\\DebugFigureEffect");
             environmentEffect = content.Load<Effect>("effects\\EnvironmentEffect");
             CreateBuffers();
         }
@@ -167,10 +170,38 @@ namespace CoreNamespace
             p.End();
             environmentEffect.End();
         }
+        /// <summary>
+        /// format: (position.X;position.Y;RotationAngle;Playerowner)
+        /// </summary>
+        Vector4[] CorvetteBatchParams = new Vector4[MaxBatchSize];
+        /// <summary>
+        /// format: (position.X;position.Y;RotationAngle;Playerowner)
+        /// </summary>
+        Vector4[] DestroyerBatchParams = new Vector4[MaxBatchSize];
+        /// <summary>
+        /// format: (position.X;position.Y;RotationAngle;Playerowner)
+        /// </summary>
+        Vector4[] CruiserBatchParams = new Vector4[MaxBatchSize];
+        /// <summary>
+        /// format: (position.X;position.Y;radius;time)
+        /// </summary>
+        Vector4[] BlowBatchParams = new Vector4[MaxBatchSize];
+
+        /// <summary>
+        /// rectangle format: (center.x; center.y; Size.x; Size.y)
+        ///                   (Angle;  0 ; 0 ;Color)
+        /// sphere  format: (center.x; center.y; Diameter; Diameter)
+        ///                   (0;  1 ; 0 ;Color)
+        /// </summary>
+        Vector4[] DebugRectangleBatchParams1 = new Vector4[MaxBatchSize/2];
+        Vector4[] DebugRectangleBatchParams2 = new Vector4[MaxBatchSize/2];
+        int CRectanglesInBatch;
+
         public void DrawUnits(List<Unit> units)
         {
+            
             graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
+            graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
             graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
             graphics.GraphicsDevice.RenderState.AlphaSourceBlend = Blend.SourceAlpha;
             graphics.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
@@ -183,10 +214,7 @@ namespace CoreNamespace
             graphics.GraphicsDevice.VertexDeclaration = vertexDecl;
             graphics.GraphicsDevice.Vertices[0].SetSource(vertexBuffer, 0, vertexDecl.GetVertexStrideSize(0));
             graphics.GraphicsDevice.Indices = indexBuffer;
-            Vector4[] CorvetteBatchParams = new Vector4[MaxBatchSize];
-            Vector4[] DestroyerBatchParams = new Vector4[MaxBatchSize];
-            Vector4[] CruiserBatchParams = new Vector4[MaxBatchSize];
-            Vector4[] BlowBatchParams = new Vector4[MaxBatchSize];
+            
             int CDestroyersInBatch = 0;
             int CCorvettesInBatch = 0;
             int CCruisersInBatch = 0;
@@ -242,6 +270,7 @@ namespace CoreNamespace
             if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSmall, Core.CorvetteSize, ShipTypes.Corvette);
             if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSmall, Core.CruiserSize, ShipTypes.Cruiser);
             if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
+            DrawDebugRectangleBatch();
         }
         private void DrawBlowBatch(Vector4[] BlowBatchParams, ref int CBlowsInBatch)
         {
@@ -345,5 +374,93 @@ namespace CoreNamespace
             Viewer.ViewProj = Matrix.CreateLookAt(CameraPosition, new Vector3(CameraPosition.X, CameraPosition.Y, 0), new Vector3(0, 1, 0)) *
                  Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)screenWidth / (float)screenHeight, 10, 100000);
         }
+
+
+        public void DrawDebugRectangleBatch()
+        {
+            if (CRectanglesInBatch > 0)
+            {
+                debugFigureEffect.Begin();
+                EffectPass p = debugFigureEffect.CurrentTechnique.Passes[0];
+                debugFigureEffect.Parameters["Params1"].SetValue(DebugRectangleBatchParams1);
+                debugFigureEffect.Parameters["Params2"].SetValue(DebugRectangleBatchParams2);
+                debugFigureEffect.Parameters["ViewProj"].SetValue(ViewProj);
+                p.Begin();
+                graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CRectanglesInBatch * 6, 0, CRectanglesInBatch * 2);
+                p.End();
+                debugFigureEffect.End();
+                CRectanglesInBatch = 0;
+            }
+        }
+        #region IDebug Members
+
+        public void DrawRectangle(MiniGameInterfaces.Rectangle Rectangle, MiniGameInterfaces.Color Color)
+        {
+            if (CRectanglesInBatch < MaxBatchSize / 2)
+             {
+                DebugRectangleBatchParams1[CRectanglesInBatch].X = Rectangle.Center.X;
+                DebugRectangleBatchParams1[CRectanglesInBatch].Y = Rectangle.Center.Y;
+                DebugRectangleBatchParams1[CRectanglesInBatch].Z = Rectangle.Size.X;
+                DebugRectangleBatchParams1[CRectanglesInBatch].W = Rectangle.Size.Y;
+                DebugRectangleBatchParams2[CRectanglesInBatch].X = Rectangle.Angle;
+                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 0;//is rectangle
+                DebugRectangleBatchParams2[CRectanglesInBatch].Z = 0;//reserved
+                DebugRectangleBatchParams2[CRectanglesInBatch].W =ToFloat(Color);
+                CRectanglesInBatch++;
+            }
+        }
+        /// <summary>
+        /// tool function to pass color in shader as one float parameter. Reduces quality to 10^3 colors
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        private float ToFloat(MiniGameInterfaces.Color Color)
+        {
+            return (float)((Math.Round(Color.r*0.94f, 1) +
+                Math.Round(Color.g * 0.94f, 1) * 10 + Math.Round(Color.b * 0.94f, 1) * 100 + Math.Round(Color.a * 0.94f, 1) * 1000));
+        }
+        public void DrawCircle(Circle Circle, MiniGameInterfaces.Color Color)
+        {
+            if (CRectanglesInBatch < MaxBatchSize / 2)
+            {
+                DebugRectangleBatchParams1[CRectanglesInBatch].X = Circle.Center.X;
+                DebugRectangleBatchParams1[CRectanglesInBatch].Y = Circle.Center.Y;
+                DebugRectangleBatchParams1[CRectanglesInBatch].Z = Circle.Radius*2;
+                DebugRectangleBatchParams1[CRectanglesInBatch].W = Circle.Radius * 2;
+                DebugRectangleBatchParams2[CRectanglesInBatch].X = 0;
+                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 1;//is sphere
+                DebugRectangleBatchParams2[CRectanglesInBatch].Z = 0;//reserved
+                DebugRectangleBatchParams2[CRectanglesInBatch].W = ToFloat(Color);
+                CRectanglesInBatch++;
+            }
+        }
+
+        public void DrawPoint(GameVector Vector, MiniGameInterfaces.Color Color)
+        {
+            if (CRectanglesInBatch < MaxBatchSize / 2)
+            {
+                DebugRectangleBatchParams1[CRectanglesInBatch].X = Vector.X;
+                DebugRectangleBatchParams1[CRectanglesInBatch].Y = Vector.Y;
+                DebugRectangleBatchParams1[CRectanglesInBatch].Z = 0.01f*CameraPosition.Z;
+                DebugRectangleBatchParams1[CRectanglesInBatch].W = 0.01f * CameraPosition.Z;
+                DebugRectangleBatchParams2[CRectanglesInBatch].X = 0;
+                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 1;//is sphere
+                DebugRectangleBatchParams2[CRectanglesInBatch].Z = 0;//reserved
+                DebugRectangleBatchParams2[CRectanglesInBatch].W = ToFloat(Color);
+                CRectanglesInBatch++;
+            }
+        }
+
+        public void DrawLine(Stretch Line,MiniGameInterfaces.Color Color)
+        {
+            if (CRectanglesInBatch < MaxBatchSize / 2)
+            {
+                MiniGameInterfaces.Rectangle rect=new MiniGameInterfaces.Rectangle((Line.pt1+Line.pt2)*0.5f,
+                    new GameVector(Line.Length(),0.003f*CameraPosition.Z),Line.pt2-Line.pt1);
+                DrawRectangle(rect, Color);
+            }
+        }
+
+        #endregion
     }
 }

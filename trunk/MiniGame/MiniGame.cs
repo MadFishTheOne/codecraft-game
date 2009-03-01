@@ -34,8 +34,10 @@ namespace MiniGame
             graphics = new GraphicsDeviceManager(this);
 #if DEBUG
             graphics.IsFullScreen = false;
-            graphics.PreferredBackBufferWidth = 640;
-            graphics.PreferredBackBufferHeight = 480;
+            //graphics.PreferredBackBufferWidth = 640;// too small
+            //graphics.PreferredBackBufferHeight = 480;
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
 #else
             graphics.IsFullScreen = (Config.Instance.settings["Video.FullScreen"].ToLower() == "true");
             if (Config.Instance.settings["Video.ScreenWidth"] == "0")

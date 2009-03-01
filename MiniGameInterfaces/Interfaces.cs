@@ -63,7 +63,7 @@ namespace MiniGameInterfaces
         void DrawRectangle(Rectangle Rectangle,Color Color);
         void DrawCircle(Circle Circle, Color Color);
         void DrawPoint(GameVector Vector, Color Color);
-        void DrawLine(Stretch Line,Color Color);
+        void DrawLine(Line Line,Color Color);
     }
     public enum ShipTypes
     {
@@ -388,24 +388,24 @@ namespace MiniGameInterfaces
         /// </summary>
         void Update();
     }
-    public struct Stretch
+    public struct Line
     {
         public GameVector pt1, pt2;
-        public Stretch(GameVector Start, GameVector End)
+        public Line(GameVector Start, GameVector End)
         {
             pt1 = Start;
             pt2 = End;
         }
-        public bool IntersectsStretch(Stretch Stretch2, out GameVector intersection)
+        public bool IntersectsLine(Line Line2, out GameVector intersection)
         {
-            float t1 = ((Stretch2.pt1.Y - pt1.Y) * (Stretch2.pt2.X - Stretch2.pt1.X) + (Stretch2.pt2.Y - Stretch2.pt1.Y) * (pt1.X - Stretch2.pt1.X))
-                / ((pt2.Y - pt1.Y) * (Stretch2.pt2.X - Stretch2.pt1.X) - (Stretch2.pt2.Y - Stretch2.pt1.Y) * (pt2.X - pt1.X));
-            float t2 = (pt1.X - Stretch2.pt1.X) / (Stretch2.pt2.X - Stretch2.pt1.X) + (pt2.X - pt1.X) / (Stretch2.pt2.X - Stretch2.pt1.X) * t1;
+            float t1 = ((Line2.pt1.Y - pt1.Y) * (Line2.pt2.X - Line2.pt1.X) + (Line2.pt2.Y - Line2.pt1.Y) * (pt1.X - Line2.pt1.X))
+                / ((pt2.Y - pt1.Y) * (Line2.pt2.X - Line2.pt1.X) - (Line2.pt2.Y - Line2.pt1.Y) * (pt2.X - pt1.X));
+            float t2 = (pt1.X - Line2.pt1.X) / (Line2.pt2.X - Line2.pt1.X) + (pt2.X - pt1.X) / (Line2.pt2.X - Line2.pt1.X) * t1;
             if (float.IsNaN(t1 + t2))
             {
-                t1 = ((Stretch2.pt1.X - pt1.X) * (Stretch2.pt2.Y - Stretch2.pt1.Y) + (Stretch2.pt2.X - Stretch2.pt1.X) * (pt1.Y - Stretch2.pt1.Y))
-                / ((pt2.X - pt1.X) * (Stretch2.pt2.Y - Stretch2.pt1.Y) - (Stretch2.pt2.X - Stretch2.pt1.X) * (pt2.Y - pt1.Y));
-                t2 = (pt1.Y - Stretch2.pt1.Y) / (Stretch2.pt2.Y - Stretch2.pt1.Y) + (pt2.Y - pt1.Y) / (Stretch2.pt2.Y - Stretch2.pt1.Y) * t1;
+                t1 = ((Line2.pt1.X - pt1.X) * (Line2.pt2.Y - Line2.pt1.Y) + (Line2.pt2.X - Line2.pt1.X) * (pt1.Y - Line2.pt1.Y))
+                / ((pt2.X - pt1.X) * (Line2.pt2.Y - Line2.pt1.Y) - (Line2.pt2.X - Line2.pt1.X) * (pt2.Y - pt1.Y));
+                t2 = (pt1.Y - Line2.pt1.Y) / (Line2.pt2.Y - Line2.pt1.Y) + (pt2.Y - pt1.Y) / (Line2.pt2.Y - Line2.pt1.Y) * t1;
             }
             intersection = pt1 + (pt2 - pt1) * t1;
             return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
@@ -434,18 +434,18 @@ namespace MiniGameInterfaces
             radius = Radius;
         }
 
-        public bool Intersects(Stretch Stretch)
+        public bool Intersects(Line Line)
         {
             
-            if (GameVector.DistanceSquared(Stretch.pt1, center) <= radius * radius) return true;
-            if (GameVector.DistanceSquared(Stretch.pt2, center) <= radius * radius) return true;
-            GameVector StretchDir = (Stretch.pt2 - Stretch.pt1).Normalize();
-            GameVector perpendicular = new GameVector(StretchDir.Y,-StretchDir.X);
-            perpendicular *= Math.Sign( GameVector.Dot( Stretch.pt1 - center,perpendicular))*radius;
+            if (GameVector.DistanceSquared(Line.pt1, center) <= radius * radius) return true;
+            if (GameVector.DistanceSquared(Line.pt2, center) <= radius * radius) return true;
+            GameVector LineDir = (Line.pt2 - Line.pt1).Normalize();
+            GameVector perpendicular = new GameVector(LineDir.Y,-LineDir.X);
+            perpendicular *= Math.Sign( GameVector.Dot( Line.pt1 - center,perpendicular))*radius;
 
             GameVector perpendicularBasis;
 
-            return (Stretch.IntersectsStretch(new Stretch(center, center + perpendicular),
+            return (Line.IntersectsLine(new Line(center, center + perpendicular),
                 out perpendicularBasis));
         }
         public bool Intersects(Circle Sphere)

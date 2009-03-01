@@ -6,12 +6,55 @@ namespace MiniGameInterfaces
 {
     public struct Color
     {
-        public float r,g,b;
-        public Color(float R,float G,float B)
+        public float r,g,b,a;
+        public Color(float R,float G,float B,float A)
         {
             r=R;
             g=G;
             b=B;
+            a = A;
+        }
+        public static Color Red
+        {
+            get
+            {
+                return new Color(1, 0, 0, 1);
+            }
+        }
+        public static Color Green
+        {
+            get
+            {
+                return new Color(0, 1, 0, 1);
+            }
+        }
+        public static Color Blue
+        {
+            get
+            {
+                return new Color(0, 0, 1, 1);
+            }
+        }
+        public static Color Black
+        {
+            get
+            {
+                return new Color(0, 0, 0, 1);
+            }
+        }
+        public static Color Zero
+        {
+            get
+            {
+                return new Color(0, 0, 0, 0);
+            }
+        }
+        public static Color White
+        {
+            get
+            {
+                return new Color(1, 1, 1, 1);
+            }
         }
         
     }
@@ -20,7 +63,7 @@ namespace MiniGameInterfaces
         void DrawRectangle(Rectangle Rectangle,Color Color);
         void DrawCircle(Circle Circle, Color Color);
         void DrawPoint(GameVector Vector, Color Color);
-        void DrawLine(Stretch Line);
+        void DrawLine(Stretch Line,Color Color);
     }
     public enum ShipTypes
     {
@@ -115,9 +158,18 @@ namespace MiniGameInterfaces
         {
             return (pt2 - pt1).LengthSquared();
         }
-        public GameVector Rotate(GameVector Vector,float Angle)
+        public static GameVector Rotate(GameVector Vector,float Angle)
         {
-            return new GameVector((float)(Math.Cos(Vector.X) - Math.Sin(Vector.Y)),(float)( Math.Sin(Vector.X) + Math.Cos(Vector.Y)));
+            return new GameVector((float)(Vector.X * Math.Cos(Angle) - Vector.Y * Math.Sin(Angle)), (float)(Vector.X * Math.Sin(Angle) + Vector.Y*Math.Cos(Angle)));
+        }
+        public GameVector Rotate(float Angle)
+        {
+            return new GameVector((float)(X * Math.Cos(Angle) - Y * Math.Sin(Angle)), (float)(X * Math.Sin(Angle) + Y * Math.Cos(Angle)));
+        }
+
+        public GameVector Normalize()
+        {
+            return this / this.Length();
         }
     }
     public interface IUnit
@@ -312,6 +364,10 @@ namespace MiniGameInterfaces
         /// time elapsed from the previous update
         /// </summary>
         float TimeElapsed { get; }
+        /// <summary>
+        /// provides drawing graphic primitives
+        /// </summary>
+        IDebug GeometryViewer { get; }
     }
     public interface IAI
     {
@@ -354,11 +410,24 @@ namespace MiniGameInterfaces
             intersection = pt1 + (pt2 - pt1) * t1;
             return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
         }
+
+        public float Length()
+        {
+            return (pt1 - pt2).Length();
+        }
     }
     public struct Circle
     {
         GameVector center;
         float radius;
+        public GameVector Center
+        {
+            get { return center; }
+        }
+        public float Radius
+        {
+            get { return radius; }
+        }
         public Circle(GameVector Center, float Radius)
         {
             center = Center;
@@ -367,16 +436,17 @@ namespace MiniGameInterfaces
 
         public bool Intersects(Stretch Stretch)
         {
-            GameVector perpendicular = new GameVector();
+            
+            if (GameVector.DistanceSquared(Stretch.pt1, center) <= radius * radius) return true;
+            if (GameVector.DistanceSquared(Stretch.pt2, center) <= radius * radius) return true;
+            GameVector StretchDir = (Stretch.pt2 - Stretch.pt1).Normalize();
+            GameVector perpendicular = new GameVector(StretchDir.Y,-StretchDir.X);
+            perpendicular *= Math.Sign( GameVector.Dot( Stretch.pt1 - center,perpendicular))*radius;
 
             GameVector perpendicularBasis;
-            if (!Stretch.IntersectsStretch(new Stretch(center, center + perpendicular / perpendicular.Length() * radius),
-                out perpendicularBasis))
-                return false;
-            else
-            {
-                return GameVector.DistanceSquared(center, perpendicularBasis) < radius * radius;
-            }
+
+            return (Stretch.IntersectsStretch(new Stretch(center, center + perpendicular),
+                out perpendicularBasis));
         }
         public bool Intersects(Circle Sphere)
         {
@@ -385,64 +455,143 @@ namespace MiniGameInterfaces
     }
     public struct Rectangle
     {
-        public GameVector pt1, pt2, pt3, pt4;
-        public Rectangle(GameVector pt1, GameVector pt2, GameVector pt3, GameVector pt4)
+        GameVector forwardLeft, forwardRight, backRight, backLeft;
+        private GameVector center, forward, size;
+        public GameVector ForwardLeft
+        {get{return forwardLeft;}}
+        public GameVector Pt2
+        { get { return forwardRight; } }
+        public GameVector Pt3
+        { get { return backRight; } }
+        public GameVector Pt4
+        { get { return backLeft; } }
+        public GameVector Center
         {
-            this.pt1 = pt1;
-            this.pt2 = pt2;
-            this.pt3 = pt3;
-            this.pt4 = pt4;
+            get
+            {
+                return center;
+            }
+        }
+        public GameVector Size
+        {
+            get
+            {
+                return size;
+            }
+        }
+        public GameVector Forward
+        {
+            get
+            {
+                return forward;
+            }
+        }
+        public float Angle
+        {
+            get
+            {
+                GameVector forward=forwardLeft-backLeft;
+                return (float)Math.Atan2(forward.Y, forward.X);
+            }
+        }
+        /// <summary>
+        /// obsolete. Delete when ensure in another constructor working clear
+        /// </summary>
+        /// <param name="ForwardLeft"></param>
+        /// <param name="ForwardRight"></param>
+        /// <param name="BackRight"></param>
+        /// <param name="BackLeft"></param>
+        public Rectangle(GameVector ForwardLeft, GameVector ForwardRight, GameVector BackRight, GameVector BackLeft)
+        {
+            this.forwardLeft = ForwardLeft;
+            this.forwardRight = ForwardRight;
+            this.backRight = BackRight;
+            this.backLeft = BackLeft;
+            center = GameVector.Zero;
+            size = GameVector.Zero;
+            forward = GameVector.Zero;
+         
+        }
+        public Rectangle(GameVector Center, GameVector Size, GameVector Forward)
+        {
+            Forward = Forward.Normalize();
+            GameVector right = new GameVector(Forward.Y, -Forward.X);
+            Forward *= Size.X * 0.5f;
+            right *= Size.Y * 0.5f;
+            this.forwardLeft = Forward - right + Center;
+            this.forwardRight = Forward + right + Center;
+            this.backRight = -Forward + right + Center;
+            this.backLeft = -Forward - right + Center;
+            center = Center;
+            size = Size;
+            forward = Forward;
         }
         public Circle GetSphere
         {
             get
             {
-                GameVector min = new GameVector(Math.Min(Math.Min(pt1.X, pt2.X), Math.Min(pt3.X, pt4.X)),
-                    Math.Min(Math.Min(pt1.Y, pt2.Y), Math.Min(pt3.Y, pt4.Y)));
-                GameVector max = new GameVector(Math.Max(Math.Max(pt1.X, pt2.X), Math.Max(pt3.X, pt4.X)),
-                    Math.Max(Math.Max(pt1.Y, pt2.Y), Math.Max(pt3.Y, pt4.Y)));
+                GameVector min = new GameVector(Math.Min(Math.Min(forwardLeft.X, forwardRight.X), Math.Min(backRight.X, backLeft.X)),
+                    Math.Min(Math.Min(forwardLeft.Y, forwardRight.Y), Math.Min(backRight.Y, backLeft.Y)));
+                GameVector max = new GameVector(Math.Max(Math.Max(forwardLeft.X, forwardRight.X), Math.Max(backRight.X, backLeft.X)),
+                    Math.Max(Math.Max(forwardLeft.Y, forwardRight.Y), Math.Max(backRight.Y, backLeft.Y)));
                 GameVector center = (min + max) * 0.5f;
                 return new Circle(center, GameVector.Distance(center, min));
             }
         }
+        private const float eps = 10e-4f;
         static bool LinesIntersection(GameVector Start1, GameVector End1, GameVector Start2, GameVector End2, out GameVector Intersection)
         {
-            //pt1+(pt2-pt1)*t1=pt3+(pt4-pt3)*t2
-            //t2=(pt1.x-pt3.x)/(pt4.x-pt3.x)+(pt2.x-pt1.x)/(pt4.x-pt3.x)*t1
-            //pt1.y+(pt2.y-pt1.y)*t1=pt3.y+(pt4.y-pt3.y)*((pt1.x-pt3.x)/(pt4.x-pt3.x)+(pt2.x-pt1.x)/(pt4.x-pt3.x)*t1)
-            //((pt2.y-pt1.y)- (pt4.y-pt3.y)*(pt2.x-pt1.x)/(pt4.x-pt3.x))*t1=pt3.y-pt1.y+(pt4.y-pt3.y)*(pt1.x-pt3.x)/(pt4.x-pt3.x) 
-            float t1 = ((Start2.Y - Start1.Y) * (End2.X - Start2.X) + (End2.Y - Start2.Y) * (Start1.X - Start2.X))
-                / ((End1.Y - Start1.Y) * (End2.X - Start2.X) - (End2.Y - Start2.Y) * (End1.X - Start1.X));
-            float t2 = (Start1.X - Start2.X) / (End2.X - Start2.X) + (End1.X - Start1.X) / (End2.X - Start2.X) * t1;
+            //forwardLeft+(forwardRight-forwardLeft)*t1=backRight+(backLeft-backRight)*t2
+            //t2=(forwardLeft.x-backRight.x)/(backLeft.x-backRight.x)+(forwardRight.x-forwardLeft.x)/(backLeft.x-backRight.x)*t1
+            //forwardLeft.y+(forwardRight.y-forwardLeft.y)*t1=backRight.y+(backLeft.y-backRight.y)*((forwardLeft.x-backRight.x)/(backLeft.x-backRight.x)+(forwardRight.x-forwardLeft.x)/(backLeft.x-backRight.x)*t1)
+            //((forwardRight.y-forwardLeft.y)- (backLeft.y-backRight.y)*(forwardRight.x-forwardLeft.x)/(backLeft.x-backRight.x))*t1=backRight.y-forwardLeft.y+(backLeft.y-backRight.y)*(forwardLeft.x-backRight.x)/(backLeft.x-backRight.x) 
+            float UpperFractionTerm=(Start2.Y - Start1.Y) * (End2.X - Start2.X) + (End2.Y - Start2.Y) * (Start1.X - Start2.X);
+            float LowerFractionTerm=(End1.Y - Start1.Y) * (End2.X - Start2.X) - (End2.Y - Start2.Y) * (End1.X - Start1.X);
+            float t1 =UpperFractionTerm / LowerFractionTerm;
+            float t2 = ((Start1.X - Start2.X) + (End1.X - Start1.X) *t1)/ (End2.X - Start2.X) ;
+
             if (float.IsNaN(t1 + t2))
             {
-                t1 = ((Start2.X - Start1.X) * (End2.Y - Start2.Y) + (End2.X - Start2.X) * (Start1.Y - Start2.Y))
-                / ((End1.X - Start1.X) * (End2.Y - Start2.Y) - (End2.X - Start2.X) * (End1.Y - Start1.Y));
-                t2 = (Start1.Y - Start2.Y) / (End2.Y - Start2.Y) + (End1.Y - Start1.Y) / (End2.Y - Start2.Y) * t1;
+                //I will not calculate intersection in this shity case. Let it be
+                Intersection = GameVector.Zero;
+
+                if (Math.Abs(UpperFractionTerm) < eps)//parallel and on one line
+                {
+                    if (Math.Max(Start1.X, End1.X) < Math.Min(Start2.X, End2.X)) return false;
+                    if (Math.Min(Start1.X, End1.X) > Math.Max(Start2.X, End2.X)) return false;
+                    if (Math.Max(Start1.Y, End1.Y) < Math.Min(Start2.Y, End2.Y)) return false;
+                    if (Math.Min(Start1.Y, End1.Y) > Math.Max(Start2.Y, End2.Y)) return false;
+                    return true;
+                }
+                else return false;//parallel but not on one line
+                //t1 = ((Start2.X - Start1.X) * (End2.Y - Start2.Y) + (End2.X - Start2.X) * (Start1.Y - Start2.Y))
+                /// ((End1.X - Start1.X) * (End2.Y - Start2.Y) - (End2.X - Start2.X) * (End1.Y - Start1.Y));
+                //t2 = (Start1.Y - Start2.Y) / (End2.Y - Start2.Y) + (End1.Y - Start1.Y) / (End2.Y - Start2.Y) * t1;
+
             }
             Intersection = Start1 + (End1 - Start1) * t1;
-            return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
+            return (t1 > -eps && t1 < 1+eps && t2 > -eps && t2 < 1+eps);
         }
         public bool IntersectsLine(GameVector Start, GameVector End, out GameVector Intersection)
         {
             Intersection = GameVector.One * float.PositiveInfinity;
             bool res = false;
             GameVector currIntersection;
-            if (LinesIntersection(pt1, pt2, Start, End, out currIntersection))
+            if (LinesIntersection(forwardLeft, forwardRight, Start, End, out currIntersection))
             { Intersection = currIntersection; res = true; }
-            if (LinesIntersection(pt2, pt3, Start, End, out currIntersection))
+            if (LinesIntersection(forwardRight, backRight, Start, End, out currIntersection))
             {
                 if (GameVector.DistanceSquared(Start, currIntersection) < GameVector.DistanceSquared(Start, Intersection))
                     Intersection = currIntersection;
                 res = true;
             }
-            if (LinesIntersection(pt3, pt4, Start, End, out currIntersection))
+            if (LinesIntersection(backRight, backLeft, Start, End, out currIntersection))
             {
                 if (GameVector.DistanceSquared(Start, currIntersection) < GameVector.DistanceSquared(Start, Intersection))
                     Intersection = currIntersection;
                 res = true;
             }
-            if (LinesIntersection(pt4, pt1, Start, End, out currIntersection))
+            if (LinesIntersection(backLeft, forwardLeft, Start, End, out currIntersection))
             {
                 if (GameVector.DistanceSquared(Start, currIntersection) < GameVector.DistanceSquared(Start, Intersection))
                     Intersection = currIntersection;
@@ -453,22 +602,22 @@ namespace MiniGameInterfaces
         public bool IntersectsLine(GameVector Start, GameVector End)
         {
             GameVector currIntersection;
-            if (LinesIntersection(pt1, pt2, Start, End, out currIntersection))
+            if (LinesIntersection(forwardLeft, forwardRight, Start, End, out currIntersection))
             { return true; }
-            if (LinesIntersection(pt2, pt3, Start, End, out currIntersection))
+            if (LinesIntersection(forwardRight, backRight, Start, End, out currIntersection))
             { return true; }
-            if (LinesIntersection(pt3, pt4, Start, End, out currIntersection))
+            if (LinesIntersection(backRight, backLeft, Start, End, out currIntersection))
             { return true; }
-            if (LinesIntersection(pt4, pt1, Start, End, out currIntersection))
+            if (LinesIntersection(backLeft, forwardLeft, Start, End, out currIntersection))
             { return true; }
             return false;
         }
         public bool IntersectsRectangle(Rectangle AnotherRect)
         {
-            if (IntersectsLine(AnotherRect.pt1, AnotherRect.pt2)) return true;
-            if (IntersectsLine(AnotherRect.pt2, AnotherRect.pt3)) return true;
-            if (IntersectsLine(AnotherRect.pt3, AnotherRect.pt4)) return true;
-            if (IntersectsLine(AnotherRect.pt4, AnotherRect.pt1)) return true;
+            if (IntersectsLine(AnotherRect.forwardLeft, AnotherRect.forwardRight)) return true;
+            if (IntersectsLine(AnotherRect.forwardRight, AnotherRect.backRight)) return true;
+            if (IntersectsLine(AnotherRect.backRight, AnotherRect.backLeft)) return true;
+            if (IntersectsLine(AnotherRect.backLeft, AnotherRect.forwardLeft)) return true;
             return false;
         }
     }

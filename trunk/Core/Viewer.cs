@@ -190,7 +190,7 @@ namespace CoreNamespace
         /// <summary>
         /// rectangle format: (center.x; center.y; Size.x; Size.y)
         ///                   (Angle;  0 ; 0 ;Color)
-        /// sphere  format: (center.x; center.y; Diameter; Diameter)
+        /// circle  format: (center.x; center.y; Diameter; Diameter)
         ///                   (0;  1 ; 0 ;Color)
         /// </summary>
         Vector4[] DebugRectangleBatchParams1 = new Vector4[MaxBatchSize/2];
@@ -428,7 +428,7 @@ namespace CoreNamespace
                 DebugRectangleBatchParams1[CRectanglesInBatch].Z = Circle.Radius*2;
                 DebugRectangleBatchParams1[CRectanglesInBatch].W = Circle.Radius * 2;
                 DebugRectangleBatchParams2[CRectanglesInBatch].X = 0;
-                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 1;//is sphere
+                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 1;//is circle
                 DebugRectangleBatchParams2[CRectanglesInBatch].Z = 0;//reserved
                 DebugRectangleBatchParams2[CRectanglesInBatch].W = ToFloat(Color);
                 CRectanglesInBatch++;
@@ -444,7 +444,7 @@ namespace CoreNamespace
                 DebugRectangleBatchParams1[CRectanglesInBatch].Z = 0.01f*CameraPosition.Z;
                 DebugRectangleBatchParams1[CRectanglesInBatch].W = 0.01f * CameraPosition.Z;
                 DebugRectangleBatchParams2[CRectanglesInBatch].X = 0;
-                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 1;//is sphere
+                DebugRectangleBatchParams2[CRectanglesInBatch].Y = 1;//is circle
                 DebugRectangleBatchParams2[CRectanglesInBatch].Z = 0;//reserved
                 DebugRectangleBatchParams2[CRectanglesInBatch].W = ToFloat(Color);
                 CRectanglesInBatch++;

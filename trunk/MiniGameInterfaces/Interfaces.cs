@@ -312,6 +312,9 @@ namespace MiniGameInterfaces
         float BlowRadius { get; }
 
         #endregion
+        #region Debug
+        string Text { get; set; }
+        #endregion
     }
     public interface IShot
     {

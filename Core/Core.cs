@@ -277,7 +277,7 @@ namespace CoreNamespace
             //Circle rect1 = new Circle(GameVector.Zero, 100);
             //Line line1 = new Line(new GameVector(0, 75), new GameVector(150, 75));
             //Color col;
-            //if ( rect1.Intersects(line1))
+            //if (rect1.Intersects(line1))
             //    col = Color.Red;
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
@@ -291,15 +291,15 @@ namespace CoreNamespace
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
             //viewer.DrawLine(line1, col);
-            /////////////COLLIZION TEST 11
-            //Circle rect1 = new Circle(GameVector.Zero, 100);
-            //Line line1 = new Line(new GameVector(-150, 100), new GameVector(150, 100));
-            //Color col;
-            //if (rect1.Intersects(line1))
-            //    col = Color.Red;
-            //else col = Color.Green;
-            //viewer.DrawCircle(rect1, col);
-            //viewer.DrawLine(line1, col);
+            ///////////COLLIZION TEST 11
+            Circle rect1 = new Circle(GameVector.Zero, 100);
+            Line line1 = new Line(new GameVector(-150, 100), new GameVector(150, 100));
+            Color col;
+            if (rect1.Intersects(line1))
+                col = Color.Red;
+            else col = Color.Green;
+            viewer.DrawCircle(rect1, col);
+            viewer.DrawLine(line1, col);
             ///////////COLLIZION TEST 12
             //Circle rect1 = new Circle(GameVector.Zero, 100);
             //Line line1 = new Line(new GameVector(100, 0), new GameVector(200, 0));
@@ -354,11 +354,11 @@ namespace CoreNamespace
         //        if (unit.HP >= 0)
         //        {
         //            Rectangle rect = unit.GetRectangle();
-        //            Sphere sphere = rect.BoxSphere;
+        //            Circle Circle = rect.BoxCircle;
         //            for (int i = 0; i < shots.shots.Count; i++)
         //            {
         //               // if (unit.ShipType == ShipTypes.Destroyer&&GameVector.Distance(unit.position,shots.shots[i].pos)<10) { }
-        //                if (shots.shots[i].GetSphere().Intersects(sphere))
+        //                if (shots.shots[i].GetCircle().Intersects(Circle))
         //                {
         //                    if (unit.ShipType ==  ShipTypes.Destroyer) { }
         //                    if (rect.IntersectsLine(shots.shots[i].pos, shots.shots[i].End))
@@ -396,7 +396,7 @@ namespace CoreNamespace
                     if (units[i].ShipType == ShipTypes.Destroyer)
                     { }
                     MiniGameInterfaces.Rectangle rect1 = units[i].GetRectangle();
-                    Circle sphere1 = rect1.GetSphere;
+                    Circle Circle1 = rect1.GetBoundingCircle;
                     List<Unit> nearUnits = new List<Unit>();
                     List<Shots.Shot> nearShots = new List<Shots.Shot>();
                     gameObjects.GetNearObjects(units[i].position, 0, out nearUnits, out nearShots);
@@ -406,7 +406,7 @@ namespace CoreNamespace
                         if (nearUnit != units[i])
                         {
                             MiniGameInterfaces.Rectangle rect2 = nearUnit.GetRectangle();
-                            if (sphere1.Intersects(rect2.GetSphere))
+                            if (Circle1.Intersects(rect2.GetBoundingCircle))
                             {
                                 if (rect1.IntersectsRectangle(rect2))
                                 {
@@ -420,7 +420,7 @@ namespace CoreNamespace
                     foreach (Shots.Shot shot in nearShots)
                         if (shot.lifeTime > 0 && !shot.IsChildOf(units[i]))
                         {
-                            if (shot.GetSphere().Intersects(sphere1))
+                            if (shot.GetBoundingCirlce().Intersects(Circle1))
                             {
                                 if (rect1.IntersectsLine(shot.pos, shot.End))
                                 {

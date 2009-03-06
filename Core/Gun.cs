@@ -20,7 +20,7 @@ namespace CoreNamespace
                     return size;
                 }
             }
-            public Circle GetSphere()
+            public Circle GetBoundingCirlce()
             {
                 return new Circle((pos + End) * 0.5f, size * 0.5f);
             }

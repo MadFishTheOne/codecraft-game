@@ -195,6 +195,8 @@ namespace CoreNamespace
             }
             //
             viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new GameVector(10, Core.viewer.screenHeight - 30), 0, Microsoft.Xna.Framework.Graphics.Color.White);
+            //foreach(Unit unit in units)
+            //    unit.Text = "Hello!";
             ///////////DEBUG DRAW DEMO
             //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One*100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
             //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One*50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
@@ -292,14 +294,14 @@ namespace CoreNamespace
             //viewer.DrawCircle(rect1, col);
             //viewer.DrawLine(line1, col);
             ///////////COLLIZION TEST 11
-            Circle rect1 = new Circle(GameVector.Zero, 100);
-            Line line1 = new Line(new GameVector(-150, 100), new GameVector(150, 100));
-            Color col;
-            if (rect1.Intersects(line1))
-                col = Color.Red;
-            else col = Color.Green;
-            viewer.DrawCircle(rect1, col);
-            viewer.DrawLine(line1, col);
+            //Circle rect1 = new Circle(GameVector.Zero, 100);
+            //Line line1 = new Line(new GameVector(-150, 100), new GameVector(150, 100));
+            //Color col;
+            //if (rect1.Intersects(line1))
+            //    col = Color.Red;
+            //else col = Color.Green;
+            //viewer.DrawCircle(rect1, col);
+            //viewer.DrawLine(line1, col);
             ///////////COLLIZION TEST 12
             //Circle rect1 = new Circle(GameVector.Zero, 100);
             //Line line1 = new Line(new GameVector(100, 0), new GameVector(200, 0));
@@ -571,7 +573,7 @@ namespace CoreNamespace
         {
             get
             {
-                return (IDebug)viewer;
+                return viewer;
             }
         }
         #endregion

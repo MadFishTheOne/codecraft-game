@@ -9,6 +9,7 @@ namespace CoreNamespace
 {
     public class Unit : IUnit
     {
+        string text;
         string name;
         float blowRadius;
         ShipTypes shipType;
@@ -295,6 +296,17 @@ namespace CoreNamespace
 
         }
         #endregion
+        public string Text
+        {
+            get
+            {
+                return text;
+            }
+            set
+            {
+                text = value;
+            }
+        }
         #endregion
         private float GetAngleTo(GameVector Target)
         {

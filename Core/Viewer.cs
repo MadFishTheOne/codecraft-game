@@ -199,7 +199,7 @@ namespace CoreNamespace
 
         public void DrawUnits(List<Unit> units)
         {
-            
+            graphics.GraphicsDevice.RenderState.DepthBufferEnable = false;
             graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
             graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
             graphics.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
@@ -271,6 +271,21 @@ namespace CoreNamespace
             if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSmall, Core.CruiserSize, ShipTypes.Cruiser);
             if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
             DrawDebugRectangleBatch();
+            foreach (Unit unit in units)
+            {
+                if ((unit.Text != null) && (unit.Text != ""))
+                {
+                    Vector4 position = new Vector4(unit.position.X, unit.position.Y, 0, 1);
+                    position = Vector4.Transform(position, ViewProj);
+                    position /= position.W;
+                    position.Y = -position.Y;
+                    position += Vector4.One;
+                    position *= 0.5f;
+                    position.X *= screenWidth;
+                    position.Y *= screenHeight;
+                    DrawText(unit.Text, new GameVector(position.X, position.Y), 0, Microsoft.Xna.Framework.Graphics.Color.White);
+                }
+            }
         }
         private void DrawBlowBatch(Vector4[] BlowBatchParams, ref int CBlowsInBatch)
         {

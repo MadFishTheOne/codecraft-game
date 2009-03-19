@@ -44,8 +44,8 @@ namespace CoreNamespace
         internal float timeAfterDeath;
         internal float maxTimeAfterDeath;
         private bool IsAliveInPrevLoop;
-        bool goesToPoint;
-        bool stopsNearPoint;
+        
+        
         GameVector tgtLocation;
         Shots shots;
         public Unit(ShipTypes ShipType, string Name, GameVector Position, GameVector Size, DerivativeControlledParameter Speed,
@@ -257,6 +257,38 @@ namespace CoreNamespace
             rotationSpeed.Derivative = amount;
             goesToPoint = false;
         }
+        
+        public bool Shoot()
+        {
+            if (AccessDenied()) return false;
+            bool res = gun.Shoot();
+            //shots.Add(new Shots.Shot(position + Forward * 50, position + Forward * (gun.MaxDistance+50), gun.Damage));
+            return res;
+        }
+        
+        #endregion
+        public string Text
+        {
+            get
+            {
+                return text;
+            }
+            set
+            {
+                text = value;
+            }
+        }
+        #endregion
+        private float GetAngleTo(GameVector Target)
+        {
+            return (float)Math.Atan2(Target.Y - position.Y, Target.X - position.X);
+        }
+        public bool TimeToDie
+        { get { return timeAfterDeath >= maxTimeAfterDeath; } }
+        #region obsolete
+        bool goesToPoint;
+
+        bool stopsNearPoint;
         public void SetSpeed(float Speed)
         {
             if (AccessDenied()) return;
@@ -280,13 +312,6 @@ namespace CoreNamespace
             if (AccessDenied()) return;
             rotationAngle.SetAimedValue(Angle);
         }
-        public bool Shoot()
-        {
-            if (AccessDenied()) return false;
-            bool res = gun.Shoot();
-            //shots.Add(new Shots.Shot(position + Forward * 50, position + Forward * (gun.MaxDistance+50), gun.Damage));
-            return res;
-        }
         public void GoTo(GameVector TargetLocation, bool Stop)
         {
             if (AccessDenied()) return;
@@ -295,29 +320,13 @@ namespace CoreNamespace
             tgtLocation = new GameVector(TargetLocation.X, TargetLocation.Y);
 
         }
-        #endregion
-        public string Text
-        {
-            get
-            {
-                return text;
-            }
-            set
-            {
-                text = value;
-            }
-        }
-        #endregion
-        private float GetAngleTo(GameVector Target)
-        {
-            return (float)Math.Atan2(Target.Y - position.Y, Target.X - position.X);
-        }
-        public bool TimeToDie
-        { get { return timeAfterDeath >= maxTimeAfterDeath; } }
+#endregion
+
         internal void Update()
         {
             if (hp >= 0)
             {
+                #region obsolete
                 if (goesToPoint)
                 {
                     float AngleToTgt = GetAngleTo(tgtLocation);
@@ -331,7 +340,7 @@ namespace CoreNamespace
                     else SetSpeedGoingToTgt(0);
                     //if (distanceSq < 30*30&&speed.Value<10) { goesToPoint = false; }
                 }
-                //hp -= 1;
+                #endregion
                 gun.Update();
                 if (rotationAngle.AimEnabled)
                 {
@@ -355,6 +364,7 @@ namespace CoreNamespace
                     //    rotationSpeed = new DerivativeControlledParameter(0, rotationSpeed.Min, rotationSpeed.Max, rotationSpeed.MaxDerivative, false);
                 }
                 //rotationSpeed.Derivative *= AimIsNearDecrementing;
+                
                 rotationSpeed.Update();
                 rotationAngle.Derivative = rotationSpeed.Value;
                 //                rotationAngle.Derivative = (rotationAngle.AimedValue - rotationAngle.Value) * 0.05f;

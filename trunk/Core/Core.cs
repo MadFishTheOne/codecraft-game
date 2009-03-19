@@ -149,8 +149,9 @@ namespace CoreNamespace
 
             //
             viewer.DrawEnvironment();
-            viewer.DrawUnits(units);
             viewer.DrawShots(shots);
+            viewer.DrawUnits(units);
+            
             //
             string[] infoString = new string[players.Count];
             string[] timeString = new string[players.Count];

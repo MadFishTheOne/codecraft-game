@@ -270,6 +270,9 @@ namespace CoreNamespace
             if (CCorvettesInBatch > 0) DrawUnitBatch(CorvetteBatchParams, ref CCorvettesInBatch, CorvetteTexture, CorvetteSmall, Core.CorvetteSize, ShipTypes.Corvette);
             if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSmall, Core.CruiserSize, ShipTypes.Cruiser);
             if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
+        }
+        public void DrawDebug(List<Unit> units)
+        {
             DrawDebugRectangleBatch();
             foreach (Unit unit in units)
             {
@@ -404,9 +407,14 @@ namespace CoreNamespace
                 graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CRectanglesInBatch * 6, 0, CRectanglesInBatch * 2);
                 p.End();
                 debugFigureEffect.End();
-                CRectanglesInBatch = 0;
             }
         }
+
+        public void ClearDebugObjects()
+        {
+            CRectanglesInBatch = 0;
+        }
+
         #region IDebug Members
 
         public void DrawRectangle(MiniGameInterfaces.Rectangle Rectangle, MiniGameInterfaces.Color Color)

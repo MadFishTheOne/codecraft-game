@@ -228,7 +228,7 @@ namespace MiniGame
                 if (newState.IsKeyDown(Keys.Down))
                     Viewer.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * cameraSpeed;
 
-#if FAlLSE
+#if FALSE
                 if (Mouse.GetState().X > Core.viewer.screenWidth - 30 )
                     Core.CameraPosition.X -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
                 if (Mouse.GetState().X < 30 || newState.IsKeyDown(Keys.Left))
@@ -239,11 +239,11 @@ namespace MiniGame
                     Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
 #endif
                 Core.Timing.Update();
-                do
+                while (Core.Timing.DeltaTimeGlobal > 0)
                 {
                     core.Update();
                     Core.Timing.DeltaTimeGlobal -= Core.Timing.DeltaTime;
-                } while (Core.Timing.DeltaTimeGlobal > 0);
+                }
             }
             base.Update(gameTime);
         }

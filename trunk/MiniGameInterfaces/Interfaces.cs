@@ -282,7 +282,26 @@ namespace MiniGameInterfaces
         /// accelerate rotation by given amount
         /// </summary>
         /// <param name="amount"></param>
-        void RotationAccelerate(float amount);
+        void RotationAccelerate(float amount);        
+        /// <summary>
+        /// unit tries to shoot
+        /// </summary>
+        /// <returns> true if shoot was provided(if gun was recharged)</returns>
+        bool Shoot();        
+        /// <summary>
+        /// this damage goes to every unit that was in the blow radius at the blow starting time
+        /// </summary>
+        float BlowDamage { get; }
+        /// <summary>
+        /// this radius  is used to draw blow and to damage units with this blow
+        /// </summary>            
+        float BlowRadius { get; }
+        /// <summary>
+        /// get's unit geometry
+        /// </summary>
+        /// <returns></returns>
+        Rectangle GetRectangle();
+        //obsolete
         /// <summary>
         /// set constant speed to move with it. unit will reach and hold this speed unitl new acceleration or setting speed command received
         /// </summary>
@@ -292,25 +311,11 @@ namespace MiniGameInterfaces
         /// </summary>
         void SetAngle(float Angle);
         /// <summary>
-        /// unit tries to shoot
-        /// </summary>
-        /// <returns> true if shoot was provided(if gun was recharged)</returns>
-        bool Shoot();
-        /// <summary>
         /// makes unit to go to target location
         /// </summary>
         /// <param name="TargetLocation">location to go to</param>
         /// <param name="Stop">true if unit must try to stop there</param>
         void GoTo(GameVector TargetLocation, bool Stop);
-        /// <summary>
-        /// this damage goes to every unit that was in the blow radius at the blow starting time
-        /// </summary>
-        float BlowDamage { get; }
-        /// <summary>
-        /// this radius  is used to draw blow and to damage units with this blow
-        /// </summary>            
-        float BlowRadius { get; }
-
         #endregion
         #region Debug
         string Text { get; set; }

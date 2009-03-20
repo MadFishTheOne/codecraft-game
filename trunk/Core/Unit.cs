@@ -227,6 +227,16 @@ namespace CoreNamespace
             return this.GetRectangle().IntersectsLine(
                 pt1, pt2, out intersection);
         }
+        public MiniGameInterfaces.Rectangle GetRectangle()
+        {
+            GameVector forward = ForwardVector;
+            GameVector right = new GameVector(forward.Y, -forward.X);
+            forward *= size.X * 0.5f;
+            right *= size.Y * 0.5f;
+            return new MiniGameInterfaces.Rectangle(forward - right + position, forward + right + position,
+                -forward + right + position, -forward - right + position);
+        }
+
         #region controlling the unit
 
         public void Accelerate(float amount)
@@ -386,16 +396,7 @@ namespace CoreNamespace
         {
             get { return isDying; }
         }
-        internal MiniGameInterfaces.Rectangle GetRectangle()
-        {
-            GameVector forward = ForwardVector;
-            GameVector right = new GameVector(forward.Y, -forward.X);
-            forward *= size.X * 0.5f;
-            right *= size.Y * 0.5f;
-            return new MiniGameInterfaces.Rectangle(forward - right + position, forward + right + position,
-                -forward + right + position, -forward - right + position);
-        }
-        int logicX, logicY;
+                int logicX, logicY;
         internal void GetLogicCoo(out int oldX, out int oldY)
         {
             oldX = logicX;

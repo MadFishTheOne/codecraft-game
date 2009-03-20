@@ -151,6 +151,7 @@ namespace CoreNamespace
             viewer.DrawEnvironment();
             viewer.DrawShots(shots);
             viewer.DrawUnits(units);
+            viewer.DrawDebug(units);
             
             //
             string[] infoString = new string[players.Count];
@@ -196,14 +197,54 @@ namespace CoreNamespace
             }
             //
             viewer.DrawText("Time speed: " + Timing.TimeSpeed.ToString(), new GameVector(10, Core.viewer.screenHeight - 30), 0, Microsoft.Xna.Framework.Graphics.Color.White);
+        }
+
+        public void Update()
+        {
+            if (gameEnd)
+                return;
+            //AI update
+            Stopwatch sw = new Stopwatch();
+            for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
+            {
+                sw.Reset();
+                sw.Start();
+                players[CurrentPlayer].Update();
+                playersTotalUpdateTime[CurrentPlayer] += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
+            }
+            //Core update
+            viewer.ClearDebugObjects();
+            CurrentPlayer = -1;
+            sw.Reset();
+            sw.Start();
+            UnitIntersections();
+            shots.Update();
+            for (int i = 0; i < units.Count; i++)
+            {
+                units[i].Update();
+                //units[i].SetAngle(205);
+                if (units[i].IsDying)
+                    DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
+                if (units[i].TimeToDie)
+                {
+                    gameObjects.RemoveUnit(units[i]);
+                    units.RemoveAt(i);
+                    i--;
+                }
+            }
+            coreTotalUpdateTime += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
+            //Global game state update
+            CalculateNumberOfUnits();
+            CheckEndOfGame();
+            //
             //foreach(Unit unit in units)
             //    unit.Text = "Hello!";
             ///////////DEBUG DRAW DEMO
-            //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One*100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
-            //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One*50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
-            //viewer.DrawCircle(new Circle(GameVector.One*(-100),70.7f), MiniGameInterfaces.Color.Blue);
-            //viewer.DrawPoint(new GameVector(-50, 50), new MiniGameInterfaces.Color(1, 0, 0, 1));
-            //viewer.DrawLine( new Line(GameVector.Zero,GameVector.UnitX.Rotate(-timing.NowTime)*3*70.7f),MiniGameInterfaces.Color.Blue);
+            viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One * 100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
+            viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One * 50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
+            viewer.DrawCircle(new Circle(GameVector.One * (-100), 70.7f), MiniGameInterfaces.Color.Blue);
+            viewer.DrawPoint(new GameVector(-50, 50), new MiniGameInterfaces.Color(1, 0, 0, 1));
+            viewer.DrawLine(new Line(GameVector.Zero, GameVector.UnitX.Rotate(-timing.NowTime) * 3 * 70.7f), MiniGameInterfaces.Color.Blue);
             /////////////COLLIZION TEST 1
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
             //Line line1 = new Line(new GameVector(0, 150), new GameVector(50, 50));
@@ -312,44 +353,6 @@ namespace CoreNamespace
             //else col = Color.Green;
             //viewer.DrawCircle(rect1, col);
             //viewer.DrawLine(line1, col);
-        }
-
-        public void Update()
-        {
-            if (gameEnd)
-                return;
-            //AI update
-            Stopwatch sw = new Stopwatch();
-            for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
-            {
-                sw.Reset();
-                sw.Start();
-                players[CurrentPlayer].Update();
-                playersTotalUpdateTime[CurrentPlayer] += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
-            }
-            //Core update
-            CurrentPlayer = -1;
-            sw.Reset();
-            sw.Start();
-            UnitIntersections();
-            shots.Update();
-            for (int i = 0; i < units.Count; i++)
-            {
-                units[i].Update();
-                //units[i].SetAngle(205);
-                if (units[i].IsDying)
-                    DamageAllAround(units[i].position, units[i].BlowRadius, units[i].BlowDamage);
-                if (units[i].TimeToDie)
-                {
-                    gameObjects.RemoveUnit(units[i]);
-                    units.RemoveAt(i);
-                    i--;
-                }
-            }
-            coreTotalUpdateTime += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
-            //Global game state update
-            CalculateNumberOfUnits();
-            CheckEndOfGame();
         }
         //private void ShotsWithUnitsIntersections()
         //{

@@ -6,12 +6,12 @@ namespace MiniGameInterfaces
 {
     public struct Color
     {
-        public float r,g,b,a;
-        public Color(float R,float G,float B,float A)
+        public float r, g, b, a;
+        public Color(float R, float G, float B, float A)
         {
-            r=R;
-            g=G;
-            b=B;
+            r = R;
+            g = G;
+            b = B;
             a = A;
         }
         public static Color Red
@@ -59,10 +59,10 @@ namespace MiniGameInterfaces
     }
     public interface IDebug
     {
-        void DrawRectangle(Rectangle Rectangle,Color Color);
+        void DrawRectangle(Rectangle Rectangle, Color Color);
         void DrawCircle(Circle Circle, Color Color);
         void DrawPoint(GameVector Vector, Color Color);
-        void DrawLine(Line Line,Color Color);
+        void DrawLine(Line Line, Color Color);
     }
     public enum ShipTypes
     {
@@ -157,9 +157,9 @@ namespace MiniGameInterfaces
         {
             return (pt2 - pt1).LengthSquared();
         }
-        public static GameVector Rotate(GameVector Vector,float Angle)
+        public static GameVector Rotate(GameVector Vector, float Angle)
         {
-            return new GameVector((float)(Vector.X * Math.Cos(Angle) - Vector.Y * Math.Sin(Angle)), (float)(Vector.X * Math.Sin(Angle) + Vector.Y*Math.Cos(Angle)));
+            return new GameVector((float)(Vector.X * Math.Cos(Angle) - Vector.Y * Math.Sin(Angle)), (float)(Vector.X * Math.Sin(Angle) + Vector.Y * Math.Cos(Angle)));
         }
         public GameVector Rotate(float Angle)
         {
@@ -282,12 +282,12 @@ namespace MiniGameInterfaces
         /// accelerate rotation by given amount
         /// </summary>
         /// <param name="amount"></param>
-        void RotationAccelerate(float amount);        
+        void RotationAccelerate(float amount);
         /// <summary>
         /// unit tries to shoot
         /// </summary>
         /// <returns> true if shoot was provided(if gun was recharged)</returns>
-        bool Shoot();        
+        bool Shoot();
         /// <summary>
         /// this damage goes to every unit that was in the blow radius at the blow starting time
         /// </summary>
@@ -427,7 +427,11 @@ namespace MiniGameInterfaces
             float UpperFractionTerm = (Start2.Y - Start1.Y) * (End2.X - Start2.X) + (End2.Y - Start2.Y) * (Start1.X - Start2.X);
             float LowerFractionTerm = (End1.Y - Start1.Y) * (End2.X - Start2.X) - (End2.Y - Start2.Y) * (End1.X - Start1.X);
             float t1 = UpperFractionTerm / LowerFractionTerm;
-            float t2 = ((Start1.X - Start2.X) + (End1.X - Start1.X) * t1) / (End2.X - Start2.X);
+            float t2;
+            if (Math.Abs(End2.X - Start2.X) > Math.Abs(End2.Y - Start2.Y))
+                t2 = ((Start1.X - Start2.X) + (End1.X - Start1.X) * t1) / (End2.X - Start2.X);
+            else
+                t2 = ((Start1.Y - Start2.Y) + (End1.Y - Start1.Y) * t1) / (End2.Y - Start2.Y);
 
             if (float.IsNaN(t1 + t2))
             {
@@ -450,6 +454,11 @@ namespace MiniGameInterfaces
             }
             Intersection = Start1 + (End1 - Start1) * t1;
             return (t1 > -eps && t1 < 1 + eps && t2 > -eps && t2 < 1 + eps);
+        }
+        public bool Intersects(Line AnotherLine)
+        {
+            GameVector intersection;
+            return LinesIntersection(pt1, pt2, AnotherLine.pt1, AnotherLine.pt2, out intersection);
         }
         public float Length()
         {
@@ -485,16 +494,16 @@ namespace MiniGameInterfaces
             float CenterPt1LengthSq = CenterPt1.LengthSquared();
 
 
-            if (CenterPt1LengthSq<= radiusSq) return true;
-            if (CenterPt2.LengthSquared()<= radiusSq) return true;
+            if (CenterPt1LengthSq <= radiusSq) return true;
+            if (CenterPt2.LengthSquared() <= radiusSq) return true;
 
-            float dot=GameVector.Dot(Pt2Pt1, CenterPt1);
+            float dot = GameVector.Dot(Pt2Pt1, CenterPt1);
 
             if (dot < 0 || dot > Pt2Pt1LengthSq) return false;
 
 
-            return Pt2Pt1LengthSq*(CenterPt1LengthSq-radiusSq)<=dot*dot;
-            
+            return Pt2Pt1LengthSq * (CenterPt1LengthSq - radiusSq) <= dot * dot;
+
         }
         public bool Intersects(Circle Circle)
         {
@@ -506,7 +515,7 @@ namespace MiniGameInterfaces
         GameVector forwardLeft, forwardRight, backRight, backLeft;
         private GameVector center, forward, size;
         public GameVector ForwardLeft
-        {get{return forwardLeft;}}
+        { get { return forwardLeft; } }
         public GameVector Pt2
         { get { return forwardRight; } }
         public GameVector Pt3
@@ -534,11 +543,18 @@ namespace MiniGameInterfaces
                 return forward;
             }
         }
+        public GameVector Right
+        {
+            get
+            {
+                return new GameVector(forward.Y, -forward.X);
+            }
+        }
         public float Angle
         {
             get
             {
-                GameVector forward=forwardLeft-backLeft;
+                GameVector forward = forwardLeft - backLeft;
                 return (float)Math.Atan2(forward.Y, forward.X);
             }
         }
@@ -558,7 +574,7 @@ namespace MiniGameInterfaces
             center = GameVector.Zero;
             size = GameVector.Zero;
             forward = GameVector.Zero;
-         
+
         }
         public Rectangle(GameVector Center, GameVector Size, GameVector Forward)
         {
@@ -585,8 +601,8 @@ namespace MiniGameInterfaces
                 GameVector center = (min + max) * 0.5f;
                 return new Circle(center, GameVector.Distance(center, min));
             }
-        }       
-        
+        }
+
         public bool IntersectsLine(GameVector Start, GameVector End, out GameVector Intersection)
         {
             Intersection = GameVector.One * float.PositiveInfinity;
@@ -627,12 +643,39 @@ namespace MiniGameInterfaces
             { return true; }
             return false;
         }
+        static bool forward1, forward2, right1, right2;
+        static GameVector centerToAnotherCenter;
+        static Line collisionLine1, collisionLine2, collisionLineAnotherRect1, collisionLineAnotherRect2;
         public bool IntersectsRectangle(Rectangle AnotherRect)
         {
-            if (IntersectsLine(AnotherRect.forwardLeft, AnotherRect.forwardRight)) return true;
-            if (IntersectsLine(AnotherRect.forwardRight, AnotherRect.backRight)) return true;
-            if (IntersectsLine(AnotherRect.backRight, AnotherRect.backLeft)) return true;
-            if (IntersectsLine(AnotherRect.backLeft, AnotherRect.forwardLeft)) return true;
+            centerToAnotherCenter = AnotherRect.center - center;
+            forward1 = (GameVector.Dot(centerToAnotherCenter, forward) > 0);
+            forward2 = (GameVector.Dot(centerToAnotherCenter, AnotherRect.forward) < 0);
+            right1 = (GameVector.Dot(centerToAnotherCenter, Right) > 0);
+            right2 = (GameVector.Dot(centerToAnotherCenter, AnotherRect.Right) < 0);
+
+            if (forward1) collisionLine1 = new Line(forwardLeft, forwardRight);
+            else collisionLine1 = new Line(backLeft, backRight);
+            if (forward2) collisionLineAnotherRect1 = new Line(AnotherRect.forwardLeft, AnotherRect.forwardRight);
+            else collisionLineAnotherRect1 = new Line(AnotherRect.backLeft, AnotherRect.backRight);
+
+            if (right1) collisionLine2 = new Line(forwardRight, backRight);
+            else collisionLine2 = new Line(forwardLeft, backLeft);
+            if (right2) collisionLineAnotherRect2 = new Line(AnotherRect.forwardRight, AnotherRect.backRight);
+            else collisionLineAnotherRect2 = new Line(AnotherRect.forwardLeft, AnotherRect.backLeft);
+
+            if (collisionLine1.Intersects(collisionLineAnotherRect1)) return true;
+            if (collisionLine1.Intersects(collisionLineAnotherRect2)) return true;
+            if (collisionLine2.Intersects(collisionLineAnotherRect1)) return true;
+            if (collisionLine2.Intersects(collisionLineAnotherRect2)) return true;
+
+
+            //if (IntersectsLine(AnotherRect.forwardLeft, AnotherRect.forwardRight)) return true;
+            //if (IntersectsLine(AnotherRect.forwardRight, AnotherRect.backRight)) return true;
+            //if (IntersectsLine(AnotherRect.backRight, AnotherRect.backLeft)) return true;
+            //if (IntersectsLine(AnotherRect.backLeft, AnotherRect.forwardLeft)) return true;
+
+
             return false;
         }
     }

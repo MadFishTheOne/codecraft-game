@@ -240,11 +240,11 @@ namespace CoreNamespace
             //foreach(Unit unit in units)
             //    unit.Text = "Hello!";
             ///////////DEBUG DRAW DEMO
-            viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One * 100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
-            viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One * 50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
-            viewer.DrawCircle(new Circle(GameVector.One * (-100), 70.7f), MiniGameInterfaces.Color.Blue);
-            viewer.DrawPoint(new GameVector(-50, 50), new MiniGameInterfaces.Color(1, 0, 0, 1));
-            viewer.DrawLine(new Line(GameVector.Zero, GameVector.UnitX.Rotate(-timing.NowTime) * 3 * 70.7f), MiniGameInterfaces.Color.Blue);
+            //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One * 100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
+            //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One * 50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
+            //viewer.DrawCircle(new Circle(GameVector.One * (-100), 70.7f), MiniGameInterfaces.Color.Blue);
+            //viewer.DrawPoint(new GameVector(-50, 50), new MiniGameInterfaces.Color(1, 0, 0, 1));
+            //viewer.DrawLine(new Line(GameVector.Zero, GameVector.UnitX.Rotate(-timing.NowTime) * 3 * 70.7f), MiniGameInterfaces.Color.Blue);
             /////////////COLLIZION TEST 1
             //Rectangle rect1 = new Rectangle(GameVector.Zero, GameVector.One * 200, GameVector.UnitX);
             //Line line1 = new Line(new GameVector(0, 150), new GameVector(50, 50));

@@ -271,8 +271,11 @@ namespace CoreNamespace
             if (CCruisersInBatch > 0) DrawUnitBatch(CruiserBatchParams, ref CCruisersInBatch, CruiserTexture, CruiserSmall, Core.CruiserSize, ShipTypes.Cruiser);
             if (CBlowsInBatch > 0) DrawBlowBatch(BlowBatchParams, ref CBlowsInBatch);
         }
+        private bool enableDebug = (Config.Instance.settings["Debug.Show"].ToLower() == "true");
         public void DrawDebug(List<Unit> units)
         {
+            if (!enableDebug)
+                return;
             DrawDebugRectangleBatch();
             foreach (Unit unit in units)
             {

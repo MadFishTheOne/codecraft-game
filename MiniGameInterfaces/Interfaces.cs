@@ -396,11 +396,12 @@ namespace MiniGameInterfaces
     }
     public struct Line
     {
-        public GameVector pt1, pt2;
+        public GameVector pt1, pt2, dir;
         public Line(GameVector Start, GameVector End)
         {
             pt1 = Start;
             pt2 = End;
+            dir = pt2 - pt1;
         }
         //public bool IntersectsLine(Line Line2, out GameVector intersection)
         //{
@@ -415,7 +416,6 @@ namespace MiniGameInterfaces
         //    }
         //    intersection = pt1 + (pt2 - pt1) * t1;
         //    return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
-
         //}
         private const float eps = 10e-4f;
         public static bool LinesIntersection(GameVector Start1, GameVector End1, GameVector Start2, GameVector End2, out GameVector Intersection)
@@ -432,12 +432,10 @@ namespace MiniGameInterfaces
                 t2 = ((Start1.X - Start2.X) + (End1.X - Start1.X) * t1) / (End2.X - Start2.X);
             else
                 t2 = ((Start1.Y - Start2.Y) + (End1.Y - Start1.Y) * t1) / (End2.Y - Start2.Y);
-
             if (float.IsNaN(t1 + t2))
             {
                 //I will not calculate intersection in this shity case. Let it be
                 Intersection = GameVector.Zero;
-
                 if (Math.Abs(UpperFractionTerm) < eps)//parallel and on one line
                 {
                     if (Math.Max(Start1.X, End1.X) < Math.Min(Start2.X, End2.X)) return false;
@@ -450,7 +448,6 @@ namespace MiniGameInterfaces
                 //t1 = ((Start2.X - Start1.X) * (End2.Y - Start2.Y) + (End2.X - Start2.X) * (Start1.Y - Start2.Y))
                 /// ((End1.X - Start1.X) * (End2.Y - Start2.Y) - (End2.X - Start2.X) * (End1.Y - Start1.Y));
                 //t2 = (Start1.Y - Start2.Y) / (End2.Y - Start2.Y) + (End1.Y - Start1.Y) / (End2.Y - Start2.Y) * t1;
-
             }
             Intersection = Start1 + (End1 - Start1) * t1;
             return (t1 > -eps && t1 < 1 + eps && t2 > -eps && t2 < 1 + eps);
@@ -464,7 +461,10 @@ namespace MiniGameInterfaces
         {
             return (pt1 - pt2).Length();
         }
-
+        internal bool AreOnOneSide(GameVector Pt1, GameVector Pt2)
+        {
+            return ((Pt1.X - pt1.X) * dir.Y - (Pt1.Y - pt1.Y) * dir.X) * (dir.X * (Pt2.Y - pt1.Y) - dir.Y * (Pt2.X - pt1.X)) < 0;
+        }
     }
     public struct Circle
     {
@@ -492,18 +492,11 @@ namespace MiniGameInterfaces
             GameVector Pt2Pt1 = Line.pt2 - Line.pt1;
             float Pt2Pt1LengthSq = Pt2Pt1.LengthSquared();
             float CenterPt1LengthSq = CenterPt1.LengthSquared();
-
-
             if (CenterPt1LengthSq <= radiusSq) return true;
             if (CenterPt2.LengthSquared() <= radiusSq) return true;
-
             float dot = GameVector.Dot(Pt2Pt1, CenterPt1);
-
             if (dot < 0 || dot > Pt2Pt1LengthSq) return false;
-
-
             return Pt2Pt1LengthSq * (CenterPt1LengthSq - radiusSq) <= dot * dot;
-
         }
         public bool Intersects(Circle Circle)
         {
@@ -571,10 +564,9 @@ namespace MiniGameInterfaces
             this.forwardRight = ForwardRight;
             this.backRight = BackRight;
             this.backLeft = BackLeft;
-            center = GameVector.Zero;
-            size = GameVector.Zero;
-            forward = GameVector.Zero;
-
+            center = (ForwardLeft + ForwardRight + BackRight + BackLeft) * 0.25f;
+            size = new GameVector((forwardLeft - backLeft).Length(), (forwardLeft - forwardRight).Length());
+            forward = (forwardLeft - backLeft).Normalize();
         }
         public Rectangle(GameVector Center, GameVector Size, GameVector Forward)
         {
@@ -602,7 +594,6 @@ namespace MiniGameInterfaces
                 return new Circle(center, GameVector.Distance(center, min));
             }
         }
-
         public bool IntersectsLine(GameVector Start, GameVector End, out GameVector Intersection)
         {
             Intersection = GameVector.One * float.PositiveInfinity;
@@ -642,41 +633,135 @@ namespace MiniGameInterfaces
             if (Line.LinesIntersection(backLeft, forwardLeft, Start, End, out currIntersection))
             { return true; }
             return false;
-        }
-        static bool forward1, forward2, right1, right2;
-        static GameVector centerToAnotherCenter;
-        static Line collisionLine1, collisionLine2, collisionLineAnotherRect1, collisionLineAnotherRect2;
-        public bool IntersectsRectangle(Rectangle AnotherRect)
+        }       
+      
+        static GameVector centerToCenter;
+        static bool nearestEdjeIsVertical1, nearest1EdjeIsPositive1, nearest2EdjeIsPositive1,
+            nearestEdjeIsVertical2, nearest1EdjeIsPositive2, nearest2EdjeIsPositive2;
+        static Line nearestEdje1, nearestEdje2;
+        //Pt111CanItersect - point first (1) of rectangle first (1) is on the one side of another rectangle nearest(1) edje
+        static bool Pt111CanItersect, Pt121CanItersect, Pt131CanItersect, Pt141CanItersect,
+            Pt112CanItersect, Pt122CanItersect, Pt132CanItersect, Pt142CanItersect,
+            Pt211CanItersect, Pt221CanItersect, Pt231CanItersect, Pt241CanItersect,
+            Pt212CanItersect, Pt222CanItersect, Pt232CanItersect, Pt242CanItersect;
+        float dotVertical;
+        float dotHorisontal;
+        public bool IntersectsRectangle(Rectangle rect)
         {
-            centerToAnotherCenter = AnotherRect.center - center;
-            forward1 = (GameVector.Dot(centerToAnotherCenter, forward) > 0);
-            forward2 = (GameVector.Dot(centerToAnotherCenter, AnotherRect.forward) < 0);
-            right1 = (GameVector.Dot(centerToAnotherCenter, Right) > 0);
-            right2 = (GameVector.Dot(centerToAnotherCenter, AnotherRect.Right) < 0);
-
-            if (forward1) collisionLine1 = new Line(forwardLeft, forwardRight);
-            else collisionLine1 = new Line(backLeft, backRight);
-            if (forward2) collisionLineAnotherRect1 = new Line(AnotherRect.forwardLeft, AnotherRect.forwardRight);
-            else collisionLineAnotherRect1 = new Line(AnotherRect.backLeft, AnotherRect.backRight);
-
-            if (right1) collisionLine2 = new Line(forwardRight, backRight);
-            else collisionLine2 = new Line(forwardLeft, backLeft);
-            if (right2) collisionLineAnotherRect2 = new Line(AnotherRect.forwardRight, AnotherRect.backRight);
-            else collisionLineAnotherRect2 = new Line(AnotherRect.forwardLeft, AnotherRect.backLeft);
-
-            if (collisionLine1.Intersects(collisionLineAnotherRect1)) return true;
-            if (collisionLine1.Intersects(collisionLineAnotherRect2)) return true;
-            if (collisionLine2.Intersects(collisionLineAnotherRect1)) return true;
-            if (collisionLine2.Intersects(collisionLineAnotherRect2)) return true;
-
-
-            //if (IntersectsLine(AnotherRect.forwardLeft, AnotherRect.forwardRight)) return true;
-            //if (IntersectsLine(AnotherRect.forwardRight, AnotherRect.backRight)) return true;
-            //if (IntersectsLine(AnotherRect.backRight, AnotherRect.backLeft)) return true;
-            //if (IntersectsLine(AnotherRect.backLeft, AnotherRect.forwardLeft)) return true;
-
-
-            return false;
+            if (rect.size.X < 35 && rect.size.Y < 35) { }
+            centerToCenter = rect.center - this.center;
+            //find nearest edje 1 
+            dotVertical = GameVector.Dot(forward, centerToCenter);
+            dotHorisontal = GameVector.Dot(Right, centerToCenter);
+            if (Math.Abs(dotVertical) > Math.Abs(dotHorisontal))
+            {
+                nearestEdjeIsVertical1 = true;
+                nearest1EdjeIsPositive1 = dotVertical > 0;
+                nearest2EdjeIsPositive1 = dotHorisontal > 0;
+            }
+            else
+            {
+                nearestEdjeIsVertical1 = false;
+                nearest1EdjeIsPositive1 = dotHorisontal > 0;
+                nearest2EdjeIsPositive1 = dotVertical > 0;
+            }
+            //create nearest edje as line
+            if (nearestEdjeIsVertical1)
+            {
+                if (nearest1EdjeIsPositive1) nearestEdje1 = new Line(forwardLeft, forwardRight);
+                else nearestEdje1 = new Line(backLeft, backRight);
+            }
+            else
+            {
+                if (nearest1EdjeIsPositive1) nearestEdje1 = new Line(forwardRight, backRight);
+                else nearestEdje1 = new Line(forwardLeft, backLeft);
+            }
+            // cut rect if it is fully on one side of this rectangle
+            Pt111CanItersect = nearestEdje1.AreOnOneSide(center, rect.backLeft);
+            Pt121CanItersect = nearestEdje1.AreOnOneSide(center, rect.backRight);
+            Pt131CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardLeft);
+            Pt141CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardRight);
+            if (!Pt111CanItersect && !Pt121CanItersect && !Pt131CanItersect && !Pt141CanItersect)
+                return false;
+            //find nearest edje2
+            dotVertical = -GameVector.Dot(rect.forward, centerToCenter);
+            dotHorisontal = -GameVector.Dot(rect.Right, centerToCenter);
+            if (Math.Abs(dotVertical) > Math.Abs(dotHorisontal))
+            {
+                nearestEdjeIsVertical2 = true;
+                nearest1EdjeIsPositive2 = dotVertical > 0;
+                nearest2EdjeIsPositive2 = dotHorisontal > 0;
+            }
+            else
+            {
+                nearestEdjeIsVertical2 = false;
+                nearest1EdjeIsPositive2 = dotHorisontal > 0;
+                nearest2EdjeIsPositive2 = dotVertical > 0;
+            }
+            //create nearest edje as line
+            if (nearestEdjeIsVertical2)
+            {
+                if (nearest1EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardLeft, rect.forwardRight);
+                else nearestEdje2 = new Line(rect.backLeft, rect.backRight);
+            }
+            else
+            {
+                if (nearest1EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardRight, rect.backRight);
+                else nearestEdje2 = new Line(rect.forwardLeft, rect.backLeft);
+            }
+            // cut this rect if it is fully on one side of rect
+            Pt211CanItersect = nearestEdje2.AreOnOneSide(rect.center, backLeft);
+            Pt221CanItersect = nearestEdje2.AreOnOneSide(rect.center, backRight);
+            Pt231CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardLeft);
+            Pt241CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardRight);
+            if (!Pt211CanItersect && !Pt221CanItersect && !Pt231CanItersect && !Pt241CanItersect)
+                return false;
+            //form next nearest edje of this rectangle            
+            if (!nearestEdjeIsVertical1)
+            {
+                if (nearest2EdjeIsPositive1) nearestEdje1 = new Line(forwardLeft, forwardRight);
+                else nearestEdje1 = new Line(backLeft, backRight);
+            }
+            else
+            {
+                if (nearest2EdjeIsPositive1) nearestEdje1 = new Line(forwardRight, backRight);
+                else nearestEdje1 = new Line(forwardLeft, backLeft);
+            }
+            // cut rect if it is fully on one side of this rectangle
+            Pt112CanItersect = nearestEdje1.AreOnOneSide(center, rect.backLeft);
+            Pt122CanItersect = nearestEdje1.AreOnOneSide(center, rect.backRight);
+            Pt132CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardLeft);
+            Pt142CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardRight);
+            if (!Pt112CanItersect && !Pt122CanItersect && !Pt132CanItersect && !Pt142CanItersect)
+                return false;
+            //create next nearest edje as line
+            if (!nearestEdjeIsVertical2)
+            {
+                if (nearest2EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardLeft, rect.forwardRight);
+                else nearestEdje2 = new Line(rect.backLeft, rect.backRight);
+            }
+            else
+            {
+                if (nearest2EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardRight, rect.backRight);
+                else nearestEdje2 = new Line(rect.forwardLeft, rect.backLeft);
+            }
+            // cut this rect if it is fully on one side of rect
+            Pt212CanItersect = nearestEdje2.AreOnOneSide(rect.center, backLeft);
+            Pt222CanItersect = nearestEdje2.AreOnOneSide(rect.center, backRight);
+            Pt232CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardLeft);
+            Pt242CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardRight);
+            if (!Pt212CanItersect && !Pt222CanItersect && !Pt232CanItersect && !Pt242CanItersect)
+                return false;
+            return ((Pt111CanItersect && Pt112CanItersect) ||
+                (Pt121CanItersect && Pt122CanItersect) ||
+                (Pt131CanItersect && Pt132CanItersect) ||
+                (Pt141CanItersect && Pt142CanItersect)
+                ||
+                (Pt211CanItersect && Pt212CanItersect) ||
+                (Pt221CanItersect && Pt222CanItersect) ||
+                (Pt231CanItersect && Pt232CanItersect) ||
+                (Pt241CanItersect && Pt242CanItersect)
+                );
         }
     }
 }

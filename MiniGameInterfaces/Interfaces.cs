@@ -636,120 +636,119 @@ namespace MiniGameInterfaces
         }       
       
         static GameVector centerToCenter;
-        static bool nearestEdjeIsVertical1, nearest1EdjeIsPositive1, nearest2EdjeIsPositive1,
-            nearestEdjeIsVertical2, nearest1EdjeIsPositive2, nearest2EdjeIsPositive2;
-        static Line nearestEdje1, nearestEdje2;
-        //Pt111CanItersect - point first (1) of rectangle first (1) is on the one side of another rectangle nearest(1) edje
+        static bool nearestedgeIsVertical1, nearest1edgeIsPositive1, nearest2edgeIsPositive1,
+            nearestedgeIsVertical2, nearest1edgeIsPositive2, nearest2edgeIsPositive2;
+        static Line nearestedge1, nearestedge2;
+        //Pt111CanItersect - point first (1) of rectangle first (1) is on the one side of another rectangle nearest(1) edge
         static bool Pt111CanItersect, Pt121CanItersect, Pt131CanItersect, Pt141CanItersect,
             Pt112CanItersect, Pt122CanItersect, Pt132CanItersect, Pt142CanItersect,
             Pt211CanItersect, Pt221CanItersect, Pt231CanItersect, Pt241CanItersect,
             Pt212CanItersect, Pt222CanItersect, Pt232CanItersect, Pt242CanItersect;
-        float dotVertical;
-        float dotHorisontal;
+        static float dotVertical;
+        static float dotHorisontal;
         public bool IntersectsRectangle(Rectangle rect)
         {
-            if (rect.size.X < 35 && rect.size.Y < 35) { }
             centerToCenter = rect.center - this.center;
-            //find nearest edje 1 
+            //find nearest edge 1 
             dotVertical = GameVector.Dot(forward, centerToCenter);
             dotHorisontal = GameVector.Dot(Right, centerToCenter);
             if (Math.Abs(dotVertical) > Math.Abs(dotHorisontal))
             {
-                nearestEdjeIsVertical1 = true;
-                nearest1EdjeIsPositive1 = dotVertical > 0;
-                nearest2EdjeIsPositive1 = dotHorisontal > 0;
+                nearestedgeIsVertical1 = true;
+                nearest1edgeIsPositive1 = dotVertical > 0;
+                nearest2edgeIsPositive1 = dotHorisontal > 0;
             }
             else
             {
-                nearestEdjeIsVertical1 = false;
-                nearest1EdjeIsPositive1 = dotHorisontal > 0;
-                nearest2EdjeIsPositive1 = dotVertical > 0;
+                nearestedgeIsVertical1 = false;
+                nearest1edgeIsPositive1 = dotHorisontal > 0;
+                nearest2edgeIsPositive1 = dotVertical > 0;
             }
-            //create nearest edje as line
-            if (nearestEdjeIsVertical1)
+            //create nearest edge as line
+            if (nearestedgeIsVertical1)
             {
-                if (nearest1EdjeIsPositive1) nearestEdje1 = new Line(forwardLeft, forwardRight);
-                else nearestEdje1 = new Line(backLeft, backRight);
+                if (nearest1edgeIsPositive1) nearestedge1 = new Line(forwardLeft, forwardRight);
+                else nearestedge1 = new Line(backLeft, backRight);
             }
             else
             {
-                if (nearest1EdjeIsPositive1) nearestEdje1 = new Line(forwardRight, backRight);
-                else nearestEdje1 = new Line(forwardLeft, backLeft);
+                if (nearest1edgeIsPositive1) nearestedge1 = new Line(forwardRight, backRight);
+                else nearestedge1 = new Line(forwardLeft, backLeft);
             }
             // cut rect if it is fully on one side of this rectangle
-            Pt111CanItersect = nearestEdje1.AreOnOneSide(center, rect.backLeft);
-            Pt121CanItersect = nearestEdje1.AreOnOneSide(center, rect.backRight);
-            Pt131CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardLeft);
-            Pt141CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardRight);
+            Pt111CanItersect = nearestedge1.AreOnOneSide(center, rect.backLeft);
+            Pt121CanItersect = nearestedge1.AreOnOneSide(center, rect.backRight);
+            Pt131CanItersect = nearestedge1.AreOnOneSide(center, rect.forwardLeft);
+            Pt141CanItersect = nearestedge1.AreOnOneSide(center, rect.forwardRight);
             if (!Pt111CanItersect && !Pt121CanItersect && !Pt131CanItersect && !Pt141CanItersect)
                 return false;
-            //find nearest edje2
+            //find nearest edge2
             dotVertical = -GameVector.Dot(rect.forward, centerToCenter);
             dotHorisontal = -GameVector.Dot(rect.Right, centerToCenter);
             if (Math.Abs(dotVertical) > Math.Abs(dotHorisontal))
             {
-                nearestEdjeIsVertical2 = true;
-                nearest1EdjeIsPositive2 = dotVertical > 0;
-                nearest2EdjeIsPositive2 = dotHorisontal > 0;
+                nearestedgeIsVertical2 = true;
+                nearest1edgeIsPositive2 = dotVertical > 0;
+                nearest2edgeIsPositive2 = dotHorisontal > 0;
             }
             else
             {
-                nearestEdjeIsVertical2 = false;
-                nearest1EdjeIsPositive2 = dotHorisontal > 0;
-                nearest2EdjeIsPositive2 = dotVertical > 0;
+                nearestedgeIsVertical2 = false;
+                nearest1edgeIsPositive2 = dotHorisontal > 0;
+                nearest2edgeIsPositive2 = dotVertical > 0;
             }
-            //create nearest edje as line
-            if (nearestEdjeIsVertical2)
+            //create nearest edge as line
+            if (nearestedgeIsVertical2)
             {
-                if (nearest1EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardLeft, rect.forwardRight);
-                else nearestEdje2 = new Line(rect.backLeft, rect.backRight);
+                if (nearest1edgeIsPositive2) nearestedge2 = new Line(rect.forwardLeft, rect.forwardRight);
+                else nearestedge2 = new Line(rect.backLeft, rect.backRight);
             }
             else
             {
-                if (nearest1EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardRight, rect.backRight);
-                else nearestEdje2 = new Line(rect.forwardLeft, rect.backLeft);
+                if (nearest1edgeIsPositive2) nearestedge2 = new Line(rect.forwardRight, rect.backRight);
+                else nearestedge2 = new Line(rect.forwardLeft, rect.backLeft);
             }
             // cut this rect if it is fully on one side of rect
-            Pt211CanItersect = nearestEdje2.AreOnOneSide(rect.center, backLeft);
-            Pt221CanItersect = nearestEdje2.AreOnOneSide(rect.center, backRight);
-            Pt231CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardLeft);
-            Pt241CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardRight);
+            Pt211CanItersect = nearestedge2.AreOnOneSide(rect.center, backLeft);
+            Pt221CanItersect = nearestedge2.AreOnOneSide(rect.center, backRight);
+            Pt231CanItersect = nearestedge2.AreOnOneSide(rect.center, forwardLeft);
+            Pt241CanItersect = nearestedge2.AreOnOneSide(rect.center, forwardRight);
             if (!Pt211CanItersect && !Pt221CanItersect && !Pt231CanItersect && !Pt241CanItersect)
                 return false;
-            //form next nearest edje of this rectangle            
-            if (!nearestEdjeIsVertical1)
+            //form next nearest edge of this rectangle            
+            if (!nearestedgeIsVertical1)
             {
-                if (nearest2EdjeIsPositive1) nearestEdje1 = new Line(forwardLeft, forwardRight);
-                else nearestEdje1 = new Line(backLeft, backRight);
+                if (nearest2edgeIsPositive1) nearestedge1 = new Line(forwardLeft, forwardRight);
+                else nearestedge1 = new Line(backLeft, backRight);
             }
             else
             {
-                if (nearest2EdjeIsPositive1) nearestEdje1 = new Line(forwardRight, backRight);
-                else nearestEdje1 = new Line(forwardLeft, backLeft);
+                if (nearest2edgeIsPositive1) nearestedge1 = new Line(forwardRight, backRight);
+                else nearestedge1 = new Line(forwardLeft, backLeft);
             }
             // cut rect if it is fully on one side of this rectangle
-            Pt112CanItersect = nearestEdje1.AreOnOneSide(center, rect.backLeft);
-            Pt122CanItersect = nearestEdje1.AreOnOneSide(center, rect.backRight);
-            Pt132CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardLeft);
-            Pt142CanItersect = nearestEdje1.AreOnOneSide(center, rect.forwardRight);
+            Pt112CanItersect = nearestedge1.AreOnOneSide(center, rect.backLeft);
+            Pt122CanItersect = nearestedge1.AreOnOneSide(center, rect.backRight);
+            Pt132CanItersect = nearestedge1.AreOnOneSide(center, rect.forwardLeft);
+            Pt142CanItersect = nearestedge1.AreOnOneSide(center, rect.forwardRight);
             if (!Pt112CanItersect && !Pt122CanItersect && !Pt132CanItersect && !Pt142CanItersect)
                 return false;
-            //create next nearest edje as line
-            if (!nearestEdjeIsVertical2)
+            //create next nearest edge as line
+            if (!nearestedgeIsVertical2)
             {
-                if (nearest2EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardLeft, rect.forwardRight);
-                else nearestEdje2 = new Line(rect.backLeft, rect.backRight);
+                if (nearest2edgeIsPositive2) nearestedge2 = new Line(rect.forwardLeft, rect.forwardRight);
+                else nearestedge2 = new Line(rect.backLeft, rect.backRight);
             }
             else
             {
-                if (nearest2EdjeIsPositive2) nearestEdje2 = new Line(rect.forwardRight, rect.backRight);
-                else nearestEdje2 = new Line(rect.forwardLeft, rect.backLeft);
+                if (nearest2edgeIsPositive2) nearestedge2 = new Line(rect.forwardRight, rect.backRight);
+                else nearestedge2 = new Line(rect.forwardLeft, rect.backLeft);
             }
             // cut this rect if it is fully on one side of rect
-            Pt212CanItersect = nearestEdje2.AreOnOneSide(rect.center, backLeft);
-            Pt222CanItersect = nearestEdje2.AreOnOneSide(rect.center, backRight);
-            Pt232CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardLeft);
-            Pt242CanItersect = nearestEdje2.AreOnOneSide(rect.center, forwardRight);
+            Pt212CanItersect = nearestedge2.AreOnOneSide(rect.center, backLeft);
+            Pt222CanItersect = nearestedge2.AreOnOneSide(rect.center, backRight);
+            Pt232CanItersect = nearestedge2.AreOnOneSide(rect.center, forwardLeft);
+            Pt242CanItersect = nearestedge2.AreOnOneSide(rect.center, forwardRight);
             if (!Pt212CanItersect && !Pt222CanItersect && !Pt232CanItersect && !Pt242CanItersect)
                 return false;
             return ((Pt111CanItersect && Pt112CanItersect) ||

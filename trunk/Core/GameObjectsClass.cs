@@ -9,9 +9,9 @@ namespace CoreNamespace
 {
     class GameObjectsClass
     {
-        const int gameObjectsCCells = 46;
-        const float cellSize = Core.Border * 2 / gameObjectsCCells;
-        ArrayList[,] gameObjects;
+        internal const int gameObjectsCCells = 46;
+        internal const float cellSize = Core.Border * 2 / gameObjectsCCells;
+        internal ArrayList[,] gameObjects;
         public GameObjectsClass()
         {
             gameObjects = new ArrayList[gameObjectsCCells, gameObjectsCCells];
@@ -21,7 +21,7 @@ namespace CoreNamespace
                     gameObjects[i, j] = new ArrayList();
                 }
         }
-        int GetLogicCoo(float RealCoo)
+        internal static int GetLogicCoo(float RealCoo)
         {
             int X = (int)((RealCoo + Core.Border) / (2 * Core.Border) * gameObjectsCCells);
             X = (int)Math.Min(Math.Max(X, 0), gameObjectsCCells - 1);
@@ -54,6 +54,11 @@ namespace CoreNamespace
                 node.Add(shot);
                 shot.SetLogicCoo(X, Y);
             }
+        }
+       
+        public NearObjectsIterator GetNearObjects(GameVector Center, float Radius)
+        {
+            return new NearObjectsIterator(Center, Radius, gameObjects);            
         }
         public void GetNearObjects(GameVector Position, float Radius, out List<Unit> NearUnits, out List<Shots.Shot> NearShots)
         {

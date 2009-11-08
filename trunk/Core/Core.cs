@@ -204,6 +204,7 @@ namespace CoreNamespace
             if (gameEnd)
                 return;
             //AI update
+            viewer.ClearDebugObjects();
             Stopwatch sw = new Stopwatch();
             for (CurrentPlayer = 0; CurrentPlayer < players.Count; CurrentPlayer++)
             {
@@ -213,7 +214,7 @@ namespace CoreNamespace
                 playersTotalUpdateTime[CurrentPlayer] += ((float)sw.ElapsedTicks) / Stopwatch.Frequency;
             }
             //Core update
-            viewer.ClearDebugObjects();
+            
             CurrentPlayer = -1;
             sw.Reset();
             sw.Start();
@@ -239,7 +240,7 @@ namespace CoreNamespace
             //
             //foreach(Unit unit in units)
             //    unit.Text = "Hello!";
-            ///////////DEBUG DRAW DEMO
+            /////////////DEBUG DRAW DEMO
             //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.Zero, GameVector.One * 100, GameVector.UnitX), new MiniGameInterfaces.Color(0, 1, 0, 1.0f));
             //viewer.DrawRectangle(new MiniGameInterfaces.Rectangle(GameVector.One * 50, GameVector.One * 100, GameVector.UnitX.Rotate(Timing.NowTime)), new MiniGameInterfaces.Color(1f, 0, 0, 0.5f));
             //viewer.DrawCircle(new Circle(GameVector.One * (-100), 70.7f), MiniGameInterfaces.Color.Blue);
@@ -540,6 +541,10 @@ namespace CoreNamespace
         IShot IGame.GetShot(int Index)
         {
             return (IShot)shots.shots[Index];
+        }
+        public INearObjectsIterator GetNearUnits(GameVector Position, float Radius)
+        {            
+            return (INearObjectsIterator)(gameObjects.GetNearObjects(Position, Radius));
         }
         public void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots)
         {

@@ -88,6 +88,7 @@
     <Compile Include="DerivativeControlledParameter.cs" />
     <Compile Include="GameObjectsClass.cs" />
     <Compile Include="Gun.cs" />
+    <Compile Include="NearObjectsIterator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimingClass.cs" />
     <Compile Include="Unit.cs" />

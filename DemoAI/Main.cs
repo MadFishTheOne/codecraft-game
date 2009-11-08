@@ -34,7 +34,9 @@ namespace DemoAI
                 for (int i = 0; i < game.UnitsCount; i++)
                     if (playerNumber == game.GetUnit(i).PlayerOwner)
                     {
-                        myUnit = game.GetUnit(i);
+                        myUnit = game.GetUnit(i);              
+                            
+                        
                     }
                     else enemy = game.GetUnit(i);
             }
@@ -45,6 +47,15 @@ namespace DemoAI
             
             if (myUnit != null && enemy != null)
             {
+                myUnit.Text = "i'm myUnit";
+                INearObjectsIterator it=game.GetNearUnits(myUnit.Position, 200);
+                game.GeometryViewer.DrawCircle(new Circle(myUnit.Position, 200), new Color(0, 0, 1, 0.5f));
+                IUnit nearUnit;
+                while ((nearUnit = it.NextUnit())!=null)
+                {
+                    game.GeometryViewer.DrawCircle(new Circle(nearUnit.Position, 20), Color.Red);
+                }
+
                 game.SetText("pos.X="+myUnit.Position.X+
                     "\npos.Y="+myUnit.Position.Y+
                     "\nforw.X="+myUnit.Forward.X+

@@ -332,6 +332,23 @@ namespace MiniGameInterfaces
         /// </summary>
         GameVector Direction { get; }
     }
+    public interface INearObjectsIterator
+    {    
+        /// <summary>
+        /// resets iterator
+        /// </summary>
+        void Reset();
+        /// <summary>
+        /// gets next near unit. null if all units has being iterated
+        /// </summary>
+        /// <returns>IUnit</returns>
+        IUnit NextUnit();
+        /// <summary>
+        /// updates center of near zone
+        /// </summary>
+        /// <param name="NewCenter">new center of the near zone</param>
+        void UpdateCenter(GameVector NewCenter);
+    }
     public interface IGame
     {
         /// <summary>
@@ -362,6 +379,13 @@ namespace MiniGameInterfaces
         /// <param name="NearUnits">list of units in the near zone</param>
         /// <param name="NearShots">list of shots in the near zone</param>
         void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots);
+        /// <summary>
+        /// gets near units fast
+        /// </summary>
+        /// <param name="Position">position to specify</param>
+        /// <param name="Radius">near zone radius, maximum is MaxRadius</param>
+        /// <returns>iterator to near objects</returns>
+        INearObjectsIterator GetNearUnits(GameVector Position, float Radius);
         /// <summary>
         /// total time elapsed from the begginning of the game
         /// </summary>

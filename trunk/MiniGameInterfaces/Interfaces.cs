@@ -161,6 +161,11 @@ namespace MiniGameInterfaces
         {
             return new GameVector((float)(Vector.X * Math.Cos(Angle) - Vector.Y * Math.Sin(Angle)), (float)(Vector.X * Math.Sin(Angle) + Vector.Y * Math.Cos(Angle)));
         }
+        /// <summary>
+        /// rotates vector with specified angle
+        /// </summary>
+        /// <param name="Angle">angle in radians</param>
+        /// <returns>rotated vector</returns>
         public GameVector Rotate(float Angle)
         {
             return new GameVector((float)(X * Math.Cos(Angle) - Y * Math.Sin(Angle)), (float)(X * Math.Sin(Angle) + Y * Math.Cos(Angle)));

@@ -334,6 +334,7 @@ namespace CoreNamespace
 
         internal void Update()
         {
+          
             if (hp >= 0)
             {
                 #region obsolete

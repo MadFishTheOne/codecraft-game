@@ -58,7 +58,7 @@ namespace CoreNamespace
                 deltaTime = 0.0f;
             prevTime = currTime;
         }
-        public const float maxDeltaTime = 0.1f;
+        public const float maxDeltaTime = 0.05f;
         public float DeltaTime
         {
             get

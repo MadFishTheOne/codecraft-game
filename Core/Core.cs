@@ -66,7 +66,7 @@ namespace CoreNamespace
             while (sSeconds.Length < 2)
                 sSeconds = "0" + sSeconds;
             string sMillis = iMillis.ToString();
-            while (sMillis.Length < 4)
+            while (sMillis.Length < 3)
                 sMillis = "0" + sMillis;
             return iMinutes.ToString() + ":" + sSeconds + "." + sMillis;
         }
@@ -400,15 +400,11 @@ namespace CoreNamespace
             for (int i = 0; i < units.Count; i++)
                 if (units[i].HP >= 0)
                 {
-                    if (units[i].ShipType == ShipTypes.Destroyer)
-                    { }
                     MiniGameInterfaces.Rectangle rect1 = units[i].GetRectangle();
                     Circle Circle1 = rect1.GetBoundingCircle;
                     List<Unit> nearUnits = new List<Unit>();
                     List<Shots.Shot> nearShots = new List<Shots.Shot>();
                     gameObjects.GetNearObjects(units[i].position, 0, out nearUnits, out nearShots);
-                    if (units[i].ShipType == ShipTypes.Destroyer)
-                    { }
                     foreach (Unit nearUnit in nearUnits)
                         if (nearUnit != units[i])
                         {
@@ -429,7 +425,7 @@ namespace CoreNamespace
                         {
                             if (shot.GetBoundingCirlce().Intersects(Circle1))
                             {
-                                if (rect1.IntersectsLine(shot.pos, shot.End))
+                                if (rect1.IntersectsLine(shot.PrevPos, shot.End))
                                 {
                                     //if (unit.Name == "Ship2") { }
                                     units[i].SetHP(units[i].HP - shot.damage);

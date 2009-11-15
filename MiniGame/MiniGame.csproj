@@ -142,10 +142,6 @@
       <Project>{CFB36A08-A402-4C66-BCFF-5DA8DD8B35B3}</Project>
       <Name>Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DemoAI\DemoAI.csproj">
-      <Project>{988A3A43-E6F1-46CB-85EB-76A404589438}</Project>
-      <Name>DemoAI</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MiniGameInterfaces\MiniGameInterfaces.csproj">
       <Project>{F911AFAA-1CDA-4F95-BF2A-BAC5B775CCB0}</Project>
       <Name>MiniGameInterfaces</Name>

@@ -32,7 +32,7 @@ namespace CoreNamespace
                     return pos + forward * size;
                 }
             }
-
+            public GameVector PrevPos { get; private set; }
             public bool hitSomebody;
             public float damage;
             public float lifeTime;
@@ -43,7 +43,7 @@ namespace CoreNamespace
                 return unitToCheck == parent;
             }
             public Shot(GameVector Pos, GameVector Dir, float Damage, float LifeTime, Unit ParentUnit)
-            {
+            {                
                 parent = ParentUnit;
                 switch (parent.ShipType)
                 {
@@ -56,6 +56,7 @@ namespace CoreNamespace
                     default: size = 1; break;
                 }
                 pos = Pos;
+                PrevPos = pos;
                 direction = Dir;
                 damage = Damage;
                 lifeTime = LifeTime;
@@ -69,6 +70,7 @@ namespace CoreNamespace
             public void Update()
             {
                 lifeTime -= Core.Timing.DeltaTime;
+                PrevPos = pos;
                 pos += direction * Core.Timing.DeltaTime;
             }
             #region IShot Members

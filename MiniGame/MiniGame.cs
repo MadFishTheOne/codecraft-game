@@ -239,11 +239,14 @@ namespace MiniGame
                     Core.CameraPosition.Y -= ((float)gameTime.ElapsedRealTime.TotalSeconds) * 500.0f;
 #endif
                 Core.Timing.Update();
+                int i = 0;
                 while (Core.Timing.DeltaTimeGlobal > 0)
                 {
+                    i++;
                     core.Update();
                     Core.Timing.DeltaTimeGlobal -= Core.Timing.DeltaTime;
                 }
+
             }
             base.Update(gameTime);
         }

@@ -7,12 +7,12 @@ using MiniGameInterfaces;
 namespace AINamespace
 {
     /// <summary>
-    /// vector, whoose value is relative to some units' position
+    /// vector, whoose value can be relative to some units' position
     /// </summary>
     public class RelativeVector
     {
         /// <summary>
-        /// unit to used as pivot
+        /// unit to be used as pivot
         /// </summary>
         IUnit relativeUnit1, relativeUnit2, relativeUnit3;
         /// <summary>
@@ -36,9 +36,9 @@ namespace AINamespace
         /// <summary>
         /// value is relative to unit's position
         /// </summary>
-        /// <param name="RelativeUnit">unit to used as pivot</param>
-        /// <param name="Angle">angle between pivot.forward and direction from pivot to vector</param>
-        /// <param name="Dist">dist from pivot to vector</param>
+        /// <param name="RelativeUnit">unit to be used as a pivot</param>
+        /// <param name="Angle">angle between pivot.forward and direction from pivot to this vector</param>
+        /// <param name="Dist">dist from pivot to this vector</param>
         public RelativeVector(IUnit RelativeUnit, float Angle, float Dist)
         {
             relativeUnit1 = RelativeUnit;
@@ -47,6 +47,10 @@ namespace AINamespace
             rotationOnAngle = Matrix.CreateRotation(angle);
             mode = Modes.UnitsSideAndDist;
         }
+        /// <summary>
+        /// value is constant vector
+        /// </summary>
+        /// <param name="value">value vector</param>
         public RelativeVector(GameVector value)
         {
             constValue = value;
@@ -55,8 +59,8 @@ namespace AINamespace
         /// <summary>
         /// vlaue is between units
         /// </summary>
-        /// <param name="unit1"></param>
-        /// <param name="unit2"></param>
+        /// <param name="unit1">first unit</param>
+        /// <param name="unit2">second unit</param>
         public RelativeVector(IUnit unit1, IUnit unit2)
         {
             relativeUnit1 = unit1;
@@ -66,9 +70,9 @@ namespace AINamespace
         /// <summary>
         /// value is on line between units and on the dist form unit1
         /// </summary>
-        /// <param name="unit1"></param>
-        /// <param name="unit2"></param>
-        /// <param name="Dist"></param>
+        /// <param name="unit1">first unit</param>
+        /// <param name="unit2">second unit</param>
+        /// <param name="Dist">distance from unit1</param>
         public RelativeVector(IUnit unit1, IUnit unit2, float Dist)
         {
             relativeUnit1 = unit1;
@@ -77,12 +81,19 @@ namespace AINamespace
             mode = Modes.BetweenUnitsNearOne;
             
         }
+        /// <summary>
+        /// value is unit1.Position
+        /// </summary>
+        /// <param name="unit1">unit</param>
         public RelativeVector(IUnit unit1)
         {
             relativeUnit1 = unit1;
             mode = Modes.UnitPosition;
         }
         Matrix rotationOnAngle;
+        /// <summary>
+        /// true if related units are dead
+        /// </summary>
         public bool Invalid
         {
             get
@@ -96,6 +107,9 @@ namespace AINamespace
                 return false;
             }
         }
+        /// <summary>
+        /// gets a GameVector value of this RelativeVector 
+        /// </summary>
         public GameVector Value
         {
             get

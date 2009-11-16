@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\MiniGame\bin\x86\Debug\EtalonAI.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,7 +53,6 @@
     <Compile Include="SquadronAI\SquadronColonel.cs" />
     <Compile Include="Tools\Angle.cs" />
     <Compile Include="Tools\Matrix.cs" />
-    <Compile Include="Tools\Predicate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleUnitAI\Radar.cs" />
     <Compile Include="Tools\RelativeVector.cs" />

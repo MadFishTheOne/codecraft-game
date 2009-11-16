@@ -5,33 +5,60 @@ using System.Text;
 using MiniGameInterfaces;
 namespace AINamespace
 {
+    /// <summary>
+    /// class for holding AI. inherit this class to create your own AI player
+    /// </summary>
     public class AI : IAI
     {
         /// <summary>
         /// time from game start
         /// </summary>
         public static float Time;
+        /// <summary>
+        /// this player number
+        /// </summary>
         int playerNumber;
+        /// <summary>
+        /// game is AI playing
+        /// </summary>
         public static IGame game;
         #region IAI Members
         #region common methods
-
+        /// <summary>
+        /// AI player autor
+        /// </summary>
         public virtual string Author
         {
             get { return "Anton Etalon"; }
         }
+        /// <summary>
+        /// AI player description
+        /// </summary>
         public virtual string Description
         {
             get { return "lirary for simplifying user AI"; }
         }
+        /// <summary>
+        /// sets text to be outputed from AI;
+        /// use \n for line breaks
+        /// </summary>
+        /// <param name="text">text to output</param>
         static void SetText(string text)
         {
             game.SetText(text);
         }
+        /// <summary>
+        /// checks if specified unit is enemy
+        /// </summary>
+        /// <param name="unitToCheck">unit to check</param>
+        /// <returns>true if unit is enemy </returns>
         public bool IsEnemy(IUnit unitToCheck)
         {
             return unitToCheck.PlayerOwner != playerNumber;
         }
+        /// <summary>
+        /// gets the game
+        /// </summary>
         public IGame Game
         {
             get

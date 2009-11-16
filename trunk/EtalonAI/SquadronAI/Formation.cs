@@ -6,14 +6,41 @@ using MiniGameInterfaces;
 using System.Collections;
 namespace AINamespace
 {
+    /// <summary>
+    /// enumeration of formation types
+    /// </summary>
     public enum FormationTypes
     {
-        Line,Stagger,Bar,Swarm
+        /// <summary>
+        /// units are positioned in one line
+        /// </summary>
+        Line,
+        /// <summary>
+        /// units are positioned in stagger with one unit width
+        /// </summary>
+        Stagger,
+        /// <summary>
+        /// units are positioned in bar with specified width and depth
+        /// </summary>
+        Bar,
+        /// <summary>
+        /// units are not strongly positioned, they are flying as swarm
+        /// </summary>
+        Swarm
     }
+    /// <summary>
+    /// class for containing units array and make them to hold array figure
+    /// </summary>
     public abstract class Formation:IEnumerable
     {
-        protected UnitPilot leader;//leader is in subordinates too
-        
+        /// <summary>
+        /// leader of formation. other units are comparing their position with leader
+        /// leader is in subordinates too        
+        /// </summary>
+        protected UnitPilot leader;
+        /// <summary>
+        /// pair of pilot and his position in order
+        /// </summary>
         public class PilotPositionPair
         {
             public UnitPilot Pilot;
@@ -25,18 +52,27 @@ namespace AINamespace
             }
 
         }
+        /// <summary>
+        /// gets subordinates count
+        /// </summary>
         public int Count
         {
             get { return subordinates.Count; }
         }
-        protected List<PilotPositionPair> subordinates;
-        //protected List<UnitPilot> subordinates;
-        //protected List<RelativeVector> positions;
-
-        
+        /// <summary>
+        /// list of units in formation
+        /// </summary>
+        public List<PilotPositionPair> subordinates;
+        /// <summary>
+        /// forward angle of this formation
+        /// </summary>
         protected float rotationAngle;
         //positions of units in formation
-        
+        /// <summary>
+        /// creates new instance of formation
+        /// </summary>
+        /// <param name="Leader">leader of the formation</param>
+        /// <param name="Subordinates">list of units in this formation. can be clear, units may be added later</param>
         public Formation(UnitPilot Leader, List<UnitPilot> Subordinates)
         {
             leader = Leader;
@@ -47,8 +83,12 @@ namespace AINamespace
             }
         
         }
-        public void Update()
+        /// <summary>
+        /// updates formation
+        /// </summary>
+        internal void Update()
         {
+            if ((leader == null || leader.ControlledUnit.Dead) && subordinates.Count > 0) leader = subordinates[0].Pilot;
             for (int i = 0; i < subordinates.Count; i++)
             {
                 //subordinates[i].Pilot.ControlledUnit.Text = subordinates[i].Pilot.ControlledUnit.Name;
@@ -59,18 +99,29 @@ namespace AINamespace
                 }
             }
         }
+        /// <summary>
+        /// gets unit's position in order
+        /// </summary>
+        /// <param name="Index">index of unit in subordinates list</param>
+        /// <returns>relative vector of position in order</returns>
         public RelativeVector GetPosition(int Index)
         {
             return subordinates[Index].Position;
         }
+        /// <summary>
+        /// gets formation forward angle in radians
+        /// </summary>
         public float Angle
         { get { return rotationAngle; } }
-        public float RotationAngle
-        { get { return rotationAngle; } }
-        //0 if ideal positioning, 1 if average mistake=100
+        
+        
+        /// <summary>
+        /// calculates mistake of holding formation figure. Has no sense for swarm formation
+        /// calculates max distance from unit to his position
+        /// </summary>
+        /// <returns>0 if ideal positioning, 1 if max mistake=100 and so on</returns>
         public float PositionHoldingMistake()
-        {
-            
+        {            
                 float averageMistake = 0;
                 int ind = 0;
                 float maxMistake = 0;
@@ -88,6 +139,9 @@ namespace AINamespace
             
         }
         //0 if ideal positioning, 1 if average mistake=pi/2.     no! let it be max mistake
+        /// <summary>
+        /// calculates max mistake of units forward to formation forward direction
+        /// </summary>
         public float AngleHoldingMistake
         {
             get
@@ -113,6 +167,11 @@ namespace AINamespace
 
             }
         }        
+        /// <summary>
+        /// gets a worst UnitPilot - pilot that has the biggest mistake of holding his place in formation order
+        /// may be used to exclude pilot from squad and make squad to ahcive it's aims without that unit
+        /// </summary>
+        /// <returns>worst unit</returns>
         public UnitPilot WorstPilot()
         {
             float biggestMistake = 0;
@@ -130,6 +189,9 @@ namespace AINamespace
             }
             return worstPilot;
         }
+        /// <summary>
+        /// gets formation leader
+        /// </summary>
         public UnitPilot Leader
         {
             get
@@ -141,6 +203,9 @@ namespace AINamespace
         {
             return GameVector.DistanceSquared(subordinates[PilotInd].Pilot.ControlledUnit.Position, GetPosition(PtInd).Value);
         }
+        /// <summary>
+        /// sorts units. Every unit become to be in pair with the most appropriate position for it in order
+        /// </summary>
         public void SortUnitsByNearanceToPositions()
         {
             int CPts=subordinates.Count;
@@ -232,7 +297,7 @@ namespace AINamespace
             subordinates.Clear();
             subordinates = newSubordinates;
         }
-        public void MakePositionsRelative()
+        internal void MakePositionsRelative()
         {
             List<RelativeVector> newPositions = new List<RelativeVector>();
             for (int i=0;i<subordinates.Count;i++)
@@ -246,6 +311,10 @@ namespace AINamespace
             }
             //positions = newPositions;
         }
+        /// <summary>
+        /// gets mass center of formation units
+        /// </summary>
+        /// <returns>mass center vector</returns>
         public GameVector GetMassCenter()
         {
             GameVector center = GameVector.Zero;
@@ -265,32 +334,48 @@ namespace AINamespace
         }
 
         #endregion
-        public void DrawPositions()
-        {
-            for (int i = 0; i < subordinates.Count; i++)
-                AI.game.GeometryViewer.DrawPoint(GetPosition(i).Value, Color.Green);
-        }
-        public void DrawDestinations()
-        {
-            for (int i = 0; i < subordinates.Count; i++)
-            {
-                AI.game.GeometryViewer.DrawLine(new Line(subordinates[i].Pilot.ControlledUnit.Position, GetPosition(i).Value), Color.Green);
-            }
-        }
 
+        //public void DrawPositions()
+        //{
+        //    for (int i = 0; i < subordinates.Count; i++)
+        //        AI.game.GeometryViewer.DrawPoint(GetPosition(i).Value, Color.Green);
+        //}
+        //public void DrawDestinations()
+        //{
+        //    for (int i = 0; i < subordinates.Count; i++)
+        //    {
+        //        AI.game.GeometryViewer.DrawLine(new Line(subordinates[i].Pilot.ControlledUnit.Position, GetPosition(i).Value), Color.Green);
+        //    }
+        //}
+        /// <summary>
+        /// sets formation forward angle
+        /// </summary>
+        /// <param name="newAngle">angle in radians</param>
         public abstract void SetAngle(float newAngle);
+        /// <summary>
+        /// gets type of this formation
+        /// </summary>
         public abstract FormationTypes Type { get; }
+        /// <summary>
+        /// creates positions for units in this formation
+        /// </summary>
         public abstract void CreatePositions();
 
 
-
-        internal void Add(UnitPilot unitPilot)
+        /// <summary>
+        /// adds a unit to formation
+        /// </summary>
+        /// <param name="unitPilot">unit to add</param>
+        public void Add(UnitPilot unitPilot)
         {
             if (leader == null) leader = unitPilot;
             subordinates.Add(new PilotPositionPair( unitPilot,new RelativeVector( unitPilot.ControlledUnit.Position)));
         }
-
-        internal void Remove(UnitPilot unitPilot)
+        /// <summary>
+        /// removes unit from formation
+        /// </summary>
+        /// <param name="unitPilot">unit ot remove</param>
+        public void Remove(UnitPilot unitPilot)
         {
             for (int i = 0; i < subordinates.Count; i++)
                 if (unitPilot.Equals(subordinates[i].Pilot))
@@ -299,6 +384,11 @@ namespace AINamespace
                     break;
                 }
         }
+        /// <summary>
+        /// defines if there are at least one enemy that is less than on CloseDist distance to some unit from this formation
+        /// </summary>
+        /// <param name="CloseDist">dist to check</param>
+        /// <returns>true if close enemy exists</returns>
         public bool CloseEnemyExists(float CloseDist)
         {
                 foreach (PilotPositionPair PilotPos in subordinates)
@@ -309,10 +399,20 @@ namespace AINamespace
                 return false;
             
         }
+
     }
+    /// <summary>
+    /// units are positioned in one line
+    /// </summary>
     class LineFormation:Formation
     {
         float distBetweenUnits;
+        /// <summary>
+        /// creates new instance
+        /// </summary>
+        /// <param name="Leader">formation leader</param>
+        /// <param name="Subordinates">list of units</param>
+        /// <param name="DistBetweenUnits">distance between neirbours</param>
         public LineFormation(UnitPilot Leader, List<UnitPilot> Subordinates, float DistBetweenUnits)
             : base(Leader, Subordinates)
         {
@@ -321,6 +421,13 @@ namespace AINamespace
             CreateLinePositions(line);
             SortUnitsByNearanceToPositions();
         }
+        /// <summary>
+        /// creates new instance
+        /// </summary>
+        /// <param name="Leader">formation leader</param>
+        /// <param name="Subordinates">list of units</param>
+        /// <param name="DistBetweenUnits">distance between neirbours</param>
+        /// <param name="RotationAngle">forward angle in radians</param>
         public LineFormation(UnitPilot Leader, List<UnitPilot> Subordinates, float DistBetweenUnits,float RotationAngle)
             : base(Leader, Subordinates)
         {
@@ -361,10 +468,20 @@ namespace AINamespace
             get { return FormationTypes.Line; }
         }
     }
+    /// <summary>
+    /// units are positioned in stagger with one unit width
+    /// </summary>
     class StaggerFormation : Formation
     {
         float widthBetweenUnits;
         float heightBetweenUnits;
+        /// <summary>
+        /// creates new instance
+        /// </summary>
+        /// <param name="Leader">formation leader</param>
+        /// <param name="Subordinates">list of units</param>
+        /// <param name="WidthBetweenUnits">width between neirbours</param>
+        /// <param name="HeightBetweenUnits">depth between neirbours</param>
         public StaggerFormation(UnitPilot Leader, List<UnitPilot> Subordinates, float WidthBetweenUnits, float HeightBetweenUnits)
             :base(Leader,Subordinates)
         {
@@ -406,11 +523,23 @@ namespace AINamespace
             get { return FormationTypes.Stagger; }
         }
     }
+    /// <summary>
+    /// units are positioned in bar with specified width and depth
+    /// </summary>
     class BarFormation : Formation
     {
         float widthBetweenUnits;
         float heightBetweenUnits; 
         int cUnitsInLine;
+        /// <summary>
+        /// creates new instance
+        /// </summary>
+        /// <param name="Leader">formation leader</param>
+        /// <param name="Subordinates">list of units</param>
+        /// <param name="CUnitsInLine"></param>
+        /// <param name="WidthBetweenUnits"></param>
+        /// <param name="HeightBetweenUnits"></param>
+        /// <param name="RotationAngle"></param>
         public BarFormation(UnitPilot Leader,List<UnitPilot> Subordinates, int CUnitsInLine, float WidthBetweenUnits, float HeightBetweenUnits, float RotationAngle)
             :base(Leader,Subordinates)
         {
@@ -463,8 +592,15 @@ namespace AINamespace
             get { return FormationTypes.Bar; }
         }
     }
+    /// <summary>
+    /// units are not strongly positioned, they are flying as swarm
+    /// </summary>
     class SwarmFormation : Formation
     {
+        /// <summary>
+        /// creates new instance
+        /// </summary>
+        /// <param name="subordinates">list of units</param>
         public SwarmFormation(List<UnitPilot> subordinates)
             : base(null, subordinates)
         {

@@ -79,6 +79,9 @@ namespace EtalonAIUser
             //squadrons.Add(sq4);
             //squadrons.Add(sq5);
 
+            
+            foreach (UnitPilot unit in friends)
+                unit.AttackClosest();
       
         }
 

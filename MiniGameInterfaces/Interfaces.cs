@@ -2,11 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-namespace MiniGameInterfaces
+
+
+namespace MiniGameInterfaces    
 {
+    /// <summary>
+    /// struct for representing a color, usually used for debug geometry viewing
+    /// </summary>
     public struct Color
     {
-        public float r, g, b, a;
+        /// <summary>
+        /// red component, r=[0..1]
+        /// </summary>
+        public float r;
+        /// <summary>
+        /// green component, g=[0..1]
+        /// </summary>
+        public float g;
+        /// <summary>
+        /// blue component, b=[0..1]
+        /// </summary>
+            public float b;
+            /// <summary>
+            /// alpha component, a=[0..1]
+            /// </summary>
+            public float a;
+        /// <summary>
+        /// creates new color instance
+        /// </summary>
+            /// <param name="R">red component,  r=[0..1]</param>
+            /// <param name="G">green component,  r=[0..1]</param>
+            /// <param name="B">blue component,  r=[0..1]</param>
+            /// <param name="A">alpha component,  r=[0..1]</param>
         public Color(float R, float G, float B, float A)
         {
             r = R;
@@ -14,6 +41,9 @@ namespace MiniGameInterfaces
             b = B;
             a = A;
         }
+        /// <summary>
+        /// red color instance
+        /// </summary>
         public static Color Red
         {
             get
@@ -21,6 +51,9 @@ namespace MiniGameInterfaces
                 return new Color(1, 0, 0, 1);
             }
         }
+        /// <summary>
+        /// green color instance
+        /// </summary>
         public static Color Green
         {
             get
@@ -28,6 +61,9 @@ namespace MiniGameInterfaces
                 return new Color(0, 1, 0, 1);
             }
         }
+        /// <summary>
+        /// blue color instance
+        /// </summary>
         public static Color Blue
         {
             get
@@ -35,6 +71,9 @@ namespace MiniGameInterfaces
                 return new Color(0, 0, 1, 1);
             }
         }
+        /// <summary>
+        /// black color instance
+        /// </summary>
         public static Color Black
         {
             get
@@ -42,6 +81,9 @@ namespace MiniGameInterfaces
                 return new Color(0, 0, 0, 1);
             }
         }
+        /// <summary>
+        /// zero color instance (black and transparent)
+        /// </summary>
         public static Color Zero
         {
             get
@@ -49,6 +91,9 @@ namespace MiniGameInterfaces
                 return new Color(0, 0, 0, 0);
             }
         }
+        /// <summary>
+        /// white color instance
+        /// </summary>
         public static Color White
         {
             get
@@ -57,46 +102,129 @@ namespace MiniGameInterfaces
             }
         }
     }
+    /// <summary>
+    /// interface for drawing custom geometry, usually used for debug
+    /// </summary>
     public interface IDebug
     {
+        /// <summary>
+        /// draws a rectangle
+        /// </summary>
+        /// <param name="Rectangle">rectangle to draw</param>
+        /// <param name="Color">color to use</param>
         void DrawRectangle(Rectangle Rectangle, Color Color);
+        /// <summary>
+        /// draws a circle
+        /// </summary>
+        /// <param name="Circle">circle to draw</param>
+        /// <param name="Color">color to use</param>
         void DrawCircle(Circle Circle, Color Color);
+        /// <summary>
+        /// draws a point (as a small circle)
+        /// </summary>
+        /// <param name="Vector">point position</param>
+        /// <param name="Color">color to use</param>
         void DrawPoint(GameVector Vector, Color Color);
+        /// <summary>
+        /// draws a line (thin rectangle)
+        /// </summary>
+        /// <param name="Line">line to draw</param>
+        /// <param name="Color">color to use</param>
         void DrawLine(Line Line, Color Color);
     }
+    /// <summary>
+    /// ship types enumeration
+    /// </summary>
     public enum ShipTypes
     {
-        Destroyer, Corvette, Cruiser
+        /// <summary>
+        /// fast, light-armed unit, good for using in number and against cruisers
+        /// </summary>
+        Destroyer, 
+        /// <summary>
+        /// middle-armed unit with quick-firing weapon, good for using against destroyers
+        /// </summary>
+        Corvette, 
+        /// <summary>
+        /// slow, heavy-armed unit with highly destructive weapon, good for using against corvettes
+        /// </summary>
+        Cruiser
     }
+    /// <summary>
+    /// struct, representing a vector
+    /// </summary>
     public struct GameVector
     {
+        /// <summary>
+        /// X-component of the vector
+        /// </summary>
         public float X;
+        /// <summary>
+        /// Y-component of the vector
+        /// </summary>
         public float Y;
+        /// <summary>
+        /// creates a new instance of GameVector
+        /// </summary>
+        /// <param name="X">X-component of the vector</param>
+        /// <param name="Y">Y-component of the vector</param>
         public GameVector(float X, float Y)
         {
             this.X = X;
             this.Y = Y;
         }
+        /// <summary>
+        /// adds two vectors by components
+        /// </summary>
+        /// <param name="pt1">first operand</param>
+        /// <param name="pt2">second operand</param>
+        /// <returns>result vector</returns>
         public static GameVector operator +(GameVector pt1, GameVector pt2)
         {
             return new GameVector(pt1.X + pt2.X, pt1.Y + pt2.Y);
         }
+        /// <summary>
+        /// substracts two vectors by components
+        /// </summary>
+        /// <param name="pt1">first operand</param>
+        /// <param name="pt2">second operand</param>
+        /// <returns>result vector</returns>
         public static GameVector operator -(GameVector pt1, GameVector pt2)
         {
             return new GameVector(pt1.X - pt2.X, pt1.Y - pt2.Y);
         }
+        /// <summary>
+        /// multiplies vector with float by component
+        /// </summary>
+        /// <param name="pt1">vector to multiply</param>
+        /// <param name="pt2">float value to multiply</param>
+        /// <returns>result vector</returns>
         public static GameVector operator *(GameVector pt1, float op2)
         {
             return new GameVector(pt1.X * op2, pt1.Y * op2);
         }
+        /// <summary>
+        /// divides vector by float
+        /// </summary>
+        /// <param name="pt1">vector to divide</param>
+        /// <param name="pt2">float to divide on</param>
+        /// <returns>result vector</returns>
         public static GameVector operator /(GameVector pt1, float op2)
         {
             return new GameVector(pt1.X / op2, pt1.Y / op2);
         }
+        /// <summary>
+        /// negates a vector
+        /// </summary>
+        /// <param name="vec">vector to negate</param>
+        /// <returns>negated vector</returns>
         public static GameVector operator -(GameVector vec)
         {
             return new GameVector(-vec.X, -vec.Y);
         }
+        /// <summary>
+        /// returns instance to GameVector(1,1)
+        /// </summary>
         public static GameVector One
         {
             get
@@ -104,6 +232,9 @@ namespace MiniGameInterfaces
                 return new GameVector(1, 1);
             }
         }
+        /// <summary>
+        /// returns instance to GameVector(0,0)
+        /// </summary>
         public static GameVector Zero
         {
             get
@@ -111,6 +242,9 @@ namespace MiniGameInterfaces
                 return new GameVector(0, 0);
             }
         }
+        /// <summary>
+        /// returns instance to GameVector(1,0)
+        /// </summary>
         public static GameVector UnitX
         {
             get
@@ -118,6 +252,9 @@ namespace MiniGameInterfaces
                 return new GameVector(1, 0);
             }
         }
+        /// <summary>
+        /// returns instance to GameVector(0,1)
+        /// </summary>
         public static GameVector UnitY
         {
             get
@@ -125,38 +262,85 @@ namespace MiniGameInterfaces
                 return new GameVector(0, 1);
             }
         }
+        /// <summary>
+        /// finds vector length
+        /// </summary>
+        /// <returns>float length of the vector</returns>
         public float Length()
         {
             return (float)Math.Sqrt(X * X + Y * Y);
         }
+        /// <summary>
+        /// finds vector length square
+        /// </summary>
+        /// <returns>float length square of the vector</returns>
         public float LengthSquared()
         {
             return X * X + Y * Y;
         }
+        /// <summary>
+        /// finds vector azimuth in radians, angle between GameVector(1,0) and this gamevector
+        /// </summary>
+        /// <returns>float azimuth</returns>
         public float Angle()
         {
             return (float)Math.Atan2(Y, X);
         }
+        /// <summary>
+        /// normalizes a givven vector
+        /// </summary>
+        /// <param name="pt">vector to normalize</param>
+        /// <returns>normalized vector</returns>
         public static GameVector Normalize(GameVector pt)
         {
             return pt / pt.Length();
         }
+        /// <summary>
+        /// finds a dot product of two vectors
+        /// </summary>
+        /// <param name="pt1">first vector</param>
+        /// <param name="pt2">second vector</param>
+        /// <returns>float dot product</returns>
         public static float Dot(GameVector pt1, GameVector pt2)
         {
             return pt1.X * pt2.X + pt1.Y * pt2.Y;
         }
+        /// <summary>
+        /// finds a cos between two vectors (in radians)
+        /// </summary>
+        /// <param name="pt1">first operand</param>
+        /// <param name="pt2">second operand</param>
+        /// <returns>float cosine</returns>
         public static float Cos(GameVector pt1, GameVector pt2)
         {
             return (float)(Dot(pt1, pt2) / Math.Sqrt(pt1.LengthSquared() * pt2.LengthSquared()));
         }
+        /// <summary>
+        /// finds distance between two points
+        /// </summary>
+        /// <param name="pt1">first operand</param>
+        /// <param name="pt2">second operand</param>
+        /// <returns>float distance</returns>
         public static float Distance(GameVector pt1, GameVector pt2)
         {
             return (pt2 - pt1).Length();
         }
+        /// <summary>
+        /// finds distance square between two points
+        /// </summary>
+        /// <param name="pt1">first operand</param>
+        /// <param name="pt2">second operand</param>
+        /// <returns>float distance square</returns>
         public static float DistanceSquared(GameVector pt1, GameVector pt2)
         {
             return (pt2 - pt1).LengthSquared();
         }
+        /// <summary>
+        /// calculates rotated vector
+        /// </summary>
+        /// <param name="Vector">vector to rotate</param>
+        /// <param name="Angle">angle in radians to rotate CCW</param>
+        /// <returns>rotated vector</returns>
         public static GameVector Rotate(GameVector Vector, float Angle)
         {
             return new GameVector((float)(Vector.X * Math.Cos(Angle) - Vector.Y * Math.Sin(Angle)), (float)(Vector.X * Math.Sin(Angle) + Vector.Y * Math.Cos(Angle)));
@@ -170,11 +354,18 @@ namespace MiniGameInterfaces
         {
             return new GameVector((float)(X * Math.Cos(Angle) - Y * Math.Sin(Angle)), (float)(X * Math.Sin(Angle) + Y * Math.Cos(Angle)));
         }
+        /// <summary>
+        /// calculates normalized vector
+        /// </summary>
+        /// <returns>normalized vector</returns>
         public GameVector Normalize()
         {
             return this / this.Length();
         }
     }
+    /// <summary>
+    /// interface for every unit in the game
+    /// </summary>
     public interface IUnit
     {
         #region Getting unit state
@@ -225,6 +416,11 @@ namespace MiniGameInterfaces
         /// <param name="pt2">sector vertex</param>
         /// <returns>true if ship intersects vector</returns>
         bool IntersectsSector(GameVector pt1, GameVector pt2);
+        /// <summary>
+        /// get's unit geometry
+        /// </summary>
+        /// <returns></returns>
+        Rectangle GetRectangle();
         #endregion
         #region Getting unit characteristics
         /// <summary>
@@ -269,6 +465,14 @@ namespace MiniGameInterfaces
         /// <param name="target"></param>
         /// <returns></returns>
         float AngleTo(GameVector target);
+        /// <summary>
+        /// this damage goes to every unit that was in the blow radius at the blow starting time
+        /// </summary>
+        float BlowDamage { get; }
+        /// <summary>
+        /// this radius  is used to draw blow and to damage units with this blow
+        /// </summary>            
+        float BlowRadius { get; }
         #endregion
         #region Controlling the unit
         /// <summary>
@@ -293,39 +497,32 @@ namespace MiniGameInterfaces
         /// </summary>
         /// <returns> true if shoot was provided(if gun was recharged)</returns>
         bool Shoot();
-        /// <summary>
-        /// this damage goes to every unit that was in the blow radius at the blow starting time
-        /// </summary>
-        float BlowDamage { get; }
-        /// <summary>
-        /// this radius  is used to draw blow and to damage units with this blow
-        /// </summary>            
-        float BlowRadius { get; }
-        /// <summary>
-        /// get's unit geometry
-        /// </summary>
-        /// <returns></returns>
-        Rectangle GetRectangle();
-        //obsolete
-        /// <summary>
-        /// set constant speed to move with it. unit will reach and hold this speed unitl new acceleration or setting speed command received
-        /// </summary>
-        void SetSpeed(float Speed);
-        /// <summary>
-        /// set rotation angle. unit will try to reach this angle with max acceleration and hold it.
-        /// </summary>
-        void SetAngle(float Angle);
-        /// <summary>
-        /// makes unit to go to target location
-        /// </summary>
-        /// <param name="TargetLocation">location to go to</param>
-        /// <param name="Stop">true if unit must try to stop there</param>
-        void GoTo(GameVector TargetLocation, bool Stop);
+        ////obsolete
+        ///// <summary>
+        ///// set constant speed to move with it. unit will reach and hold this speed unitl new acceleration or setting speed command received
+        ///// </summary>
+        //void SetSpeed(float Speed);
+        ///// <summary>
+        ///// set rotation angle. unit will try to reach this angle with max acceleration and hold it.
+        ///// </summary>
+        //void SetAngle(float Angle);
+        ///// <summary>
+        ///// makes unit to go to target location
+        ///// </summary>
+        ///// <param name="TargetLocation">location to go to</param>
+        ///// <param name="Stop">true if unit must try to stop there</param>
+        //void GoTo(GameVector TargetLocation, bool Stop);
         #endregion
         #region Debug
+        /// <summary>
+        /// this text will be viewed on screen near unit
+        /// </summary>
         string Text { get; set; }
         #endregion
     }
+    /// <summary>
+    /// interface for every shot in the game
+    /// </summary>
     public interface IShot
     {
         /// <summary>
@@ -337,8 +534,11 @@ namespace MiniGameInterfaces
         /// </summary>
         GameVector Direction { get; }
     }
+    /// <summary>
+    /// interface for iteration on near objects for specified unit
+    /// </summary>
     public interface INearObjectsIterator
-    {    
+    {
         /// <summary>
         /// resets iterator
         /// </summary>
@@ -354,11 +554,15 @@ namespace MiniGameInterfaces
         /// <param name="NewCenter">new center of the near zone</param>
         void UpdateCenter(GameVector NewCenter);
     }
+    /// <summary>
+    /// interface for game. provides all information about the game
+    /// </summary>
     public interface IGame
     {
-        /// <summary>
+       /// <summary>
         /// set displayed text
-        /// </summary>
+       /// </summary>
+       /// <param name="Text">text to display</param>
         void SetText(string Text);
         /// <summary>
         /// total number of units
@@ -375,6 +579,8 @@ namespace MiniGameInterfaces
         /// <summary>
         /// get interface of a specific shot
         /// </summary>
+        /// <param name="Index">show index</param>
+        /// <returns>specified shot</returns>
         IShot GetShot(int Index);
         /// <summary>
         /// gets near units and shots for specified position
@@ -385,7 +591,9 @@ namespace MiniGameInterfaces
         /// <param name="NearShots">list of shots in the near zone</param>
         void GetNearUnits(GameVector Position, float Radius, out List<IUnit> NearUnits, out List<IShot> NearShots);
         /// <summary>
-        /// gets near units fast
+        /// gets near units
+        /// this overload is faster than overload with Lists,
+        /// becouse it calculates next unit in iteration time and doesn't create any lists in memory
         /// </summary>
         /// <param name="Position">position to specify</param>
         /// <param name="Radius">near zone radius, maximum is MaxRadius</param>
@@ -404,6 +612,9 @@ namespace MiniGameInterfaces
         /// </summary>
         IDebug GeometryViewer { get; }
     }
+    /// <summary>
+    /// interface for game player AI
+    /// </summary>
     public interface IAI
     {
         /// <summary>
@@ -423,30 +634,44 @@ namespace MiniGameInterfaces
         /// </summary>
         void Update();
     }
+    /// <summary>
+    /// struct, representing a line
+    /// </summary>
     public struct Line
     {
-        public GameVector pt1, pt2, dir;
+        /// <summary>
+        /// line start
+        /// </summary>
+        public GameVector pt1;
+        /// <summary>
+        /// line end
+        /// </summary>
+        public GameVector pt2;
+        /// <summary>
+        /// line direction
+        /// </summary>
+        public GameVector dir;
+        /// <summary>
+        /// creates a new instance of a line
+        /// </summary>
+        /// <param name="Start">line start</param>
+        /// <param name="End">line end</param>
         public Line(GameVector Start, GameVector End)
         {
             pt1 = Start;
             pt2 = End;
             dir = pt2 - pt1;
-        }
-        //public bool IntersectsLine(Line Line2, out GameVector intersection)
-        //{
-        //    float t1 = ((Line2.pt1.Y - pt1.Y) * (Line2.pt2.X - Line2.pt1.X) + (Line2.pt2.Y - Line2.pt1.Y) * (pt1.X - Line2.pt1.X))
-        //        / ((pt2.Y - pt1.Y) * (Line2.pt2.X - Line2.pt1.X) - (Line2.pt2.Y - Line2.pt1.Y) * (pt2.X - pt1.X));
-        //    float t2 = (pt1.X - Line2.pt1.X) / (Line2.pt2.X - Line2.pt1.X) + (pt2.X - pt1.X) / (Line2.pt2.X - Line2.pt1.X) * t1;
-        //    if (float.IsNaN(t1 + t2))
-        //    {
-        //        t1 = ((Line2.pt1.X - pt1.X) * (Line2.pt2.Y - Line2.pt1.Y) + (Line2.pt2.X - Line2.pt1.X) * (pt1.Y - Line2.pt1.Y))
-        //        / ((pt2.X - pt1.X) * (Line2.pt2.Y - Line2.pt1.Y) - (Line2.pt2.X - Line2.pt1.X) * (pt2.Y - pt1.Y));
-        //        t2 = (pt1.Y - Line2.pt1.Y) / (Line2.pt2.Y - Line2.pt1.Y) + (pt2.Y - pt1.Y) / (Line2.pt2.Y - Line2.pt1.Y) * t1;
-        //    }
-        //    intersection = pt1 + (pt2 - pt1) * t1;
-        //    return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
-        //}
+        }        
         private const float eps = 10e-4f;
+        /// <summary>
+        /// calculates two lines intersection
+        /// </summary>
+        /// <param name="Start1">first line start</param>
+        /// <param name="End1">first line end</param>
+        /// <param name="Start2">second line start</param>
+        /// <param name="End2">second line end</param>
+        /// <param name="Intersection">lines intersection point</param>
+        /// <returns>true if sectors of specified lines intersects</returns>
         public static bool LinesIntersection(GameVector Start1, GameVector End1, GameVector Start2, GameVector End2, out GameVector Intersection)
         {
             //forwardLeft+(forwardRight-forwardLeft)*t1=backRight+(backLeft-backRight)*t2
@@ -481,39 +706,67 @@ namespace MiniGameInterfaces
             Intersection = Start1 + (End1 - Start1) * t1;
             return (t1 > -eps && t1 < 1 + eps && t2 > -eps && t2 < 1 + eps);
         }
+        /// <summary>
+        /// defines whether this line sector intersects another lines sector
+        /// </summary>
+        /// <param name="AnotherLine">line to check for intersection</param>
+        /// <returns>true if intersection exists</returns>
         public bool Intersects(Line AnotherLine)
         {
             GameVector intersection;
             return LinesIntersection(pt1, pt2, AnotherLine.pt1, AnotherLine.pt2, out intersection);
         }
+        /// <summary>
+        /// calculates line sector length
+        /// </summary>
+        /// <returns></returns>
         public float Length()
         {
             return (pt1 - pt2).Length();
-        }
+        }        
         internal bool AreOnOneSide(GameVector Pt1, GameVector Pt2)
         {
             return ((Pt1.X - pt1.X) * dir.Y - (Pt1.Y - pt1.Y) * dir.X) * (dir.X * (Pt2.Y - pt1.Y) - dir.Y * (Pt2.X - pt1.X)) < 0;
         }
     }
+    /// <summary>
+    /// struct, representing circle
+    /// </summary>
     public struct Circle
     {
         GameVector center;
         float radius;
         float radiusSq;
+        /// <summary>
+        /// circle center
+        /// </summary>
         public GameVector Center
         {
             get { return center; }
         }
+        /// <summary>
+        /// circle radius
+        /// </summary>
         public float Radius
         {
             get { return radius; }
         }
+        /// <summary>
+        /// creates new circle instance
+        /// </summary>
+        /// <param name="Center">circle center</param>
+        /// <param name="Radius">circle radius</param>
         public Circle(GameVector Center, float Radius)
         {
             center = Center;
             radius = Radius;
             radiusSq = radius * radius;
         }
+        /// <summary>
+        /// calculates intersection with specified line sector
+        /// </summary>
+        /// <param name="Line">line to check for intersection</param>
+        /// <returns></returns>
         public bool Intersects(Line Line)
         {
             GameVector CenterPt1 = center - Line.pt1;
@@ -527,23 +780,46 @@ namespace MiniGameInterfaces
             if (dot < 0 || dot > Pt2Pt1LengthSq) return false;
             return Pt2Pt1LengthSq * (CenterPt1LengthSq - radiusSq) <= dot * dot;
         }
+        /// <summary>
+        /// calculates intersection with specified circle
+        /// </summary>
+        /// <param name="Circle">circle to check for intersection</param>
+        /// <returns></returns>
         public bool Intersects(Circle Circle)
         {
             return GameVector.DistanceSquared(center, Circle.center) < (radius + Circle.radius) * (radius + Circle.radius);
         }
     }
+    /// <summary>
+    /// struct, representing rectangle
+    /// </summary>
     public struct Rectangle
     {
         GameVector forwardLeft, forwardRight, backRight, backLeft;
         private GameVector center, forward, size;
+        /// <summary>
+        /// rectangle forward left corner
+        /// </summary>
         public GameVector ForwardLeft
         { get { return forwardLeft; } }
-        public GameVector Pt2
+        /// <summary>
+        /// rectangle forward right corner
+        /// </summary>
+        public GameVector ForwardRight
         { get { return forwardRight; } }
-        public GameVector Pt3
+        /// <summary>
+        /// rectangle back right corner
+        /// </summary>
+        public GameVector BackRight
         { get { return backRight; } }
-        public GameVector Pt4
+        /// <summary>
+        /// rectangle back left corner
+        /// </summary>
+        public GameVector BackLeft
         { get { return backLeft; } }
+        /// <summary>
+        /// rectangle center
+        /// </summary>
         public GameVector Center
         {
             get
@@ -551,6 +827,9 @@ namespace MiniGameInterfaces
                 return center;
             }
         }
+        /// <summary>
+        /// vector containing rectangle width and height
+        /// </summary>
         public GameVector Size
         {
             get
@@ -558,6 +837,9 @@ namespace MiniGameInterfaces
                 return size;
             }
         }
+        /// <summary>
+        /// rectangle forward direction
+        /// </summary>
         public GameVector Forward
         {
             get
@@ -565,6 +847,9 @@ namespace MiniGameInterfaces
                 return forward;
             }
         }
+        /// <summary>
+        /// recctangle right direction
+        /// </summary>
         public GameVector Right
         {
             get
@@ -572,6 +857,9 @@ namespace MiniGameInterfaces
                 return new GameVector(forward.Y, -forward.X);
             }
         }
+        /// <summary>
+        /// rectangle azimuth in radians (angle between forward vector and GameVector(1,0))
+        /// </summary>
         public float Angle
         {
             get
@@ -581,7 +869,7 @@ namespace MiniGameInterfaces
             }
         }
         /// <summary>
-        /// obsolete. Delete when ensure in another constructor working clear
+        /// obsolete. Do not use this method
         /// </summary>
         /// <param name="ForwardLeft"></param>
         /// <param name="ForwardRight"></param>
@@ -611,6 +899,9 @@ namespace MiniGameInterfaces
             size = Size;
             forward = Forward;
         }
+        /// <summary>
+        /// gets bounding circle for this rectangle
+        /// </summary>
         public Circle GetBoundingCircle
         {
             get
@@ -623,6 +914,13 @@ namespace MiniGameInterfaces
                 return new Circle(center, GameVector.Distance(center, min));
             }
         }
+        /// <summary>
+        /// calculates intersection with specified line
+        /// </summary>
+        /// <param name="Start">line start</param>
+        /// <param name="End">line end</param>
+        /// <param name="Intersection">intersection point</param>
+        /// <returns>true if intersection exists</returns>
         public bool IntersectsLine(GameVector Start, GameVector End, out GameVector Intersection)
         {
             Intersection = GameVector.One * float.PositiveInfinity;
@@ -650,6 +948,12 @@ namespace MiniGameInterfaces
             }
             return res;
         }
+        /// <summary>
+        /// calculates intersection with specified line
+        /// </summary>
+        /// <param name="Start">line start</param>
+        /// <param name="End">line end</param>
+        /// <returns>true if intersection exists</returns>
         public bool IntersectsLine(GameVector Start, GameVector End)
         {
             GameVector currIntersection;
@@ -662,8 +966,7 @@ namespace MiniGameInterfaces
             if (Line.LinesIntersection(backLeft, forwardLeft, Start, End, out currIntersection))
             { return true; }
             return false;
-        }       
-      
+        }
         static GameVector centerToCenter;
         static bool nearestedgeIsVertical1, nearest1edgeIsPositive1, nearest2edgeIsPositive1,
             nearestedgeIsVertical2, nearest1edgeIsPositive2, nearest2edgeIsPositive2;
@@ -675,6 +978,11 @@ namespace MiniGameInterfaces
             Pt212CanItersect, Pt222CanItersect, Pt232CanItersect, Pt242CanItersect;
         static float dotVertical;
         static float dotHorisontal;
+        /// <summary>
+        /// calculates intersection to another rectangle
+        /// </summary>
+        /// <param name="rect">rectangle to check for intersection</param>
+        /// <returns>true if intersection exists</returns>
         public bool IntersectsRectangle(Rectangle rect)
         {
             centerToCenter = rect.center - this.center;

@@ -6,14 +6,26 @@ using MiniGameInterfaces;
 
 namespace AINamespace
 {
+    /// <summary>
+    /// this class is used for holding information about enemy squads
+    /// </summary>
     public class EnemySquad
     {
+        /// <summary>
+        /// creates instance
+        /// </summary>
         public EnemySquad()
-        {
-            units = new List<IUnit>();
-        }
+        {            units = new List<IUnit>();        }
+        /// <summary>
+        /// units belonging to this squad
+        /// </summary>
         public List<IUnit> units;
-        public int CDestroyers, CCorvettes, CCruisers;
+        /// <summary>
+        /// gets squad location
+        /// circle center is in the mass center of squad
+        /// radius is a dist to the farest unit from the mass center
+        /// </summary>
+        /// <returns>location circle</returns>
         public Circle GetPosition()
         {
             GameVector center = GameVector.Zero;
@@ -73,14 +85,27 @@ namespace AINamespace
                 if (units[i].Dead) units.RemoveAt(i);
         }
     }
+    /// <summary>
+    /// class used for enemy analyzing
+    /// </summary>
     public class EnemyAnalyzing
     {
+        /// <summary>
+        /// distance to join units to one squad
+        /// </summary>
         public static float OneSquadDistance = 500;
+        /// <summary>
+        /// OneSquadDistance squared
+        /// </summary>
         public static float OneSquadDistanceSq = OneSquadDistance * OneSquadDistance;
         List<IUnit> enemies;
+        /// <summary>
+        /// list of enemy squads
+        /// </summary>
         public List<EnemySquad> squads;
         int[] SquadNumbers;
-        public EnemyAnalyzing(List<IUnit> enemies)
+
+        internal EnemyAnalyzing(List<IUnit> enemies)
         {
             this.enemies = enemies;
             SquadNumbers = new int[enemies.Count];
@@ -90,7 +115,7 @@ namespace AINamespace
                 squad.units.Add(unit);
             squads.Add(squad);
         }
-        public void Update()
+        internal void Update()
         {
             //remove dead
             for (int i = 0; i < squads.Count; i++)

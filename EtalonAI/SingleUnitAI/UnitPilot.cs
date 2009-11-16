@@ -5,22 +5,55 @@ using System.Text;
 using MiniGameInterfaces;
 namespace AINamespace
 {
+    /// <summary>
+    /// class for controlling unit
+    /// </summary>
     public class UnitPilot
     {
         //TYPES
+        /// <summary>
+        /// enumeration of unit behaviours
+        /// </summary>
         public enum Behaviours
         {
-            StandingBy,                     //+doing nothing
-            PositionHolding,                //+attacking target (nearest to shot line), not moving
-            Going,                          //+moving to specified target(realative vector)
-            AttackingClosest,               //+going to nearest target and shooting it
-            AttackingTarget,                //+chasing and attacking specified target
-            GoingRam,                       //+shooting target and going ram
-            GoingRamToClosest,              //+goes ram to closest target
-            Escaping,                       //escaping from specified unit
-            MaintainOrder                   //getting a right place in array
+            /// <summary>
+            /// doing nothing
+            /// </summary>
+            StandingBy,                     
+            /// <summary>
+            /// attacking target (nearest to shot line), not moving
+            /// </summary>
+            PositionHolding,               
+            /// <summary>
+            /// moving to specified target(realative vector)
+            /// </summary>
+            Going,                          
+            /// <summary>
+            /// going to nearest target and shooting it
+            /// </summary>
+            AttackingClosest,               
+            /// <summary>
+            /// chasing and attacking specified target
+            /// </summary>
+            AttackingTarget,                
+            /// <summary>
+            /// shooting target and going ram
+            /// </summary>
+            GoingRam,                       
+            /// <summary>
+            /// goes ram to closest target
+            /// </summary>
+            GoingRamToClosest,            
+            /// <summary>
+            /// escaping from specified unit
+            /// </summary>
+            Escaping,                       
+            /// <summary>
+            /// getting a right place in array
+            /// </summary>
+            MaintainOrder                  
         }
-        public class MaintainingOrderData
+        internal class MaintainingOrderData
         {
             public UnitPilot Leader;
             public float RotationAngle;
@@ -38,9 +71,17 @@ namespace AINamespace
         int playerNumber;
         IUnit controlledUnit;
         Radar radar;
-        public OnBoardComputer computer;
+        /// <summary>
+        /// onboard computer for this unit 
+        /// computer includes radar and is used for providing tactical situation information
+        /// </summary>
+        public OnBoardComputer computer { get; private set; }
         //STATE FIELDS
-        public Behaviours behaviour {get;private set;}
+        /// <summary>
+        /// current behaviour of this onit.
+        /// give orders for the unit to change it's behaviour
+        /// </summary>
+        public Behaviours behaviour { get; private set; }
         RelativeVector tgtPosition;
         IUnit target;
         Timer targetUpdateTime;//time to update target
@@ -51,14 +92,24 @@ namespace AINamespace
         /// </summary>
         bool StopNearTgt;
         //ACCESORS
+        /// <summary>
+        /// IUnit interface to the unit controlled by this UnitPilot
+        /// </summary>
         public IUnit ControlledUnit
         { get { return controlledUnit; } }
+        /// <summary>
+        /// target of this unit. 
+        /// target can be attacked, collided and so on
+        /// </summary>
         public IUnit Target
         { get { return target; } }
+        /// <summary>
+        /// ship type of controlled unit
+        /// </summary>
         public ShipTypes Type
         { get { return type; } }
         //CTOR
-        public UnitPilot(IUnit ControlledUnit, AI AI)
+        internal UnitPilot(IUnit ControlledUnit, AI AI)
         {
             controlledUnit = ControlledUnit;
             radar = new Radar(controlledUnit.ShootingRadius + 50, controlledUnit, AI);
@@ -67,7 +118,6 @@ namespace AINamespace
                 ((new Rectangle(GameVector.Zero, controlledUnit.Size, GameVector.UnitX)).GetBoundingCircle.Radius);
             StandBy();
             escapeThreting = true;
-
             //SetFlightTgt(controlledUnit.Position + new GameVector(-500, 800));
             targetUpdateTime = new Timer(1, AI.game);
             speedAim = 0;
@@ -76,6 +126,11 @@ namespace AINamespace
             timer = new Timer(0.05f, AI.game);
         }
         //METHODS
+        /// <summary>
+        /// defines if specified unit is enemy to this unit
+        /// </summary>
+        /// <param name="unit">unit to check</param>
+        /// <returns>true if unit is enemy</returns>
         public bool IsEnemy(IUnit unit)
         {
             return radar.AI.IsEnemy(unit);
@@ -89,11 +144,9 @@ namespace AINamespace
         bool UpdateEnemy()
         {
             if (target != null && target.Dead) target = null;
-
             targetUpdateTime.Update();
             if (targetUpdateTime.TimeElapsed && (target == null || !computer.IsInThisShootRadius(target)))
             {
-
                 targetUpdateTime.Reset();
                 IUnit newTarget = computer.NearestToShootingLineEnemy();//choose closest to shot line
                 if (newTarget == null)
@@ -137,7 +190,6 @@ namespace AINamespace
         /// </summary>
         void ShootIfWillDamageEnemy()
         {
-
             if (target != null)
             {
                 if (computer.IsInThisShootRadius(target))
@@ -150,98 +202,8 @@ namespace AINamespace
                 }
             }
         }
-        #region set behaviours
-        public void StandBy(float rotationAngle)
-        {
-            computer.WeakAvoidingObstacles = false;
-            SetAngle(rotationAngle);
-            behaviour = Behaviours.StandingBy;
-        }
-        public void StandBy()
-        {
-            computer.WeakAvoidingObstacles = false;
-            StandBy(controlledUnit.RotationAngle);
-        }
-        public void HoldPosition()
-        {
-            computer.WeakAvoidingObstacles = false;
-            behaviour = Behaviours.PositionHolding;
-        }
-
-        public void GoTo(RelativeVector Target,bool StopNearTgt)
-        {
-            
-            computer.WeakAvoidingObstacles = false;
-            this.StopNearTgt = StopNearTgt;
-            //tgtPosition = Target;
-            flyingTgt = Target;
-            allowedSpeed = controlledUnit.Speed;
-            speedAim = controlledUnit.Speed;
-            allowedSpeed = 0;
-            speedAim = 0;
-            behaviour = Behaviours.Going;
-
-        }
-        public void GoTo(RelativeVector Target)
-        {
-            GoTo(Target, true);
-        }
-        public void AttackTarget(IUnit Target)
-        {
-            escapeThreting = false;
-            computer.WeakAvoidingObstacles = false;
-            behaviour = Behaviours.AttackingTarget;
-            target = Target;
-            AvoidingObstaclesEnabled = true;
-            flyingTgt = new RelativeVector(target, controlledUnit, controlledUnit.ShootingRadius * 0.9f);
-        }
-        public void AttackClosest()
-        {
-            escapeThreting = false;
-            computer.WeakAvoidingObstacles = false;
-            behaviour = Behaviours.AttackingClosest;
-            target = null;
-            targetUpdateTime.ExeedDeltaTime();
-            UpdateEnemy();
-            AvoidingObstaclesEnabled = true;
-        }
-        public void GoRam(IUnit Target)
-        {
-            computer.WeakAvoidingObstacles = false;
-            behaviour = Behaviours.GoingRam;
-            target = Target;
-            AvoidingObstaclesEnabled = true;
-            flyingTgt = new RelativeVector(target);
-        }
-        public void GoRamToClosest()
-        {
-            computer.WeakAvoidingObstacles = false;
-            behaviour = Behaviours.GoingRamToClosest;
-            AvoidingObstaclesEnabled = true;
-            target = null;
-            targetUpdateTime.ExeedDeltaTime();
-            UpdateEnemy();
-        }
-        public void Marshal(MaintainingOrderData data)
-        {
-            computer.WeakAvoidingObstacles = true;
-            maintainingInOrderData = data;
-            flyingTgt = data.OrderPosition;
-            behaviour = Behaviours.MaintainOrder;
-        }
-        public bool WeakAvoidingCollizions
-        {
-            get { return computer.WeakAvoidingObstacles; }
-            set { computer.WeakAvoidingObstacles = true; }
-        }
         
-        public bool EscapeThreating
-        {
-            get { return escapeThreting; }
-            set { escapeThreting = value; }
-        }
-        #endregion
-        public void MarshalingUpdate(UnitPilot Leader, float RotationAngle)
+        internal void MarshalingUpdate(UnitPilot Leader, float RotationAngle)
         {
             maintainingInOrderData.Leader = Leader;
             maintainingInOrderData.RotationAngle = RotationAngle;
@@ -250,8 +212,11 @@ namespace AINamespace
         bool noObstacles;
         bool escaping;
         bool EnemyRecalculated;
+        /// <summary>
+        /// defines if unit is near it's flying target
+        /// </summary>
         public bool ReceivedToFlyingTgt { get; private set; }
-        public void Update()
+        internal void Update()
         {
             timer.Update();
             RemoveDeadTarget();
@@ -275,12 +240,9 @@ namespace AINamespace
                     //no movings
                     //if there is a target in radius
                     //then attacks it
-
                     UpdateEnemy();
                     TurnToTarget();
                     ShootIfWillDamageEnemy();
-
-
                     radar.Update();
                     StopMoving();
                     if (timer.TimeElapsed)
@@ -288,13 +250,11 @@ namespace AINamespace
                         timer.Reset();
                         noObstacles = AvoidObstacles(true);
                     }
-                    UpdateRotatingToAngle();                   
+                    UpdateRotatingToAngle();
                     UpdateGoingToSpeed();
-
                     break;
                 case Behaviours.Going:
                     {
-                        
                         radar.Update();
                         UpdateGoingToSpeed();
                         UpdateRotatingToAngle();
@@ -305,7 +265,7 @@ namespace AINamespace
                         }
                         if (noObstacles)
                         {
-                           // ReceivedToFlyingTgt = FlyToTgt(StopNearTgt);
+                            // ReceivedToFlyingTgt = FlyToTgt(StopNearTgt);
                             ReceivedToFlyingTgt = FlyToTgt(true);
                         }
                         else ReceivedToFlyingTgt = false;
@@ -317,13 +277,11 @@ namespace AINamespace
                         Stop();
                         break;
                     }
-
                     if (timer.TimeElapsed)
                     {
                         timer.Reset();
                         noObstacles = AvoidObstacles(true);
                     }
-
                     if (escapeThreting)
                         escaping = EscapeFromThreatingUpdate();
                     else escaping = false;
@@ -339,7 +297,6 @@ namespace AINamespace
                             FlyToTgt(true);
                         }
                     }
-
                     ShootIfWillDamageEnemy();
                     radar.Update();
                     UpdateRotatingToAngle();
@@ -349,7 +306,7 @@ namespace AINamespace
                     EnemyRecalculated = UpdateEnemy();
                     if (target != null)
                     {
-                        if (EnemyRecalculated) 
+                        if (EnemyRecalculated)
                             flyingTgt = new RelativeVector(target, controlledUnit, controlledUnit.ShootingRadius * 0.9f);
                     }
                     if (timer.TimeElapsed)
@@ -357,10 +314,9 @@ namespace AINamespace
                         timer.Reset();
                         noObstacles = AvoidObstacles(true);
                     }
-
                     if (escapeThreting)
-                        escaping= EscapeFromThreatingUpdate();
-                    else escaping=false;
+                        escaping = EscapeFromThreatingUpdate();
+                    else escaping = false;
                     if (target != null && computer.IsInThisShootRadius(target) && !escaping)
                     {
                         TurnToTarget();
@@ -368,15 +324,13 @@ namespace AINamespace
                     }
                     else
                     {
-
                         if (noObstacles)
-                        {                     
+                        {
                             FlyToTgt(true);
                         }
                     }
                     UpdateRotatingToAngle();
                     UpdateGoingToSpeed();
-
                     if (target == null)
                     {
                         Stop();
@@ -410,12 +364,10 @@ namespace AINamespace
                             new RelativeVector(target);
                     }
                     noObstacles = AvoidObstacles(false);
-
                     if (noObstacles)
                     {
                         FlyToTgt(false);
                     }
-
                     UpdateRotatingToAngle();
                     UpdateGoingToSpeed();
                     ShootIfWillDamageEnemy();
@@ -446,7 +398,6 @@ namespace AINamespace
                     UpdateRotatingToAngle();
                     //AI.game.GeometryViewer.DrawPoint(controlledUnit.Position, Color.Green);
                     //}
-
                     //UpdateGoingToSpeed();
                     //UpdateRotatingToAngle();
                     //float AimIsToRepairOrder = GameVector.Distance(flyingTgt.Value, controlledUnit.Position) / maintainingInOrderData.AllowedDistToOrderedPlace;
@@ -454,7 +405,6 @@ namespace AINamespace
                     //else AimIsToRepairOrder = 0;
                     //if (AimIsToRepairOrder > 1) AimIsToRepairOrder = 1;
                     //AimIsToRepairOrder = 0;
-
                     //if (GameVector.DistanceSquared(flyingTgt.Value, controlledUnit.Position) >
                     //    maintainingInOrderData.AllowedDistToOrderedPlace * maintainingInOrderData.AllowedDistToOrderedPlace)
                     //{
@@ -464,15 +414,12 @@ namespace AINamespace
                     //        FlyToTgt(false);
                     //    }
                     //}
-
                     //float NeededAngle = (angleAim - maintainingInOrderData.RotationAngle) * AimIsToRepairOrder + maintainingInOrderData.RotationAngle;
                     //float NeededSpeed = (speedAim - maintainingInOrderData.Leader.controlledUnit.Speed) * AimIsToRepairOrder + maintainingInOrderData.Leader.controlledUnit.Speed;
                     //SetAngle(NeededAngle);
                     //SetSpeed(NeededSpeed);
-
                     break;
             }
-            
         }
         void RemoveDeadTarget()
         {
@@ -485,6 +432,45 @@ namespace AINamespace
                 }
             }
         }
+        
+        bool EscapeFromThreatingUpdate()
+        {
+            List<IUnit> threating = this.computer.GetThreateningUnits();
+            if (threating.Count > 0)
+            {
+                int RotateCW = Math.Sign(AngleClass.Difference(controlledUnit.RotationAngle, controlledUnit.AngleTo(threating[0].Position)));
+                if (RotateCW == 0) RotateCW = 1;
+                flyingTgt = new RelativeVector(GameVector.Normalize(threating[0].Position - controlledUnit.Position).Rotate(RotateCW
+                    * AngleClass.pi * 0.5f) * 100 + controlledUnit.Position);
+                //if (controlledUnit.Name == "Destroyer -4-") { }
+                //AI.game.GeometryViewer.DrawLine(new Line(controlledUnit.Position, flyingTgt.Value), Color.Blue);
+                return true;
+            }
+            else return false;
+        }
+        internal float GetClosestEnemyDist()
+        {
+            float MinDistSq = float.MaxValue;
+            float currDistSq;
+            radar.ResetIterator();
+            while (radar.NextEnemy())
+            {
+                currDistSq = GameVector.DistanceSquared(radar.CurrUnit.Position, controlledUnit.Position);
+                if (currDistSq < MinDistSq)
+                    MinDistSq = currDistSq;
+            }
+            return (float)Math.Sqrt(MinDistSq);
+        }
+        internal bool WeakAvoidingCollizions
+        {
+            get { return computer.WeakAvoidingObstacles; }
+            set { computer.WeakAvoidingObstacles = true; }
+        }
+        internal bool EscapeThreating
+        {
+            get { return escapeThreting; }
+            set { escapeThreting = value; }
+        }
         #region avoiding collizions members
         ///DANGER! HEURISTIC CONSTANTS        
         /// <summary>
@@ -493,6 +479,10 @@ namespace AINamespace
         /// </summary>
         const float dangerRadiusCoef = 9.0f;
         float dangerRadius;
+
+        /// <summary>
+        /// defines if unit tries to avoid collizions
+        /// </summary>
         public bool AvoidingObstaclesEnabled;
 
         bool AvoidObstacles(bool EnemiesConsidered)
@@ -507,7 +497,7 @@ namespace AINamespace
                 OnBoardComputer.CollizionPredictionInfo collizionInfo =
                     computer.CollizionPredictionCheck(EnemiesConsidered);
                 //controlledUnit.Text=collizionInfo.CollizionExpected.ToString();
-                
+
                 float angleToObstacle = controlledUnit.AngleTo(collizionInfo.ObstacleCenter);
                 float angleToFlyingTgt;
                 if (flyingTgt != null && !flyingTgt.Invalid) angleToFlyingTgt = controlledUnit.AngleTo(flyingTgt.Value);
@@ -524,7 +514,7 @@ namespace AINamespace
                     {
                         res = false;
 
-                        SlowingIntensity = (250 - collizionInfo.DistToObstacle/5) / 100.0f;//SlowingIntensity = (250 - collizionInfo.DistToObstacle) / 100.0f;
+                        SlowingIntensity = (250 - collizionInfo.DistToObstacle / 5) / 100.0f;//SlowingIntensity = (250 - collizionInfo.DistToObstacle) / 100.0f;
                         RotatingIntensity = 1;
                         SlowingIntensity = Math.Max(0, Math.Min(1, SlowingIntensity));
                         if (Math.Abs(angleDifference) > 1.3f) SlowingIntensity = 0;
@@ -532,7 +522,7 @@ namespace AINamespace
                     }
                     #endregion
 
-                     
+
 
                     SetSpeed(allowedSpeed * (1 - SlowingIntensity));
 
@@ -553,12 +543,13 @@ namespace AINamespace
             }
             return res;
         }
+
         #endregion
         #region controlling the unit's flight
         /// <summary>
-        /// current point where to fly
+        /// point where unit must fly
         /// </summary>
-        public RelativeVector flyingTgt{get;private set;}
+        public RelativeVector flyingTgt { get; private set; }
         /// <summary>
         /// current needed flying speed
         /// </summary>
@@ -576,20 +567,18 @@ namespace AINamespace
             if (flyingTgt != null && !flyingTgt.Invalid)
             {
                 float angleDifference = Math.Abs(AngleClass.Difference(controlledUnit.AngleTo(flyingTgt.Value), controlledUnit.RotationAngle));
-                bool TimeToStop=GameVector.DistanceSquared(flyingTgt.Value, controlledUnit.Position) < (computer.StopDistance + 15) * (computer.StopDistance + 15);
+                bool TimeToStop = GameVector.DistanceSquared(flyingTgt.Value, controlledUnit.Position) < (computer.StopDistance + 15) * (computer.StopDistance + 15);
                 if (StopNearTgt && TimeToStop)
                 {
                     //if (allowedSpeed - allowedSpeedMaxDecrement > 0) allowedSpeed -= allowedSpeedMaxDecrement;
                     //else 
-                    allowedSpeed = 0;                    
+                    allowedSpeed = 0;
                 }
                 else
                     if (angleDifference > 3.1415f / 4f)
                     {
-
                         //if (allowedSpeed - allowedSpeedMaxDecrement > controlledUnit.MaxSpeed / 6f) allowedSpeed -= allowedSpeedMaxDecrement;
                         //else allowedSpeed = controlledUnit.MaxSpeed / 6f;
-
                         if (speedAim > controlledUnit.MaxSpeed / 6f) speedAim = controlledUnit.MaxSpeed / 6f;
                         //SetSpeed(0);
                     }
@@ -601,17 +590,12 @@ namespace AINamespace
                     }
                 SetSpeed(allowedSpeed);
                 SetAngle(controlledUnit.AngleTo(flyingTgt.Value));
-
-                
                 //finishing flight is when unit is close to tgt and (unit is stopped or not need to stop)
                 return (TimeToStop && ((controlledUnit.Speed < controlledUnit.MaxSpeed * 0.1f) || !StopNearTgt));
-                
             }
             else return true;
         }
-
         float angleAim;
-
         void SetAngle(float Angle)
         {
             angleAim = Angle;
@@ -638,24 +622,19 @@ namespace AINamespace
             {
                 //neededSpeed=(rotationangle-angleaim)/dt
                 //neededAcceleration=neededSpeed/dt
-                float neededAcceleration = AngleClass.Distance(controlledUnit.RotationAngle, angleAim) 
+                float neededAcceleration = AngleClass.Distance(controlledUnit.RotationAngle, angleAim)
                     / (AI.game.TimeElapsed * AI.game.TimeElapsed);
-
                 //AI.game.TimeElapsed
-             
-                float AccelerationUp = Math.Min(controlledUnit.MaxRotationAcceleration,neededAcceleration);// *0.5f;//PROBABLY
+                float AccelerationUp = Math.Min(controlledUnit.MaxRotationAcceleration, neededAcceleration);// *0.5f;//PROBABLY
                 float AccelerationDown = Math.Min(controlledUnit.MaxRotationAcceleration, neededAcceleration);
-
                 float rotationNeeded = AngleClass.Normalize(angleAim - controlledUnit.RotationAngle) / 3;
                 ////time will be taken to stop
                 //float stopTime = controlledUnit.RotationSpeed / controlledUnit.MaxRotationAcceleration;
-
                 //ange will be spent for stop
                 float rotationSpeed = controlledUnit.RotationSpeed;
                 float StopAngle = rotationSpeed * rotationSpeed / controlledUnit.MaxRotationAcceleration
                     - rotationSpeed * rotationSpeed / controlledUnit.MaxRotationAcceleration //* Math.Sign(controlledUnit.RotationSpeed)
                     * 0.5f;
-
                 //bool AccelUp = false;
                 if (rotationNeeded > 0)
                 {
@@ -701,21 +680,17 @@ namespace AINamespace
                 }
                 if (Math.Abs(controlledUnit.RotationSpeed) < 0.01f && Math.Abs(rotationNeeded) < 0.001f)
                     controlledUnit.RotationAccelerate(0);
-
             }
         }
-
-
         float speedAim;
         //tested
-        public void SetSpeed(float Speed)
-        {            
+        void SetSpeed(float Speed)
+        {
             speedAim = Speed;
         }
         //twice tested
         void UpdateGoingToSpeed()
         {
-           
             if (controlledUnit.Speed < speedAim)
             {
                 controlledUnit.Accelerate(controlledUnit.MaxSpeedAcceleration);
@@ -724,7 +699,6 @@ namespace AINamespace
             {
                 if (controlledUnit.Speed > speedAim)
                 {
-
                     controlledUnit.Accelerate(-controlledUnit.MaxSpeedAcceleration);
                 }
                 else
@@ -733,36 +707,120 @@ namespace AINamespace
                 }
             }
         }
-
         #endregion
-        bool EscapeFromThreatingUpdate()
+        #region set behaviours
+        /// <summary>
+        /// order unit to stop and turn to specified angle
+        /// </summary>
+        /// <param name="rotationAngle">angle in radians</param>
+        public void StandBy(float rotationAngle)
         {
-           
-            
-            List<IUnit> threating = this.computer.GetThreateningUnits();
-            if (threating.Count > 0)
-            {
-                int RotateCW = Math.Sign(AngleClass.Difference(controlledUnit.RotationAngle, controlledUnit.AngleTo(threating[0].Position)));
-                if (RotateCW == 0) RotateCW = 1;
-                flyingTgt = new RelativeVector( GameVector.Normalize(threating[0].Position - controlledUnit.Position).Rotate(RotateCW
-                    * AngleClass.pi * 0.5f)*100+controlledUnit.Position);
-                //if (controlledUnit.Name == "Destroyer -4-") { }
-                //AI.game.GeometryViewer.DrawLine(new Line(controlledUnit.Position, flyingTgt.Value), Color.Blue);
-                return true;
-            }
-            else return false;
+            computer.WeakAvoidingObstacles = false;
+            SetAngle(rotationAngle);
+            behaviour = Behaviours.StandingBy;
         }
-        internal float GetClosestEnemyDist()
+        /// <summary>
+        /// order unit to stop
+        /// </summary>
+        public void StandBy()
         {
-            float MinDistSq=float.MaxValue;
-            float currDistSq;
-            foreach (IUnit enemy in radar.Enemies)
-            {
-                currDistSq=GameVector.DistanceSquared(enemy.Position,controlledUnit.Position);
-                if (currDistSq < MinDistSq)
-                    MinDistSq = currDistSq;
-                }
-            return (float)Math.Sqrt(MinDistSq);
+            computer.WeakAvoidingObstacles = false;
+            StandBy(controlledUnit.RotationAngle);
         }
+        /// <summary>
+        /// order unit to hold position: to stop and to fire to available enemies
+        /// </summary>
+        public void HoldPosition()
+        {
+            computer.WeakAvoidingObstacles = false;
+            behaviour = Behaviours.PositionHolding;
+        }
+        /// <summary>
+        /// orderes unit to fly to specified target
+        /// </summary>
+        /// <param name="Target">target to fly</param>
+        /// <param name="StopNearTgt">true if unit must take care about stop near target point</param>
+        public void GoTo(RelativeVector Target, bool StopNearTgt)
+        {
+
+            computer.WeakAvoidingObstacles = false;
+            this.StopNearTgt = StopNearTgt;
+            //tgtPosition = Target;
+            flyingTgt = Target;
+            allowedSpeed = controlledUnit.Speed;
+            speedAim = controlledUnit.Speed;
+            allowedSpeed = 0;
+            speedAim = 0;
+            behaviour = Behaviours.Going;
+
+        }
+        /// <summary>
+        /// orderes unit to fly to specified target
+        /// </summary>
+        /// <param name="Target">target to fly</param>
+        public void GoTo(RelativeVector Target)
+        {
+            GoTo(Target, true);
+        }
+        /// <summary>
+        /// orderes unit to attack specified target
+        /// </summary>
+        /// <param name="Target">target to attack</param>
+        public void AttackTarget(IUnit Target)
+        {
+            escapeThreting = false;
+            computer.WeakAvoidingObstacles = false;
+            behaviour = Behaviours.AttackingTarget;
+            target = Target;
+            AvoidingObstaclesEnabled = true;
+            flyingTgt = new RelativeVector(target, controlledUnit, controlledUnit.ShootingRadius * 0.9f);
+        }
+        /// <summary>
+        /// orderes unit to attack closest unit
+        /// </summary>
+        public void AttackClosest()
+        {
+            escapeThreting = false;
+            computer.WeakAvoidingObstacles = false;
+            behaviour = Behaviours.AttackingClosest;
+            target = null;
+            targetUpdateTime.ExeedDeltaTime();
+            UpdateEnemy();
+            AvoidingObstaclesEnabled = true;
+        }
+        /// <summary>
+        /// orderes unit to go ram to specified target
+        /// </summary>
+        /// <param name="Target">target to go ram to</param>
+        public void GoRam(IUnit Target)
+        {
+            computer.WeakAvoidingObstacles = false;
+            behaviour = Behaviours.GoingRam;
+            target = Target;
+            AvoidingObstaclesEnabled = true;
+            flyingTgt = new RelativeVector(target);
+        }
+        /// <summary>
+        /// orderes to go ram to closest enemy unit
+        /// </summary>
+        public void GoRamToClosest()
+        {
+            computer.WeakAvoidingObstacles = false;
+            behaviour = Behaviours.GoingRamToClosest;
+            AvoidingObstaclesEnabled = true;
+            target = null;
+            targetUpdateTime.ExeedDeltaTime();
+            UpdateEnemy();
+        }        
+        
+        
+        internal void Marshal(MaintainingOrderData data)
+        {
+            computer.WeakAvoidingObstacles = true;
+            maintainingInOrderData = data;
+            flyingTgt = data.OrderPosition;
+            behaviour = Behaviours.MaintainOrder;
+        }
+        #endregion
     }
 }

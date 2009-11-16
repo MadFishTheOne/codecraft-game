@@ -6,8 +6,14 @@ using MiniGameInterfaces;
 using System.Collections;
 namespace AINamespace
 {
+    /// <summary>
+    /// class for controlling list of units as one squadron
+    /// </summary>
     public class SquadronColonel:IEnumerable
     {
+        /// <summary>
+        /// enumeraion of squadron states
+        /// </summary>
         enum States
         {
             Gathering,//pilots are flying to their positions
@@ -17,20 +23,42 @@ namespace AINamespace
             Fighting,//fighting as turrets
             Nothing//null state
         }
+        /// <summary>
+        /// enumeration of squadron behaviours 
+        /// </summary>
         public enum Behaviours
         {
-            FlyingToTgt,//rotates formation to tgt and then flying forward to tgt
-            Attacking,//fying to tgt and then defending there
-            Defending,//staying and shooting
-            Waiting//doing nothing
+            /// <summary>
+            /// rotates formation to tgt and then flying forward to tgt
+            /// </summary>
+            FlyingToTgt,
+            /// <summary>
+            /// fying to tgt and then defending there
+            /// </summary>
+            Attacking,
+            /// <summary>
+            /// staying and shooting
+            /// </summary>
+            Defending,
+            /// <summary>
+            /// doing nothing
+            /// </summary>
+            Waiting
         }
         
         States state,neededState;
+        /// <summary>
+        /// current behaviour of squadron
+        /// </summary>
         public Behaviours behaviour{get;private set;}
         Timer stateChangingTimer, reSortingTimer;
         Formation formation;
         GameVector flyingPos;
         bool isOrdered;
+        /// <summary>
+        /// true if formation is ordered,
+        /// false if formation is swarm
+        /// </summary>
         public bool IsOrdered
         {
             get
@@ -42,6 +70,12 @@ namespace AINamespace
                 isOrdered = value;                
             }
         }
+        /// <summary>
+        /// create new squadron
+        /// </summary>
+        /// <param name="Colonel">unit that will be formation leader</param>
+        /// <param name="game">game</param>
+        /// <param name="FormationType">formation type to set</param>
         public SquadronColonel(UnitPilot Colonel,IGame game,FormationTypes FormationType)
         {
             isOrdered = true;
@@ -59,6 +93,11 @@ namespace AINamespace
                 case FormationTypes.Stagger: formation = new StaggerFormation(Colonel, pilots, 90, 120); break;
             }            
         }
+        /// <summary>
+        /// create new squadron
+        /// </summary>
+        /// <param name="Colonel">unit that will be formation leader</param>
+        /// <param name="game">game</param>
         public SquadronColonel(UnitPilot Colonel, IGame game)
         {
             isOrdered = false;
@@ -71,9 +110,9 @@ namespace AINamespace
             List<UnitPilot> pilots = new List<UnitPilot>();
             formation = new SwarmFormation(pilots);            
         }
-        private void UpdateOrdered()
-        
+        private void UpdateOrdered()        
         {
+            
              //AI.game.GeometryViewer.DrawPoint(flyingPos, Color.Green);
         //     AI.game.GeometryViewer.DrawPoint(formation.GetMassCenter(), Color.Blue);
              
@@ -172,7 +211,7 @@ namespace AINamespace
                     if (state != States.Rotating)
                     {
                         formation.MakePositionsRelative();
-                        RotateOrder(formation.RotationAngle);
+                        RotateOrder(formation.Angle);
                         state = States.Rotating;
                     }
                     else
@@ -299,7 +338,7 @@ namespace AINamespace
                 pilotPos.Pilot.AttackClosest();
             }
         }
-        public void Update()
+        internal void Update()
         {
             if (IsOrdered) UpdateOrdered();
             else UpdateSwarm();
@@ -333,18 +372,29 @@ namespace AINamespace
                 ind++;
             }            
         }
+        /// <summary>
+        /// orderes squadron to fly to specified position
+        /// </summary>
+        /// <param name="FlyingPos">position to fly to</param>
         public void GoToOrder(GameVector FlyingPos)
         {
             state = States.Standing;
             behaviour = Behaviours.FlyingToTgt;
             flyingPos = FlyingPos;                        
         }
+        /// <summary>
+        /// orderes squadron to attack specified position
+        /// </summary>
+        /// <param name="FlyingPos">position to attack</param>
         public void AttackOrder(GameVector FlyingPos)
         {
             state = States.Standing;
             behaviour = Behaviours.Attacking;
             flyingPos = FlyingPos;
         }
+        /// <summary>
+        /// true if squadron's mass center is near it's flying target.
+        /// </summary>
         public bool ReceivedToFlyingTgt
         {
             get
@@ -367,7 +417,7 @@ namespace AINamespace
             formation.Leader.GoTo(new RelativeVector(leaderFlyingPos));
             formation.Leader.WeakAvoidingCollizions = true;
             int ind = 0;
-            UnitPilot.MaintainingOrderData orderData = new UnitPilot.MaintainingOrderData(formation.Leader, formation.RotationAngle, 40);
+            UnitPilot.MaintainingOrderData orderData = new UnitPilot.MaintainingOrderData(formation.Leader, formation.Angle, 40);
             foreach (Formation.PilotPositionPair pilotPos in formation)
             {
                 if (pilotPos.Pilot != formation.Leader)
@@ -388,10 +438,18 @@ namespace AINamespace
                 pilotPos.Pilot.StandBy(rotationAngle);
             }
         }
+        /// <summary>
+        /// adds a unit to squadron
+        /// </summary>
+        /// <param name="unitPilot">unit to add</param>
         public void AddUnit(UnitPilot unitPilot)
         {
 formation.Add(unitPilot);
         }
+        /// <summary>
+        /// removes unit from a squadron
+        /// </summary>
+        /// <param name="unitPilot">unit to remove</param>
         public void RemoveUnit(UnitPilot unitPilot)
         {
            formation.Remove(unitPilot);

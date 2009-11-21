@@ -22,11 +22,7 @@ namespace AINamespace
         /// <summary>
         /// dist from pivot to vector
         /// </summary>
-        float dist;
-        /// <summary>
-        /// not implemented
-        /// </summary>
-        float predictingTime = 0;
+        float dist;      
         enum Modes
         {
             ConstVector, UnitsSideAndDist, BetweenUnits, BetweenUnitsNearOne,UnitPosition

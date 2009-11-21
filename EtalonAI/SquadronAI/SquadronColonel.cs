@@ -17,6 +17,7 @@ namespace AINamespace
         enum States
         {
             Gathering,//pilots are flying to their positions
+            GatheringAtSpecifiedPosAngle,//gathering to a specified position and angle
             Rotating,//pilots on their positions are rotating to forward position            
             Flying,//flying to tgt
             Standing,//nothing
@@ -43,7 +44,11 @@ namespace AINamespace
             /// <summary>
             /// doing nothing
             /// </summary>
-            Waiting
+            Waiting,
+            /// <summary>
+            /// standing in order in specified place with specified angle
+            /// </summary>
+            Ordering
         }
         
         States state,neededState;
@@ -52,7 +57,10 @@ namespace AINamespace
         /// </summary>
         public Behaviours behaviour{get;private set;}
         Timer stateChangingTimer, reSortingTimer;
-        Formation formation;
+        /// <summary>
+        /// squadron units container
+        /// </summary>
+        public Formation formation { get; private set; }
         GameVector flyingPos;
         bool isOrdered;
         /// <summary>
@@ -83,7 +91,7 @@ namespace AINamespace
             neededState = States.Nothing;
             stateChangingTimer = new Timer(0.5f, game);
             behaviour = Behaviours.Waiting;
-            reSortingTimer = new Timer(5, game);
+            reSortingTimer = new Timer(2, game);
 
             List<UnitPilot>  pilots = new List<UnitPilot>();
             switch (FormationType)
@@ -105,10 +113,91 @@ namespace AINamespace
             neededState = States.Nothing;
             stateChangingTimer = new Timer(0.5f, game);
             behaviour = Behaviours.Waiting;
-            reSortingTimer = new Timer(5, game);
+            reSortingTimer = new Timer(2, game);
 
             List<UnitPilot> pilots = new List<UnitPilot>();
             formation = new SwarmFormation(pilots);            
+        }
+        /// <summary>
+        /// sets a new formation type
+        /// </summary>
+        /// <param name="NewType">new formation type</param>
+        public void SetFormationType(FormationTypes NewType)
+        {
+            isOrdered = NewType!= FormationTypes.Swarm;
+            state = States.Nothing;
+            neededState = States.Nothing;            
+            behaviour = Behaviours.Waiting;
+
+            UnitPilot Colonel = formation.Leader;
+            List<UnitPilot> pilots =new List<UnitPilot>();
+            foreach (Formation.PilotPositionPair pilotpos in formation.subordinates)
+            {                pilots.Add(pilotpos.Pilot);            }
+            switch (NewType)
+            {
+                case FormationTypes.Line: formation = new LineFormation(Colonel, pilots, 100, AngleClass.pi * 0.0f); break;
+                case FormationTypes.Bar: formation = new BarFormation(Colonel, pilots, 5, 200, 150, 0); break;
+                case FormationTypes.Stagger: formation = new StaggerFormation(Colonel, pilots, 90, 120); break;
+                case FormationTypes.Swarm: formation = new SwarmFormation(pilots); break;
+            }            
+        }
+        /// <summary>
+        /// Sets formation type to parametrized stagger
+        /// </summary>
+        /// <param name="WidthBetweenUnits">Width between two neirbours</param>
+        /// <param name="DepthBetweenUnits">Depth between two neirbours</param>
+        /// <param name="Angle">Rotation angle</param>
+        public void SetFormationTypeStagger(float WidthBetweenUnits, float DepthBetweenUnits,float Angle)
+        {
+            isOrdered = true;
+            state = States.Nothing;
+            neededState = States.Nothing;
+            behaviour = Behaviours.Waiting;
+
+            UnitPilot Colonel = formation.Leader;
+            List<UnitPilot> pilots = new List<UnitPilot>();
+            foreach (Formation.PilotPositionPair pilotpos in formation.subordinates)
+            { pilots.Add(pilotpos.Pilot); }
+            formation = new StaggerFormation(Colonel, pilots,WidthBetweenUnits, DepthBetweenUnits);
+            formation.SetAngle(Angle);
+        }
+        /// <summary>
+        /// Sets formation type to parametrized bar
+        /// </summary>
+        /// <param name="CUnitsInLine"></param>
+        /// <param name="WidthBetweenUnits">Width between two neirbours</param>
+        /// <param name="DepthBetweenUnits">Depth between two neirbours</param>
+        /// <param name="Angle">Rotation angle</param>
+        public void SetFormationTypeBar(int CUnitsInLine,float WidthBetweenUnits, float DepthBetweenUnits,float Angle)
+        {
+            isOrdered = true;
+            state = States.Nothing;
+            neededState = States.Nothing;
+            behaviour = Behaviours.Waiting;
+
+            UnitPilot Colonel = formation.Leader;
+            List<UnitPilot> pilots = new List<UnitPilot>();
+            foreach (Formation.PilotPositionPair pilotpos in formation.subordinates)
+            { pilots.Add(pilotpos.Pilot); }
+            formation = new BarFormation(Colonel, pilots, CUnitsInLine, WidthBetweenUnits, DepthBetweenUnits,Angle);
+        }
+        /// <summary>
+        /// Sets formation type to parametrized line
+        /// </summary>
+        /// <param name="WidthBetweenUnits">Width between two neirbours</param>
+        /// <param name="Angle">Rotation angle</param>
+        public void SetFormationTypeLine(float WidthBetweenUnits,float Angle)
+        {
+            isOrdered = true;
+            state = States.Nothing;
+            neededState = States.Nothing;
+            behaviour = Behaviours.Waiting;
+
+            UnitPilot Colonel = formation.Leader;
+            List<UnitPilot> pilots = new List<UnitPilot>();
+            foreach (Formation.PilotPositionPair pilotpos in formation.subordinates)
+            { pilots.Add(pilotpos.Pilot); }
+            formation = new LineFormation(Colonel, pilots, WidthBetweenUnits, Angle);
         }
         private void UpdateOrdered()        
         {
@@ -123,14 +212,32 @@ namespace AINamespace
                 
                 switch (behaviour)
                 {
+                    case Behaviours.Ordering:
+                        if (formation.PositionHoldingMistake() < 0.05f)
+                        {
+                            if (formation.AngleHoldingMistake > 0.1f)
+                                neededState = States.Rotating;
+                            else
+                            {
+                                behaviour = Behaviours.Waiting;
+                                //neededState = States.Fighting;
+                            }
+                        }
+                        else
+                        { neededState = States.GatheringAtSpecifiedPosAngle; }
+                        break;
                     case Behaviours.Waiting:
 
-                        if (AngleClass.Distance(newAngle, formation.Angle) > AngleClass.pi * 0.20f)
-                            formation.SetAngle(newAngle);
+                        //if (AngleClass.Distance(newAngle, formation.Angle) > AngleClass.pi * 0.20f)
+                        //{
+                        //    formation.SetAngle(newAngle);
+                        //}
+                        neededState = States.Standing;
                         if (formation.PositionHoldingMistake() < 0.05f)
                         { neededState = States.Rotating; }
                         else
                         { neededState = States.Gathering; }
+                        
 
                         break;
                     case Behaviours.Defending:
@@ -185,12 +292,21 @@ namespace AINamespace
                         break;
                 }
             }
+            
+            //debug
+            if (formation.CloseEnemyExists(formation.Leader.ControlledUnit.ShootingRadius))
+            {
+                neededState = States.Fighting;
+            }
 
             switch (neededState)
             {
                 case States.Gathering:
                     if (state != States.Gathering)
-                    { GatherOrder(); state = States.Gathering; }
+                    { 
+                        Gather(formation.GetMassCenter(),formation.Angle); 
+                        state = States.Gathering; 
+                    }
                     else
                     {
                         if (reSortingTimer.TimeElapsed)
@@ -198,8 +314,28 @@ namespace AINamespace
                             reSortingTimer.Reset();
                             
                             formation.SortUnitsByNearanceToPositions();
-                           // GatherOrder();
-                          
+                            
+                            //if (formation.PositionHoldingMistake < 0.05f)
+                            //{
+                            //    neededState = States.Rotating;
+                            //}
+                        }
+                    }
+                    break;
+                case States.GatheringAtSpecifiedPosAngle:
+                    if (state != States.GatheringAtSpecifiedPosAngle)
+                    {
+                        Gather(GatherPosition, GatherAngle);
+                        state = States.GatheringAtSpecifiedPosAngle;
+                    }
+                    else
+                    {
+                        if (reSortingTimer.TimeElapsed)
+                        {
+                            reSortingTimer.Reset();
+
+                            formation.SortUnitsByNearanceToPositions();
+                             
                             //if (formation.PositionHoldingMistake < 0.05f)
                             //{
                             //    neededState = States.Rotating;
@@ -219,6 +355,7 @@ namespace AINamespace
                         if (stateChangingTimer.TimeElapsed)
                         {
                             stateChangingTimer.Reset();
+                            RotateOrder(formation.Angle);
                             //if (formation.AngleHoldingMistake < 0.2f)
                             //{
                             //    neededState = States.Flying;
@@ -236,12 +373,19 @@ namespace AINamespace
                 case States.Fighting:
                     if (state != States.Fighting)
                     {
-                        Fight();
+                        //Fight();
+                        foreach (Formation.PilotPositionPair pilotpos in formation.subordinates)
+                            pilotpos.Pilot.AttackClosest();
                         state = States.Fighting;
                     }
                     break;
                 case States.Standing:
-                    
+                    if (state != States.Standing)
+                    {
+                        state = States.Standing;
+                        foreach (Formation.PilotPositionPair pilotpos in formation.subordinates)
+                            pilotpos.Pilot.HoldPosition();
+                    }
                     break;
                 default :
                     break;
@@ -277,7 +421,7 @@ namespace AINamespace
                         break;
                     case Behaviours.Attacking:
                         neededState = States.Flying;
-                        if (formation.Count > 0 && formation.CloseEnemyExists(formation.Leader.ControlledUnit.ShootingRadius * 0.5f + formation.Leader.computer.StopDistance))
+                        if (formation.Count > 0 && formation.CloseEnemyExists(formation.subordinates[0].Pilot.ControlledUnit.ShootingRadius * 0.5f + formation.subordinates[0].Pilot.computer.StopDistance))
                         { neededState = States.Fighting; }
                         if (ReceivedToFlyingTgt)
                         { neededState = States.Standing; }
@@ -358,20 +502,39 @@ namespace AINamespace
                 pilotPos.Pilot.HoldPosition();
             }
         }
-        #region orders
-        private void GatherOrder()
+
+        private void Gather(GameVector position, float Angle)
         {
-            
+
             //formation = new BarFormation(pilots[0], pilots, 5, 200, 150, (flyingPos - formation.GetMassCenter()).Angle());
             //formation.SetAngle((flyingPos - formation.GetMassCenter()).Angle());
-            int ind=0;
-            formation.CreatePositions();
+            int ind = 0;
+            formation.CreatePositions(position, Angle);
             foreach (Formation.PilotPositionPair pilotPos in formation)
             {
                 pilotPos.Pilot.GoTo(formation.GetPosition(ind));
                 ind++;
-            }            
+            }
         }
+        float GatherAngle;
+        GameVector GatherPosition;
+        #region orders
+        
+        /// <summary>
+        /// order to create units order -
+        /// to create unit order in specified place with specified angle
+        /// </summary>
+        /// <param name="position">position of the new order</param>
+        /// <param name="Angle">angle of the new order</param>            
+        public void CreateUnitsOrderOrder(GameVector position,float Angle)
+        {
+            GatherAngle = Angle;
+            GatherPosition = position;
+            state = States.Standing;
+            behaviour = Behaviours.Ordering;           
+            formation.CreatePositions(position, Angle);              
+        }
+       
         /// <summary>
         /// orderes squadron to fly to specified position
         /// </summary>

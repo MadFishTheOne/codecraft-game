@@ -222,7 +222,7 @@ namespace CoreNamespace
             int currUnit = 0;
             while (currUnit < units.Count)
             {
-                if (units[currUnit].HP < 0)
+                if (units[currUnit].HP <= 0)
                 {
                     for (int i = 0; i < BlowDetalization; i++)
                     {

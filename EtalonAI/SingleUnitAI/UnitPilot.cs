@@ -530,6 +530,7 @@ namespace AINamespace
                         controlledUnit.RotationAngle);
 
 
+
                     float rotatingAngle = angleToFlyingTgt * (1 - RotatingIntensity) + angleToEscapingPt * RotatingIntensity;
                     SetAngle(rotatingAngle);
 
@@ -597,7 +598,7 @@ namespace AINamespace
         }
         float angleAim;
         void SetAngle(float Angle)
-        {
+        {            
             angleAim = Angle;
             rotatesToAngle = true;
         }
@@ -624,6 +625,7 @@ namespace AINamespace
                 //neededAcceleration=neededSpeed/dt
                 float neededAcceleration = AngleClass.Distance(controlledUnit.RotationAngle, angleAim)
                     / (AI.game.TimeElapsed * AI.game.TimeElapsed);
+                if (float.IsNaN(neededAcceleration)) neededAcceleration = 0;//id delta time is small than do not rotate
                 //AI.game.TimeElapsed
                 float AccelerationUp = Math.Min(controlledUnit.MaxRotationAcceleration, neededAcceleration);// *0.5f;//PROBABLY
                 float AccelerationDown = Math.Min(controlledUnit.MaxRotationAcceleration, neededAcceleration);

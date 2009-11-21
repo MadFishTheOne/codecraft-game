@@ -398,7 +398,7 @@ namespace CoreNamespace
             foreach (Shots.Shot shot in shots)
             { gameObjects.UpdateShot(shot); }
             for (int i = 0; i < units.Count; i++)
-                if (units[i].HP >= 0)
+                if (units[i].HP > 0)
                 {
                     MiniGameInterfaces.Rectangle rect1 = units[i].GetRectangle();
                     Circle Circle1 = rect1.GetBoundingCircle;
@@ -463,12 +463,15 @@ namespace CoreNamespace
             int sign = currTeam == 0 ? -1 : 1;
             int MaxShipsInLine = 8;
             int CShips = 0;
+            float WidthBetweenUnits = 250;
+            float DepthBetweenUnits = 250;
+            float DistBetweenTeams = 6000;
             float angle = (currTeam > 0) ?  Microsoft.Xna.Framework.MathHelper.Pi : 0;
             GameVector position;
             for (int i = 0; i < CDestroyers; i++)
             {
-                position = pos + new GameVector(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
-                position.X += 2000;
+                position = pos + new GameVector(DepthBetweenUnits * (CShips / MaxShipsInLine), WidthBetweenUnits * (CShips % MaxShipsInLine-MaxShipsInLine/2) + WidthBetweenUnits / 2 * ((CShips / MaxShipsInLine) % 2));
+                position.X += DistBetweenTeams/2;
                 position.X *= sign;
                 position.Y += 23;
                 units.Add(new Unit(ShipTypes.Destroyer, currTeam, position, angle, "Destroyer -" + i.ToString() + "-"));
@@ -476,8 +479,8 @@ namespace CoreNamespace
             }
             for (int i = 0; i < CCorvettes; i++)
             {
-                position = pos + new GameVector(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
-                position.X += 2000;
+                position = pos + new GameVector(DepthBetweenUnits * (CShips / MaxShipsInLine), WidthBetweenUnits * (CShips % MaxShipsInLine - MaxShipsInLine / 2) + WidthBetweenUnits / 2 * ((CShips / MaxShipsInLine) % 2));
+                position.X += DistBetweenTeams/2;
                 position.X *= sign;
                 position.Y += 23;
                 units.Add(new Unit(ShipTypes.Corvette, currTeam, position, angle, "Corvette -" + i.ToString() + "-"));
@@ -485,8 +488,8 @@ namespace CoreNamespace
             }
             for (int i = 0; i < CCruisers; i++)
             {
-                position = pos + new GameVector(150 * (CShips / MaxShipsInLine), 150 * (CShips % MaxShipsInLine) + 75 * ((CShips / MaxShipsInLine) % 2));
-                position.X += 2000;
+                position = pos + new GameVector(DepthBetweenUnits * (CShips / MaxShipsInLine), WidthBetweenUnits * (CShips % MaxShipsInLine - MaxShipsInLine / 2) + WidthBetweenUnits / 2 * ((CShips / MaxShipsInLine) % 2));
+                position.X += DistBetweenTeams/2;
                 position.X *= sign;
                 position.Y += 23;
                 units.Add(new Unit(ShipTypes.Cruiser, currTeam, position, angle, "Cruiser -" + i.ToString() + "-"));
@@ -495,6 +498,7 @@ namespace CoreNamespace
         }
         public void Reset(List<IAI> Players)
         {
+            timing = new TimingClass();
             Timing.TimeSpeed = 1.0f;
             Viewer.CameraPosition = new Microsoft.Xna.Framework.Vector3(0, 0, 9000);
             players = Players;

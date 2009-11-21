@@ -82,7 +82,7 @@ namespace AINamespace
         /// give orders for the unit to change it's behaviour
         /// </summary>
         public Behaviours behaviour { get; private set; }
-        RelativeVector tgtPosition;
+        
         IUnit target;
         Timer targetUpdateTime;//time to update target
         MaintainingOrderData maintainingInOrderData;

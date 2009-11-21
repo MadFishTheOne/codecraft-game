@@ -66,17 +66,41 @@ namespace AINamespace
                 return game;
             }
         }
+        /// <summary>
+        /// Converts vector to an outputable string
+        /// Output example for GameVector(56.45f,67.96f) is "(56;68)"
+        /// </summary>
+        /// <param name="vec">Vector to output</param>
+        /// <returns>Vector in a readable format</returns>
         public static string VectorToString(GameVector vec)
         {
             return "(" + Math.Round(vec.X) + ";" + Math.Round(vec.Y).ToString() + ")";
         }
         #endregion
         #region debug members
+        /// <summary>
+        /// List of currently alive friends 
+        /// </summary>
         public List<UnitPilot> friends;
+        /// <summary>
+        /// List of currently alive enemies
+        /// </summary>
         public List<IUnit> enemies;
+        /// <summary>
+        /// List of squadrons
+        /// It is recommended to add you squadrons to this list for automatic update
+        /// </summary>
         public List<SquadronColonel> squadrons;
+        /// <summary>
+        /// Class for analyzing enemy
+        /// </summary>
         public EnemyAnalyzing enemyAnalyzing;
         Timer analyzingTimer;
+        /// <summary>
+        /// AI initializing method
+        /// </summary>
+        /// <param name="PlayerNumber">Player number</param>
+        /// <param name="Game">Played game</param>
         public virtual void Init(int PlayerNumber, IGame Game)
         {
             
@@ -103,14 +127,18 @@ namespace AINamespace
             analyzingTimer = new Timer(3, game);
         }
         
-
+        /// <summary>
+        /// Updating AI
+        /// </summary>
         public virtual void Update()
         {
+          
             Time = game.Time;
             //if (attacktimer.TimeElapsed) Attack();
             for (int i = 0; i < friends.Count; i++)
             {
                 friends[i].Update();
+                //game.GeometryViewer.DrawRectangle(friends[i].computer.CreateMoveVolume(friends[i].ControlledUnit), Color.Green);
                 if (friends[i].ControlledUnit.HP <= 0)
                 {
                     friends.RemoveAt(i);

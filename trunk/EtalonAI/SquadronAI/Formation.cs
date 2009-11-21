@@ -31,7 +31,7 @@ namespace AINamespace
     /// <summary>
     /// class for containing units array and make them to hold array figure
     /// </summary>
-    public abstract class Formation:IEnumerable
+    public abstract class Formation : IEnumerable
     {
         /// <summary>
         /// leader of formation. other units are comparing their position with leader
@@ -81,7 +81,7 @@ namespace AINamespace
             {
                 subordinates.Add(new PilotPositionPair(pilot, new RelativeVector(GameVector.Zero)));
             }
-        
+
         }
         /// <summary>
         /// updates formation
@@ -113,34 +113,33 @@ namespace AINamespace
         /// </summary>
         public float Angle
         { get { return rotationAngle; } }
-        
-        
         /// <summary>
         /// calculates mistake of holding formation figure. Has no sense for swarm formation
         /// calculates max distance from unit to his position
         /// </summary>
         /// <returns>0 if ideal positioning, 1 if max mistake=100 and so on</returns>
         public float PositionHoldingMistake()
-        {            
-                float averageMistake = 0;
-                int ind = 0;
-                float maxMistake = 0;
-                float currMistake;
-                foreach (PilotPositionPair pilotPos in subordinates)
-                {
-                    currMistake=GameVector.DistanceSquared(pilotPos.Pilot.ControlledUnit.Position,pilotPos.Position.Value) / 10000;
-                    if (currMistake > maxMistake) { maxMistake = currMistake; }
+        {
+            float averageMistake = 0;
+            int ind = 0;
+            float maxMistake = 0;
+            float currMistake;
+            foreach (PilotPositionPair pilotPos in subordinates)
+            {
+                currMistake = GameVector.DistanceSquared(pilotPos.Pilot.ControlledUnit.Position, pilotPos.Position.Value) / 10000;
+                if (currMistake > maxMistake) { maxMistake = currMistake; }
 
-                    averageMistake += currMistake;
-                    ind++;
-                }
-            averageMistake/=subordinates.Count;
+                averageMistake += currMistake;
+                ind++;
+            }
+            averageMistake /= subordinates.Count;
             return maxMistake;//mistake ;
-            
+
         }
-        //0 if ideal positioning, 1 if average mistake=pi/2.     no! let it be max mistake
+        
         /// <summary>
-        /// calculates max mistake of units forward to formation forward direction
+        /// Calculates max mistake of units forward to formation forward direction.
+        /// Returns 0 if units are positioned ideal, 1 if max mistake is pi/2
         /// </summary>
         public float AngleHoldingMistake
         {
@@ -156,17 +155,17 @@ namespace AINamespace
                 //return mistake / subordinates.Count;
                 float MaxMistake = 0;
                 float currMistake;
-             
+
                 foreach (PilotPositionPair pilotPos in subordinates)
                 {
                     currMistake = AngleClass.Distance(pilotPos.Pilot.ControlledUnit.RotationAngle, rotationAngle) / (AngleClass.pi * 0.5f);
                     if (currMistake > MaxMistake) MaxMistake = currMistake;
-                   
+
                 }
                 return MaxMistake;
 
             }
-        }        
+        }
         /// <summary>
         /// gets a worst UnitPilot - pilot that has the biggest mistake of holding his place in formation order
         /// may be used to exclude pilot from squad and make squad to ahcive it's aims without that unit
@@ -177,15 +176,15 @@ namespace AINamespace
             float biggestMistake = 0;
             UnitPilot worstPilot = null;
             float currmistake;
-            int ind=0;
+            int ind = 0;
             foreach (PilotPositionPair pilotPos in subordinates)
             {
-                currmistake=GameVector.DistanceSquared(pilotPos.Pilot.ControlledUnit.Position, GetPosition(ind).Value) ;
-                if (biggestMistake<currmistake)
+                currmistake = GameVector.DistanceSquared(pilotPos.Pilot.ControlledUnit.Position, GetPosition(ind).Value);
+                if (biggestMistake < currmistake)
                 {
-                    biggestMistake=currmistake;
+                    biggestMistake = currmistake;
                     worstPilot = pilotPos.Pilot;
-                }                 
+                }
             }
             return worstPilot;
         }
@@ -208,15 +207,15 @@ namespace AINamespace
         /// </summary>
         public void SortUnitsByNearanceToPositions()
         {
-            int CPts=subordinates.Count;
+            int CPts = subordinates.Count;
             int[] PilotIndByPtInd = new int[CPts];
             int[] PtIndByPilotInd = new int[CPts];
+            bool complete = false;
             for (int i = 0; i < CPts; i++)
             {
                 PilotIndByPtInd[i] = -1;//no pilot
-                PtIndByPilotInd[i]=-1;//no point
+                PtIndByPilotInd[i] = -1;//no point
             }
-            bool complete=false;
             do
             {
                 complete = true;
@@ -245,48 +244,49 @@ namespace AINamespace
                             PilotIndByPtInd[PtIndByPilotInd[minDistPilotInd]] = -1;
                         if (PilotIndByPtInd[ptInd] != -1)
                             PtIndByPilotInd[PilotIndByPtInd[ptInd]] = -1;
-
-
                         PilotIndByPtInd[ptInd] = minDistPilotInd;//write pilot in the point
                         PtIndByPilotInd[minDistPilotInd] = ptInd;//write point in the pilot               
                     }
                 }
             } while (!complete);
 
+           
+
             //minimize maximum dist between unit and his position in order
             complete = false;
             do
             {
                 complete = true;
-                for (int currPos1=0;currPos1<subordinates.Count;currPos1++)
+                for (int currPos1 = 0; currPos1 < subordinates.Count; currPos1++)
                     for (int currPos2 = 0; currPos2 < subordinates.Count; currPos2++)
-                        if (currPos1!=currPos2)
-                    {
-                            int Pilot1Ind=PilotIndByPtInd[currPos1];
-                            int Pilot2Ind=PilotIndByPtInd[currPos2];
-                        float Pos1Pilot1DistSq = GameVector.DistanceSquared(subordinates[currPos1].Position.Value, subordinates[Pilot1Ind].Pilot.ControlledUnit.Position);
-                        float Pos2Pilot2DistSq = GameVector.DistanceSquared(subordinates[currPos2].Position.Value, subordinates[Pilot2Ind].Pilot.ControlledUnit.Position);
+                        if (currPos1 != currPos2)
+                        {
+                            
+                            int Pilot1Ind = PilotIndByPtInd[currPos1];
+                            int Pilot2Ind = PilotIndByPtInd[currPos2];
+                            float Pos1Pilot1DistSq = GameVector.DistanceSquared(subordinates[currPos1].Position.Value, subordinates[Pilot1Ind].Pilot.ControlledUnit.Position);
+                            float Pos2Pilot2DistSq = GameVector.DistanceSquared(subordinates[currPos2].Position.Value, subordinates[Pilot2Ind].Pilot.ControlledUnit.Position);
 
-                        float Pos1Pilot2DistSq = GameVector.DistanceSquared(subordinates[currPos1].Position.Value, subordinates[Pilot2Ind].Pilot.ControlledUnit.Position);
-                        float Pos2Pilot1DistSq = GameVector.DistanceSquared(subordinates[currPos2].Position.Value, subordinates[Pilot1Ind].Pilot.ControlledUnit.Position);
+                            float Pos1Pilot2DistSq = GameVector.DistanceSquared(subordinates[currPos1].Position.Value, subordinates[Pilot2Ind].Pilot.ControlledUnit.Position);
+                            float Pos2Pilot1DistSq = GameVector.DistanceSquared(subordinates[currPos2].Position.Value, subordinates[Pilot1Ind].Pilot.ControlledUnit.Position);
 
                             //if swaping position's pilots can will minimize maximum dist then do it
-                        if (Math.Max(Pos1Pilot1DistSq, Pos2Pilot2DistSq) > Math.Max(Pos1Pilot2DistSq, Pos2Pilot1DistSq))
-                        {
-                            complete = false;
+                            if (Math.Max(Pos1Pilot1DistSq, Pos2Pilot2DistSq) > Math.Max(Pos1Pilot2DistSq, Pos2Pilot1DistSq))
+                            {
+                                complete = false;
 
-                            PilotIndByPtInd[currPos1] = Pilot2Ind;
-                            PilotIndByPtInd[currPos2] = Pilot1Ind;
-                            PtIndByPilotInd[Pilot1Ind] = currPos2;
-                            PtIndByPilotInd[Pilot2Ind] = currPos1;
+                                PilotIndByPtInd[currPos1] = Pilot2Ind;
+                                PilotIndByPtInd[currPos2] = Pilot1Ind;
+                                PtIndByPilotInd[Pilot1Ind] = currPos2;
+                                PtIndByPilotInd[Pilot2Ind] = currPos1;
+                            }
                         }
-                    }
 
             } while (!complete);
 
 
             //order list of units by given indexes
-
+            if (subordinates.Count == 1) PilotIndByPtInd[0] = 0; //hack
             List<PilotPositionPair> newSubordinates = new List<PilotPositionPair>();
             for (int i = 0; i < subordinates.Count; i++)
             {
@@ -296,15 +296,28 @@ namespace AINamespace
             }
             subordinates.Clear();
             subordinates = newSubordinates;
+
+
+
+            //send units to their new positions
+            int ind = 0;
+            foreach (Formation.PilotPositionPair pilotPos in this)
+            {
+                if (PilotIndByPtInd[ind] != ind || PtIndByPilotInd[ind] != ind)
+                {
+                    pilotPos.Pilot.GoTo(this.GetPosition(ind));
+                }
+                ind++;
+            }
         }
         internal void MakePositionsRelative()
         {
             List<RelativeVector> newPositions = new List<RelativeVector>();
-            for (int i=0;i<subordinates.Count;i++)
+            for (int i = 0; i < subordinates.Count; i++)
             {
-                PilotPositionPair pilotPos = subordinates[i];            
+                PilotPositionPair pilotPos = subordinates[i];
                 float angle, dist;
-                dist = GameVector.Distance(Leader.ControlledUnit.Position,pilotPos.Position.Value);
+                dist = GameVector.Distance(Leader.ControlledUnit.Position, pilotPos.Position.Value);
                 angle = Leader.ControlledUnit.AngleTo(pilotPos.Position.Value);
                 pilotPos.Position = new RelativeVector(Leader.ControlledUnit, angle, dist);
                 //newPositions.Add(new RelativeVector(Leader.ControlledUnit, angle, dist));
@@ -320,12 +333,11 @@ namespace AINamespace
             GameVector center = GameVector.Zero;
             foreach (PilotPositionPair pilotPos in subordinates)
             {
-                center +=pilotPos.Pilot.ControlledUnit.Position;
+                center += pilotPos.Pilot.ControlledUnit.Position;
             }
             center /= (float)subordinates.Count;
             return center;
         }
-
         #region IEnumerable Members
 
         public IEnumerator GetEnumerator()
@@ -334,7 +346,6 @@ namespace AINamespace
         }
 
         #endregion
-
         //public void DrawPositions()
         //{
         //    for (int i = 0; i < subordinates.Count; i++)
@@ -360,8 +371,7 @@ namespace AINamespace
         /// creates positions for units in this formation
         /// </summary>
         public abstract void CreatePositions();
-
-
+        public abstract void CreatePositions(GameVector CenterPosition, float Angle);
         /// <summary>
         /// adds a unit to formation
         /// </summary>
@@ -369,7 +379,7 @@ namespace AINamespace
         public void Add(UnitPilot unitPilot)
         {
             if (leader == null) leader = unitPilot;
-            subordinates.Add(new PilotPositionPair( unitPilot,new RelativeVector( unitPilot.ControlledUnit.Position)));
+            subordinates.Add(new PilotPositionPair(unitPilot, new RelativeVector(unitPilot.ControlledUnit.Position)));
         }
         /// <summary>
         /// removes unit from formation
@@ -391,20 +401,19 @@ namespace AINamespace
         /// <returns>true if close enemy exists</returns>
         public bool CloseEnemyExists(float CloseDist)
         {
-                foreach (PilotPositionPair PilotPos in subordinates)
-                {
-                    if (PilotPos.Pilot.GetClosestEnemyDist() < CloseDist)
-                        return true;
-                }
-                return false;
-            
-        }
+            foreach (PilotPositionPair PilotPos in subordinates)
+            {
+                if (PilotPos.Pilot.GetClosestEnemyDist() < CloseDist)
+                    return true;
+            }
+            return false;
 
+        }
     }
     /// <summary>
     /// units are positioned in one line
     /// </summary>
-    class LineFormation:Formation
+    class LineFormation : Formation
     {
         float distBetweenUnits;
         /// <summary>
@@ -417,7 +426,7 @@ namespace AINamespace
             : base(Leader, Subordinates)
         {
             distBetweenUnits = DistBetweenUnits;
-            Line line = DefineLineFormation( rotationAngle);
+            Line line = DefineLineFormation(rotationAngle, GetMassCenter());
             CreateLinePositions(line);
             SortUnitsByNearanceToPositions();
         }
@@ -428,7 +437,7 @@ namespace AINamespace
         /// <param name="Subordinates">list of units</param>
         /// <param name="DistBetweenUnits">distance between neirbours</param>
         /// <param name="RotationAngle">forward angle in radians</param>
-        public LineFormation(UnitPilot Leader, List<UnitPilot> Subordinates, float DistBetweenUnits,float RotationAngle)
+        public LineFormation(UnitPilot Leader, List<UnitPilot> Subordinates, float DistBetweenUnits, float RotationAngle)
             : base(Leader, Subordinates)
         {
             distBetweenUnits = DistBetweenUnits;
@@ -437,35 +446,41 @@ namespace AINamespace
         }
         public override void CreatePositions()
         {
-            Line line = DefineLineFormation(rotationAngle);
+            Line line = DefineLineFormation(rotationAngle, GetMassCenter());
             CreateLinePositions(line);
             SortUnitsByNearanceToPositions();
         }
         private void CreateLinePositions(Line FormationPosition)
         {
-            GameVector PositionIncrement=(FormationPosition.pt2-FormationPosition.pt1)*(1/(float)(subordinates.Count-1));            
+            GameVector PositionIncrement = (FormationPosition.pt2 - FormationPosition.pt1) * (1 / (float)(subordinates.Count - 1));
             for (int i = 0; i < subordinates.Count; i++)
             {
-               subordinates[i].Position=new RelativeVector(FormationPosition.pt1 + PositionIncrement * i);
+                subordinates[i].Position = new RelativeVector(FormationPosition.pt1 + PositionIncrement * i);
             }
         }
-        private Line DefineLineFormation( float RotationAngle)
+        private Line DefineLineFormation(float RotationAngle, GameVector center)
         {
-            GameVector center = GetMassCenter();
-            float length = distBetweenUnits * (subordinates.Count-1);
-            GameVector toVertexDir = GameVector.UnitX.Rotate(RotationAngle+AngleClass.pi*0.5f)*0.5f*length;
+            float length = distBetweenUnits * (subordinates.Count - 1);
+            GameVector toVertexDir = GameVector.UnitX.Rotate(RotationAngle + AngleClass.pi * 0.5f) * 0.5f * length;
             return new Line(center + toVertexDir, center - toVertexDir);
         }
         public override void SetAngle(float newAngle)
         {
             rotationAngle = newAngle;
-            Line line = DefineLineFormation(rotationAngle);
+            Line line = DefineLineFormation(rotationAngle, GetMassCenter());
             CreateLinePositions(line);
             SortUnitsByNearanceToPositions();
         }
         public override FormationTypes Type
         {
             get { return FormationTypes.Line; }
+        }
+        public override void CreatePositions(GameVector CenterPosition, float Angle)
+        {
+            rotationAngle = Angle;
+            Line line = DefineLineFormation(rotationAngle, CenterPosition);
+            CreateLinePositions(line);
+            SortUnitsByNearanceToPositions();
         }
     }
     /// <summary>
@@ -483,20 +498,34 @@ namespace AINamespace
         /// <param name="WidthBetweenUnits">width between neirbours</param>
         /// <param name="HeightBetweenUnits">depth between neirbours</param>
         public StaggerFormation(UnitPilot Leader, List<UnitPilot> Subordinates, float WidthBetweenUnits, float HeightBetweenUnits)
-            :base(Leader,Subordinates)
+            : base(Leader, Subordinates)
         {
             widthBetweenUnits = WidthBetweenUnits;
             heightBetweenUnits = HeightBetweenUnits;
 
             CreatePositions();
         }
-        public override void  CreatePositions()
+        public override void CreatePositions()
+        {
+            CreatePositions(GetMassCenter(), rotationAngle);
+        }
+        public override void SetAngle(float newAngle)
+        {
+            rotationAngle = newAngle;
+            CreatePositions();
+        }
+        public override FormationTypes Type
+        {
+            get { return FormationTypes.Stagger; }
+        }
+        public override void CreatePositions(GameVector CenterPosition, float Angle)
         {
             if (subordinates.Count > 0)
             {
-                GameVector center = GetMassCenter();
+                rotationAngle = Angle;
+                GameVector center = CenterPosition;
                 float FormationLength = heightBetweenUnits * subordinates.Count / 2;
-                GameVector forward = GameVector.UnitX.Rotate(rotationAngle);
+                GameVector forward = GameVector.UnitX.Rotate(Angle);
                 GameVector right = forward.Rotate(AngleClass.pi * 0.5f);
                 int PositionInd;
 
@@ -513,15 +542,6 @@ namespace AINamespace
                 }
             }
         }
-        public override void SetAngle(float newAngle)
-        {
-            rotationAngle = newAngle;
-            CreatePositions();
-        }
-        public override FormationTypes Type
-        {
-            get { return FormationTypes.Stagger; }
-        }
     }
     /// <summary>
     /// units are positioned in bar with specified width and depth
@@ -529,7 +549,7 @@ namespace AINamespace
     class BarFormation : Formation
     {
         float widthBetweenUnits;
-        float heightBetweenUnits; 
+        float heightBetweenUnits;
         int cUnitsInLine;
         /// <summary>
         /// creates new instance
@@ -540,8 +560,8 @@ namespace AINamespace
         /// <param name="WidthBetweenUnits"></param>
         /// <param name="HeightBetweenUnits"></param>
         /// <param name="RotationAngle"></param>
-        public BarFormation(UnitPilot Leader,List<UnitPilot> Subordinates, int CUnitsInLine, float WidthBetweenUnits, float HeightBetweenUnits, float RotationAngle)
-            :base(Leader,Subordinates)
+        public BarFormation(UnitPilot Leader, List<UnitPilot> Subordinates, int CUnitsInLine, float WidthBetweenUnits, float HeightBetweenUnits, float RotationAngle)
+            : base(Leader, Subordinates)
         {
             cUnitsInLine = CUnitsInLine;
             rotationAngle = RotationAngle;
@@ -549,7 +569,7 @@ namespace AINamespace
             heightBetweenUnits = HeightBetweenUnits;
 
             CreatePositions();
-            
+
         }
         public override void CreatePositions()
         {
@@ -577,10 +597,14 @@ namespace AINamespace
         GameVector LinesPosDifference;
         private void DefineLinesFormation()
         {
-            LinesPosDifference = GameVector.UnitX.Rotate(rotationAngle);
+            DefineLinesFormation(rotationAngle);
+        }
+        private void DefineLinesFormation(float Angle)
+        {
+            LinesPosDifference = GameVector.UnitX.Rotate(Angle);
             NearUnitsPosDifference = LinesPosDifference.Rotate(AngleClass.pi * 0.5f);
             LinesPosDifference *= widthBetweenUnits;
-            NearUnitsPosDifference *= heightBetweenUnits;            
+            NearUnitsPosDifference *= heightBetweenUnits;
         }
         public override void SetAngle(float newAngle)
         {
@@ -590,6 +614,29 @@ namespace AINamespace
         public override FormationTypes Type
         {
             get { return FormationTypes.Bar; }
+        }
+        public override void CreatePositions(GameVector CenterPosition, float Angle)
+        {
+            if (subordinates.Count > 0)
+            {
+                rotationAngle = Angle;
+                GameVector center = CenterPosition;
+                DefineLinesFormation(Angle);
+                int CLines = (subordinates.Count - 1) / cUnitsInLine + 1;
+                int ind = 0;
+                for (int currLine = 0; currLine < CLines; currLine++)
+                {
+                    for (int currColumn = 0; currColumn < cUnitsInLine && ind < subordinates.Count; currColumn++)
+                    {
+                        subordinates[ind].Position =
+                            new RelativeVector(center -
+                            LinesPosDifference * (currLine - CLines * 0.5f + 0.5f) +
+                            NearUnitsPosDifference * (currColumn - cUnitsInLine * 0.5f + 0.5f));
+                        ind++;
+                    }
+                }
+                SortUnitsByNearanceToPositions();
+            }
         }
     }
     /// <summary>
@@ -614,6 +661,10 @@ namespace AINamespace
             get { return FormationTypes.Swarm; }
         }
         public override void CreatePositions()
+        {
+            //nothing to do
+        }
+        public override void CreatePositions(GameVector CenterPosition, float Angle)
         {
             //nothing to do
         }

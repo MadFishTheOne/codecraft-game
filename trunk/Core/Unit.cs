@@ -143,7 +143,7 @@ namespace CoreNamespace
         public float HP { get { return hp; } }
         public bool Dead
         {
-            get { return hp < 0; }
+            get { return hp <= 0; }
         }
         public string Name
         {
@@ -335,7 +335,7 @@ namespace CoreNamespace
         internal void Update()
         {
           
-            if (hp >= 0)
+            if (hp > 0)
             {
                 #region obsolete
                 if (goesToPoint)

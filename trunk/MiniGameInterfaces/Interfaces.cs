@@ -197,7 +197,7 @@ namespace MiniGameInterfaces
         /// multiplies vector with float by component
         /// </summary>
         /// <param name="pt1">vector to multiply</param>
-        /// <param name="pt2">float value to multiply</param>
+        /// <param name="op2">float value to multiply</param>
         /// <returns>result vector</returns>
         public static GameVector operator *(GameVector pt1, float op2)
         {
@@ -207,7 +207,7 @@ namespace MiniGameInterfaces
         /// divides vector by float
         /// </summary>
         /// <param name="pt1">vector to divide</param>
-        /// <param name="pt2">float to divide on</param>
+        /// <param name="op2">float to divide on</param>
         /// <returns>result vector</returns>
         public static GameVector operator /(GameVector pt1, float op2)
         {
@@ -287,7 +287,7 @@ namespace MiniGameInterfaces
             return (float)Math.Atan2(Y, X);
         }
         /// <summary>
-        /// normalizes a givven vector
+        /// normalizes a given vector
         /// </summary>
         /// <param name="pt">vector to normalize</param>
         /// <returns>normalized vector</returns>
@@ -361,6 +361,23 @@ namespace MiniGameInterfaces
         public GameVector Normalize()
         {
             return this / this.Length();
+        }
+        /// <summary>
+        /// Calculates angle direction to Target vector end from this vector end
+        /// </summary>
+        /// <param name="Target">target vector</param>
+        /// <returns>angle to target</returns>
+        public float AngleTo(GameVector Target)
+        {
+            return (Target - this).Angle();
+        }
+        /// <summary>
+        /// Changes vector length to specified value
+        /// </summary>
+        /// <param name="length">New vector length</param>
+        public void SetLength(float length)
+        {            
+            this *= length / Length();
         }
     }
     /// <summary>
@@ -700,7 +717,7 @@ namespace MiniGameInterfaces
                 }
                 else return false;//parallel but not on one line
                 //t1 = ((Start2.X - Start1.X) * (End2.Y - Start2.Y) + (End2.X - Start2.X) * (Start1.Y - Start2.Y))
-                /// ((End1.X - Start1.X) * (End2.Y - Start2.Y) - (End2.X - Start2.X) * (End1.Y - Start1.Y));
+                // ((End1.X - Start1.X) * (End2.Y - Start2.Y) - (End2.X - Start2.X) * (End1.Y - Start1.Y));
                 //t2 = (Start1.Y - Start2.Y) / (End2.Y - Start2.Y) + (End1.Y - Start1.Y) / (End2.Y - Start2.Y) * t1;
             }
             Intersection = Start1 + (End1 - Start1) * t1;
@@ -885,6 +902,12 @@ namespace MiniGameInterfaces
             size = new GameVector((forwardLeft - backLeft).Length(), (forwardLeft - forwardRight).Length());
             forward = (forwardLeft - backLeft).Normalize();
         }
+        /// <summary>
+        /// Creates new rectangle struct
+        /// </summary>
+        /// <param name="Center">Rectangle center</param>
+        /// <param name="Size">Size vector, X for length,Y for width</param>
+        /// <param name="Forward">Forward direction</param>
         public Rectangle(GameVector Center, GameVector Size, GameVector Forward)
         {
             Forward = Forward.Normalize();

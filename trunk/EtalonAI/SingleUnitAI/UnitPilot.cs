@@ -51,7 +51,12 @@ namespace AINamespace
             /// <summary>
             /// getting a right place in array
             /// </summary>
-            MaintainOrder                  
+            MaintainOrder    ,
+            /// <summary>
+            /// Doing nothing
+            /// </summary>
+            Nothing
+              
         }
         internal class MaintainingOrderData
         {
@@ -67,8 +72,8 @@ namespace AINamespace
             }
         }
         //CONST FIELDS
-        ShipTypes type;
-        int playerNumber;
+        
+        //int playerNumber;
         IUnit controlledUnit;
         Radar radar;
         /// <summary>
@@ -77,12 +82,23 @@ namespace AINamespace
         /// </summary>
         public OnBoardComputer computer { get; private set; }
         //STATE FIELDS
+        Behaviours b;
         /// <summary>
         /// current behaviour of this onit.
         /// give orders for the unit to change it's behaviour
         /// </summary>
-        public Behaviours behaviour { get; private set; }
-        
+        public Behaviours behaviour 
+        { 
+            get{return b;}
+            private set { b = value; if (b != Behaviours.Going) { } } 
+        }
+        /// <summary>
+        /// Unit position
+        /// </summary>
+        public GameVector Position
+        {
+            get { return controlledUnit.Position; }
+        }
         IUnit target;
         Timer targetUpdateTime;//time to update target
         MaintainingOrderData maintainingInOrderData;
@@ -107,7 +123,7 @@ namespace AINamespace
         /// ship type of controlled unit
         /// </summary>
         public ShipTypes Type
-        { get { return type; } }
+        { get { return controlledUnit.ShipType; } }
         //CTOR
         internal UnitPilot(IUnit ControlledUnit, AI AI)
         {
@@ -119,11 +135,12 @@ namespace AINamespace
             StandBy();
             escapeThreting = true;
             //SetFlightTgt(controlledUnit.Position + new GameVector(-500, 800));
-            targetUpdateTime = new Timer(1, AI.game);
-            speedAim = 0;
+            targetUpdateTime = new Timer(1);
+            relativeSpeedAim = 0;
             allowedSpeed = 0;
             AvoidingObstaclesEnabled = true;
-            timer = new Timer(0.05f, AI.game);
+            timer = new Timer(0.05f);
+            SetMaxSpeed(controlledUnit.MaxSpeed);
         }
         //METHODS
         /// <summary>
@@ -144,7 +161,7 @@ namespace AINamespace
         bool UpdateEnemy()
         {
             if (target != null && target.Dead) target = null;
-            targetUpdateTime.Update();
+            
             if (targetUpdateTime.TimeElapsed && (target == null || !computer.IsInThisShootRadius(target)))
             {
                 targetUpdateTime.Reset();
@@ -154,9 +171,9 @@ namespace AINamespace
                     //choose closest in the world
                     float minDistSq = float.PositiveInfinity;
                     float currDistSq;
-                    for (int i = 0; i < radar.Game.UnitsCount; i++)
+                    for (int i = 0; i < AI.game.UnitsCount; i++)
                     {
-                        IUnit unit = radar.Game.GetUnit(i);
+                        IUnit unit = AI.game.GetUnit(i);
                         if (!unit.Dead)
                         {
                             currDistSq = GameVector.DistanceSquared(unit.Position, controlledUnit.Position);
@@ -188,7 +205,7 @@ namespace AINamespace
         /// shoots if hitting enemy predicted
         /// hitting enemy predicted when enemy is on the shooting line and no friend unit is before him on shooting line
         /// </summary>
-        void ShootIfWillDamageEnemy()
+        public void ShootIfWillDamageEnemy()
         {
             if (target != null)
             {
@@ -201,6 +218,26 @@ namespace AINamespace
                         }
                 }
             }
+        }
+        /// <summary>
+        /// Determines if shoot wil damage enemy
+        /// </summary>
+        /// <param name="enemy">enemy to check</param>
+        /// <returns>true if shoot will damage enemy</returns>
+        public bool ShootWillDamageEnemy(IUnit enemy)
+        {
+            if (enemy != null)
+            {
+                if (computer.IsInThisShootRadius(enemy))
+                {
+                    if (computer.TargetingMistake(enemy) < 0.04f)
+                        if (!computer.PredictFriendlyFire(enemy))
+                        {
+                            return true;
+                        }
+                }
+            }
+            return false;
         }
         
         internal void MarshalingUpdate(UnitPilot Leader, float RotationAngle)
@@ -218,7 +255,7 @@ namespace AINamespace
         public bool ReceivedToFlyingTgt { get; private set; }
         internal void Update()
         {
-            timer.Update();
+            
             RemoveDeadTarget();
             //finite state machiene method. 
             //implements all behaviours of unit.
@@ -353,7 +390,11 @@ namespace AINamespace
                         UpdateRotatingToAngle();
                         if (target == null) Stop();
                     }
-                    else Stop();
+                    else
+                    {
+                        Stop();
+                        HoldPosition();
+                    }
                     break;
                 case Behaviours.GoingRamToClosest:
                     EnemyRecalculated = UpdateEnemy();
@@ -565,10 +606,12 @@ namespace AINamespace
         /// <returns>true if flying is finished</returns>
         bool FlyToTgt(bool StopNearTgt)
         {
+            
             if (flyingTgt != null && !flyingTgt.Invalid)
             {
                 float angleDifference = Math.Abs(AngleClass.Difference(controlledUnit.AngleTo(flyingTgt.Value), controlledUnit.RotationAngle));
                 bool TimeToStop = GameVector.DistanceSquared(flyingTgt.Value, controlledUnit.Position) < (computer.StopDistance + 15) * (computer.StopDistance + 15);
+                bool CloseToTgt = GameVector.DistanceSquared(flyingTgt.Value, controlledUnit.Position) < 50 * 50;
                 if (StopNearTgt && TimeToStop)
                 {
                     //if (allowedSpeed - allowedSpeedMaxDecrement > 0) allowedSpeed -= allowedSpeedMaxDecrement;
@@ -580,7 +623,7 @@ namespace AINamespace
                     {
                         //if (allowedSpeed - allowedSpeedMaxDecrement > controlledUnit.MaxSpeed / 6f) allowedSpeed -= allowedSpeedMaxDecrement;
                         //else allowedSpeed = controlledUnit.MaxSpeed / 6f;
-                        if (speedAim > controlledUnit.MaxSpeed / 6f) speedAim = controlledUnit.MaxSpeed / 6f;
+                        if (relativeSpeedAim > controlledUnit.MaxSpeed / 6f) relativeSpeedAim = controlledUnit.MaxSpeed / 6f;
                         //SetSpeed(0);
                     }
                     else
@@ -592,7 +635,7 @@ namespace AINamespace
                 SetSpeed(allowedSpeed);
                 SetAngle(controlledUnit.AngleTo(flyingTgt.Value));
                 //finishing flight is when unit is close to tgt and (unit is stopped or not need to stop)
-                return (TimeToStop && ((controlledUnit.Speed < controlledUnit.MaxSpeed * 0.1f) || !StopNearTgt));
+                return (CloseToTgt && TimeToStop && ((controlledUnit.Speed < controlledUnit.MaxSpeed * 0.1f) || !StopNearTgt));
             }
             else return true;
         }
@@ -684,28 +727,29 @@ namespace AINamespace
                     controlledUnit.RotationAccelerate(0);
             }
         }
-        float speedAim;
+        float relativeSpeedAim;
         //tested
         void SetSpeed(float Speed)
         {
-            speedAim = Speed;
+            relativeSpeedAim = Speed;
         }
         //twice tested
         void UpdateGoingToSpeed()
         {
-            if (controlledUnit.Speed < speedAim)
+            float AbsoluteSpeedAim = Math.Min(relativeSpeedAim, MaxSpeed);
+            if (controlledUnit.Speed < AbsoluteSpeedAim)
             {
                 controlledUnit.Accelerate(controlledUnit.MaxSpeedAcceleration);
             }
             else
             {
-                if (controlledUnit.Speed > speedAim)
+                if (controlledUnit.Speed > AbsoluteSpeedAim)
                 {
                     controlledUnit.Accelerate(-controlledUnit.MaxSpeedAcceleration);
                 }
                 else
                 {
-                    controlledUnit.Accelerate(speedAim - controlledUnit.Speed);
+                    controlledUnit.Accelerate(AbsoluteSpeedAim - controlledUnit.Speed);
                 }
             }
         }
@@ -750,9 +794,10 @@ namespace AINamespace
             //tgtPosition = Target;
             flyingTgt = Target;
             allowedSpeed = controlledUnit.Speed;
-            speedAim = controlledUnit.Speed;
-            allowedSpeed = 0;
-            speedAim = 0;
+            relativeSpeedAim = controlledUnit.Speed;
+            
+            //allowedSpeed = 0;
+            //relativeSpeedAim = 0;
             behaviour = Behaviours.Going;
 
         }
@@ -824,5 +869,23 @@ namespace AINamespace
             behaviour = Behaviours.MaintainOrder;
         }
         #endregion
+        float MaxSpeed;
+        /// <summary>
+        /// Sets maximum allowed speed for this unit
+        /// </summary>
+        /// <param name="speed">Maximum allowed speed</param>
+        public void SetMaxSpeed(float speed)
+        {
+            MaxSpeed = speed;
+            if (MaxSpeed > controlledUnit.MaxSpeed) MaxSpeed = controlledUnit.MaxSpeed;
+            if (MaxSpeed < 0) MaxSpeed = 0;
+        }
+        /// <summary>
+        /// Unit is uncontrolled
+        /// </summary>
+        public void NullOrder()
+        {
+            behaviour = Behaviours.Nothing;
+        }
     }
 }

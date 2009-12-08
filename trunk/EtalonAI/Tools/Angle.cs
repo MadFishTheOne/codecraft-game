@@ -7,7 +7,7 @@ namespace AINamespace
     /// <summary>
     /// class for simplifying working with angles
     /// </summary>
-    class AngleClass
+    public class AngleClass
     {
         /// <summary>
         /// pi

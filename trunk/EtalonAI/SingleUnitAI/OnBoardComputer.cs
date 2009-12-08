@@ -278,5 +278,15 @@ namespace AINamespace
 
             return res;
         }
+        /// <summary>
+        /// Determines whether unit is threated by enemy.
+        /// Threating means to be turned to this unit and to be in shooting radius
+        /// </summary>
+        /// <param name="enemy">enemy to check</param>
+        /// <returns>true if specified enemy is threating this unit</returns>
+        public bool IsThreatedBy(IUnit enemy)
+        {
+            return AngleClass.Distance(enemy.RotationAngle,enemy.Position.AngleTo(unit.Position))<AngleClass.pi / 180 * 5;            
+        }
     }
 }

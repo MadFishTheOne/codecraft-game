@@ -89,7 +89,8 @@ namespace MiniGame
                     if (t.GetInterface("IAI") != null)
                     {
                         IAI obj = Activator.CreateInstance(t) as IAI;
-                        plugins.Add(obj);
+                        if (obj.Description!="Library for simplifying user AI")
+                            plugins.Add(obj);
 
                         //System.Windows.Forms.MessageBox.Show("Plugin loaded! "+obj.Author+" "+obj.Description);
                     }

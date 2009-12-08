@@ -36,7 +36,7 @@ namespace AINamespace
         /// </summary>
         public virtual string Description
         {
-            get { return "lirary for simplifying user AI"; }
+            get { return "Library for simplifying user AI"; }
         }
         /// <summary>
         /// sets text to be outputed from AI;
@@ -90,7 +90,7 @@ namespace AINamespace
         /// List of squadrons
         /// It is recommended to add you squadrons to this list for automatic update
         /// </summary>
-        public List<SquadronColonel> squadrons;
+        public List<Squadron> squadrons;
         /// <summary>
         /// Class for analyzing enemy
         /// </summary>
@@ -107,7 +107,7 @@ namespace AINamespace
             playerNumber = PlayerNumber;
             friends = new List<UnitPilot>();
             enemies = new List<IUnit>();
-            squadrons = new List<SquadronColonel>();
+            squadrons = new List<Squadron>();
             game = Game;
             IUnit unit;            
        
@@ -124,7 +124,7 @@ namespace AINamespace
                     enemies.Add(unit);
             }
             enemyAnalyzing = new EnemyAnalyzing(enemies);
-            analyzingTimer = new Timer(3, game);
+            analyzingTimer = new Timer(3);
         }
         
         /// <summary>
@@ -157,13 +157,24 @@ namespace AINamespace
             {
                 squadrons[i].Update();
             }
-            analyzingTimer.Update();
+            
             if (analyzingTimer.TimeElapsed)
             {
                 enemyAnalyzing.Update();
                 analyzingTimer.Reset();
             }
         }
+        /// <summary>
+        /// Creates squadron 
+        /// Adds this squadron to the squadrons list
+        /// </summary>
+        /// <returns>Created squadron</returns>
+        public Squadron CreateSquadron()
+        {
+            Squadron squadron = new Squadron(null, game);
+            squadrons.Add(squadron);
+            return squadron;
+        }        
         #endregion
         #endregion
     }

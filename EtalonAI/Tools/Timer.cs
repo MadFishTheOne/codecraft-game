@@ -9,42 +9,31 @@ namespace AINamespace
     /// <summary>
     /// used to tick in given intervals
     /// </summary>
-    class Timer
+    public class Timer
     {
         static Random rand=new Random();
         float deltaTime;
         
         float prevTickTime;
-        bool timeElapsed;
-        IGame game;
+        //bool timeElapsed;
+        
 
         /// <summary>
         /// creates a new timer
         /// </summary>
-        /// <param name="DeltaTime">time intervals to tick</param>
-        /// <param name="Game">game</param>
-        public Timer(float DeltaTime,IGame Game)
+        /// <param name="DeltaTime">time intervals to tick</param>        
+        public Timer(float DeltaTime)
         {
-            deltaTime = DeltaTime;
-            game = Game;
-            prevTickTime = game.Time - deltaTime * (float)rand.NextDouble();
+            deltaTime = DeltaTime;            
+            prevTickTime = AI.game.Time - deltaTime * (float)rand.NextDouble();
             
-        }
-        /// <summary>
-        /// elapses time;
-        /// must be called every game loop
-        /// </summary>
-        public void Update()
-        {
-            timeElapsed =game.Time- prevTickTime >= deltaTime;
-            float t = game.Time - prevTickTime;
-        }
+        }        
         /// <summary>
         /// true if deltaTime was elapsed since last call of Reset()
         /// </summary>
         public bool TimeElapsed
         {
-            get { return timeElapsed; }
+            get { return AI.game.Time - prevTickTime >= deltaTime; }
         }
         /// <summary>
         /// resets timer;
@@ -52,15 +41,14 @@ namespace AINamespace
         /// </summary>
         public void Reset()
         {
-            prevTickTime = game.Time;
+            prevTickTime = AI.game.Time;
         }
         /// <summary>
         /// elapses time
         /// </summary>
         public void ExeedDeltaTime()
         {
-            prevTickTime = game.Time - deltaTime * 1.1f;
-            Update();
+            prevTickTime = AI.game.Time - deltaTime * 1.1f;            
         }
     }
 }
